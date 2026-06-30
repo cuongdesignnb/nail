@@ -1,0 +1,6 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="60" cy="60" r="51" stroke="#9c5b1e" stroke-width="3"/>
+  <circle cx="60" cy="60" r="42" stroke="#c68a4f" stroke-width="2"/>
+  <text x="23" y="75" font-family="Georgia, serif" font-size="64" font-weight="700" fill="#8a4b19">an</text>
+  <path d="M24 55L28 64L37 68L28 72L24 81L20 72L11 68L20 64L24 55Z" fill="#d7a96d"/>
+</svg>

@@ -1,0 +1,53 @@
+import {
+  Calendar,
+  ArrowRight,
+  Users,
+  Leaf,
+  Shield,
+  Heart,
+  Target,
+  Eye,
+  Gem,
+  Sparkles,
+  ShieldCheck,
+  BadgeCheck,
+  Flower,
+  HandHeart,
+  WandSparkles,
+  MessagesSquare,
+  Hand,
+  Brush,
+  Phone,
+  MapPin,
+  Clock,
+  Mail,
+} from "lucide-react";
+
+export function getIcon(name: string) {
+  const icons = {
+    calendar: Calendar,
+    arrow: ArrowRight,
+    users: Users,
+    leaf: Leaf,
+    shield: Shield,
+    heart: Heart,
+    target: Target,
+    eye: Eye,
+    gem: Gem,
+    sparkles: Sparkles,
+    "shield-check": ShieldCheck,
+    "badge-check": BadgeCheck,
+    flower: Flower,
+    "user-heart": HandHeart,
+    wand: WandSparkles,
+    "messages-square": MessagesSquare,
+    hand: Hand,
+    brush: Brush,
+    phone: Phone,
+    "map-pin": MapPin,
+    clock: Clock,
+    mail: Mail,
+  };
+
+  return icons[name as keyof typeof icons] || Sparkles;
+}

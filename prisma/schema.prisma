@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   @default("Manager")
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id            String    @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String    @unique
+  phone         String
+  totalSpent    Decimal   @default(0)
+  totalBookings Int       @default(0)
+  lastVisitAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  bookings      Booking[]
+}
+
+model ServiceCategory {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  services  Service[]
+  createdAt DateTime  @default(now())
+}
+
+model Service {
+  id          String           @id @default(cuid())
+  categoryId  String?
+  category    ServiceCategory? @relation(fields: [categoryId], references: [id])
+  name        String
+  slug        String           @unique
+  description String
+  duration    Int
+  price       Decimal
+  image       String?
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  items       BookingItem[]
+}
+
+model Technician {
+  id        String    @id @default(cuid())
+  name      String
+  role      String
+  specialty String
+  rating    Decimal   @default(5)
+  avatar    String?
+  createdAt DateTime  @default(now())
+  bookings  Booking[]
+}
+
+model Booking {
+  id               String        @id @default(cuid())
+  bookingCode      String        @unique
+  customerId       String
+  customer         Customer      @relation(fields: [customerId], references: [id])
+  technicianId     String?
+  technician       Technician?   @relation(fields: [technicianId], references: [id])
+  status           String
+  paymentStatus    String
+  scheduledStartAt DateTime
+  scheduledEndAt   DateTime
+  subtotal         Decimal
+  discountAmount   Decimal       @default(0)
+  taxAmount        Decimal       @default(0)
+  depositAmount    Decimal       @default(0)
+  totalAmount      Decimal
+  notes            String?
+  internalNotes    String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  items            BookingItem[]
+  payments         Payment[]
+}
+
+model BookingItem {
+  id        String  @id @default(cuid())
+  bookingId String
+  serviceId String
+  price     Decimal
+  duration  Int
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  service   Service @relation(fields: [serviceId], references: [id])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  bookingId String
+  amount    Decimal
+  status    String
+  provider  String   @default("manual")
+  createdAt DateTime @default(now())
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+}
+
+model Promotion {
+  id         String    @id @default(cuid())
+  code       String    @unique
+  title      String
+  amount     Decimal
+  type       String
+  active     Boolean   @default(true)
+  validUntil DateTime?
+}
+
+model InventoryItem {
+  id           String   @id @default(cuid())
+  name         String
+  sku          String   @unique
+  category     String
+  unit         String
+  currentStock Int
+  reorderLevel Int
+  supplier     String?
+  costPerUnit  Decimal
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  customer  String
+  rating    Int
+  text      String
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model GalleryItem {
+  id        String   @id @default(cuid())
+  title     String
+  category  String
+  image     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  excerpt   String
+  content   String
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String
+  action    String
+  entity    String
+  createdAt DateTime @default(now())
+}

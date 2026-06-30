@@ -26,54 +26,28 @@ import {
   WandSparkles,
   X
 } from "lucide-react";
+import { business, gallery as galleryItems, packages as packageItems, services as serviceItems, technicians } from "@/lib/data";
 
 const navItems = ["Home", "About", "Services", "Gallery", "Packages", "Promotions", "Blog", "Contact"];
 
-const services = [
-  { title: "Manicure", copy: "Classic to luxury manicure treatments", icon: HeartHandshake },
-  { title: "Pedicure", copy: "Relaxing pedicures for happy feet", icon: Sparkles },
-  { title: "Gel Polish", copy: "Long-lasting shine and flawless finish", icon: WandSparkles },
-  { title: "Nail Art", copy: "Custom nail art that expresses you", icon: Gem },
-  { title: "Spa Treatment", copy: "Rejuvenating spa for hands and feet", icon: Award },
-  { title: "Extensions", copy: "Strong, beautiful nail extensions", icon: Scissors }
-];
+const serviceIconMap = [HeartHandshake, Sparkles, WandSparkles, Gem, Award, Scissors];
+const services = serviceItems.slice(0, 6).map((service, index) => ({
+  title: service.name.replace("Classic ", "").replace("Luxury ", ""),
+  copy: service.description,
+  href: `/services/${service.slug}`,
+  icon: serviceIconMap[index] ?? Sparkles
+}));
 
-const gallery = [
-  "/nail-art-1.png",
-  "/nail-art-2.png",
-  "/nail-art-3.png",
-  "/hero-manicure.png",
-  "/nail-salon-interior.png",
-  "/nail-art-1.png"
-];
+const gallery = galleryItems.slice(0, 6).map((item) => item.image);
+const packages = packageItems.map((pkg) => ({
+  name: pkg.name,
+  price: `$${pkg.price}`,
+  copy: pkg.description,
+  items: pkg.serviceIds.map((id) => serviceItems.find((service) => service.id === id)?.name ?? id),
+  popular: pkg.featured
+}));
 
-const packages = [
-  {
-    name: "Essential Care",
-    price: "$45",
-    copy: "Perfect for regular maintenance and everyday beauty.",
-    items: ["Classic Manicure", "Classic Pedicure", "Nail Shape & Cuticle Care", "Regular Polish"]
-  },
-  {
-    name: "Signature Luxe",
-    price: "$75",
-    copy: "Our most loved package for the ultimate pampering.",
-    items: ["Luxury Manicure", "Luxury Pedicure", "Gel Polish Hands", "Paraffin Treatment"],
-    popular: true
-  },
-  {
-    name: "Premium Glam",
-    price: "$110",
-    copy: "Indulge in luxury with extended care and stunning results.",
-    items: ["Luxury Manicure", "Luxury Pedicure", "Gel Polish Hands & Feet", "Nail Art", "Paraffin Treatment"]
-  }
-];
-
-const experts = [
-  { name: "Emily Nguyen", role: "Nail Artist", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=85" },
-  { name: "Sophia Tran", role: "Senior Nail Technician", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=85" },
-  { name: "Lily Pham", role: "Nail Specialist", img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=500&q=85" }
-];
+const experts = technicians.slice(0, 3).map((tech) => ({ name: tech.name, role: tech.role, img: tech.avatar }));
 
 const features = [
   { title: "Premium Quality", copy: "Top-tier products for beautiful, long-lasting nails.", icon: Award },
@@ -147,7 +121,7 @@ function Logo() {
   return (
     <a className="logo" href="#home" aria-label="Aera Nail Lounge home">
       <Image src="/aera-mark.svg" alt="" width={58} height={58} priority />
-      <span>Aera Nail lounge</span>
+      <span>{business.name}</span>
     </a>
   );
 }
@@ -257,12 +231,12 @@ export default function Home() {
         <div id="services">
           <h2>Our Signature Services</h2>
           <div className="service-grid">
-            {services.map(({ title, copy, icon: Icon }, i) => (
+            {services.map(({ title, copy, href, icon: Icon }, i) => (
               <RevealDiv className="service-card" key={title} delay={i * 100}>
                 <Icon size={38} strokeWidth={1.3} />
                 <h3>{title}</h3>
                 <p>{copy}</p>
-                <a href="#contact" aria-label={`Book ${title}`}>
+                <a href={href} aria-label={`View ${title}`}>
                   <ArrowRight size={15} />
                 </a>
               </RevealDiv>
@@ -457,12 +431,12 @@ export default function Home() {
         <div id="contact">
           <h2>Ready to Treat Yourself?</h2>
           <p>Book your appointment today and let us pamper you with exceptional care.</p>
-          <a className="primary-btn pulse-btn" href="tel:+12354567890">Book Your Appointment <ArrowRight size={15} /></a>
+          <a className="primary-btn pulse-btn" href="/booking">Book Your Appointment <ArrowRight size={15} /></a>
         </div>
         <address>
-          <span><Phone size={26} /><b>Phone</b> (123) 456-7890</span>
-          <span><MapPin size={26} /><b>Location</b> 123 Beauty Blvd, Suite 100<br />Los Angeles, CA 90001</span>
-          <span><Clock3 size={26} /><b>Hours</b> Mon - Sun: 10:00 AM - 8:00 PM</span>
+          <span><Phone size={26} /><b>Phone</b> {business.phone}</span>
+          <span><MapPin size={26} /><b>Location</b> {business.address}</span>
+          <span><Clock3 size={26} /><b>Hours</b> {business.hours}</span>
         </address>
       </Reveal>
 
@@ -488,24 +462,24 @@ export default function Home() {
         </div>
         <div>
           <h3>Contact</h3>
-          <a href="tel:+12354567890"><Phone size={14} /> (123) 456-7890</a>
-          <a href="mailto:info@aeranailounge.com"><Mail size={14} /> info@aeranailounge.com</a>
-          <a href="#contact"><MapPin size={14} /> 123 Beauty Blvd</a>
+          <a href={`tel:+${business.rawPhone}`}><Phone size={14} /> {business.phone}</a>
+          <a href={`mailto:${business.email}`}><Mail size={14} /> {business.email}</a>
+          <a href="#contact"><MapPin size={14} /> {business.address}</a>
         </div>
       </footer>
 
       {/* ── PC Right Sidebar (Shake icons) ── */}
       <div className="pc-sidebar">
-        <a href="tel:+12354567890" className="sidebar-icon shake-icon" aria-label="Call us" style={{ animationDelay: "0s" }}>
+        <a href={`tel:+${business.rawPhone}`} className="sidebar-icon shake-icon" aria-label="Call us" style={{ animationDelay: "0s" }}>
           <Phone size={22} />
         </a>
         <a href="#contact" className="sidebar-icon shake-icon" aria-label="Book appointment" style={{ animationDelay: "0.3s" }}>
           <CalendarCheck size={22} />
         </a>
-        <a href="https://wa.me/12354567890" target="_blank" rel="noopener noreferrer" className="sidebar-icon shake-icon whatsapp-icon" aria-label="WhatsApp" style={{ animationDelay: "0.6s" }}>
+        <a href={`https://wa.me/${business.rawPhone}`} target="_blank" rel="noopener noreferrer" className="sidebar-icon shake-icon whatsapp-icon" aria-label="WhatsApp" style={{ animationDelay: "0.6s" }}>
           <MessageCircle size={22} />
         </a>
-        <a href="https://maps.google.com/?q=123+Beauty+Blvd+Los+Angeles" target="_blank" rel="noopener noreferrer" className="sidebar-icon shake-icon" aria-label="Find us on map" style={{ animationDelay: "0.9s" }}>
+        <a href={`https://maps.google.com/?q=${encodeURIComponent(business.address)}`} target="_blank" rel="noopener noreferrer" className="sidebar-icon shake-icon" aria-label="Find us on map" style={{ animationDelay: "0.9s" }}>
           <MapPin size={22} />
         </a>
       </div>
@@ -516,15 +490,15 @@ export default function Home() {
           <HomeIcon size={22} />
           <span>Home</span>
         </a>
-        <a href="#contact" className="mobile-bar-item">
+        <a href="/booking" className="mobile-bar-item">
           <Book size={22} />
           <span>Book</span>
         </a>
-        <a href="https://wa.me/12354567890" target="_blank" rel="noopener noreferrer" className="mobile-bar-item whatsapp-mobile">
+        <a href={`https://wa.me/${business.rawPhone}`} target="_blank" rel="noopener noreferrer" className="mobile-bar-item whatsapp-mobile">
           <MessageCircle size={22} />
           <span>WhatsApp</span>
         </a>
-        <a href="https://maps.google.com/?q=123+Beauty+Blvd+Los+Angeles" target="_blank" rel="noopener noreferrer" className="mobile-bar-item">
+        <a href={`https://maps.google.com/?q=${encodeURIComponent(business.address)}`} target="_blank" rel="noopener noreferrer" className="mobile-bar-item">
           <Map size={22} />
           <span>Map</span>
         </a>

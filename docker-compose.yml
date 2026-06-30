@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aera-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aera
+      POSTGRES_PASSWORD: aera_password
+      POSTGRES_DB: aera_nail
+    ports:
+      - "5432:5432"
+    volumes:
+      - aera_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aera -d aera_nail"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aera-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://aera:aera_password@postgres:5432/aera_nail?schema=public
+      NEXTAUTH_SECRET: local-dev-secret-change-me
+      NEXTAUTH_URL: http://localhost:3000
+      NODE_ENV: production
+    ports:
+      - "39487:3000"
+    volumes:
+      - aera_runtime:/app/.data
+
+volumes:
+  aera_postgres:
+  aera_runtime:

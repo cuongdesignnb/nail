@@ -4,5 +4,6 @@ out
 .vercel
 *.log
 .env*
+.data
 
 .vercel
