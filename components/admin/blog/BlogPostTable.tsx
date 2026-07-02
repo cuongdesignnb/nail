@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { FormSelect } from "@/components/common/FormField";
-import { Search, Edit2, Trash2, Copy, Send, Check } from "lucide-react";
+import { Search, Edit2, Trash2, Copy, Send, Check, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
@@ -241,6 +241,14 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
                           <Send size={13} />
                         </button>
                       )}
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        target="_blank"
+                        title="View Live Post"
+                        className="p-1.5 text-gray-500 hover:text-aera-accent inline-flex items-center justify-center"
+                      >
+                        <ExternalLink size={13} />
+                      </Link>
                       <button
                         onClick={() => onEdit(post)}
                         title="Edit Article"
