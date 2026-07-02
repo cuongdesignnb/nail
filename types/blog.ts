@@ -22,6 +22,18 @@ export type BlogCategoryDTO = {
   postCount?: number;
 };
 
+export type BlogPostFAQ = {
+  question: string;
+  answer: string;
+};
+
+export type BlogPostProduct = {
+  image: string;
+  name: string;
+  description: string;
+  shopUrl: string;
+};
+
 export type BlogPostDTO = {
   id: string;
   categoryId?: string | null;
@@ -46,6 +58,8 @@ export type BlogPostDTO = {
   seoTitle?: string | null;
   seoDescription?: string | null;
   seoKeywords?: string | null;
+  faqs?: BlogPostFAQ[] | null;
+  products?: BlogPostProduct[] | null;
   sortOrder?: number;
 };
 

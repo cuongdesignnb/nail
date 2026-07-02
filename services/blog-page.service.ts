@@ -104,6 +104,8 @@ export async function fetchBlogPageContent(params?: {
           ...featuredDb,
           publishedAt: featuredDb.publishedAt?.toISOString() || null,
           scheduledAt: featuredDb.scheduledAt?.toISOString() || null,
+          faqs: featuredDb.faqs as any,
+          products: featuredDb.products as any,
           category: featuredDb.category
             ? {
                 id: featuredDb.category.id,
@@ -130,6 +132,8 @@ export async function fetchBlogPageContent(params?: {
       ...p,
       publishedAt: p.publishedAt?.toISOString() || null,
       scheduledAt: p.scheduledAt?.toISOString() || null,
+      faqs: p.faqs as any,
+      products: p.products as any,
       category: p.category
         ? {
             id: p.category.id,
@@ -153,6 +157,8 @@ export async function fetchBlogPageContent(params?: {
       ...p,
       publishedAt: p.publishedAt?.toISOString() || null,
       scheduledAt: p.scheduledAt?.toISOString() || null,
+      faqs: p.faqs as any,
+      products: p.products as any,
       category: p.category
         ? {
             id: p.category.id,
@@ -186,6 +192,8 @@ export async function fetchBlogPageContent(params?: {
       coverImageAlt: p.coverImageAlt,
       status: "PUBLISHED",
       publishedAt: p.publishedAt?.toISOString() || null,
+      faqs: p.faqs as any,
+      products: p.products as any,
     }));
 
     // 10. Editor's Picks (isEditorsPick = true)
@@ -204,6 +212,8 @@ export async function fetchBlogPageContent(params?: {
       ...p,
       publishedAt: p.publishedAt?.toISOString() || null,
       scheduledAt: p.scheduledAt?.toISOString() || null,
+      faqs: p.faqs as any,
+      products: p.products as any,
       category: p.category
         ? {
             id: p.category.id,

@@ -69,6 +69,16 @@ export const blogPostSchema = z.object({
   seoTitle: z.string().optional().nullable(),
   seoDescription: z.string().optional().nullable(),
   seoKeywords: z.string().optional().nullable(),
+  faqs: z.array(z.object({
+    question: z.string(),
+    answer: z.string()
+  })).optional().nullable(),
+  products: z.array(z.object({
+    image: z.string(),
+    name: z.string(),
+    description: z.string(),
+    shopUrl: z.string()
+  })).optional().nullable(),
   sortOrder: z.number().int().default(0),
 });
 

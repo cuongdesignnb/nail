@@ -70,6 +70,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         seoTitle: body.seoTitle || null,
         seoDescription: body.seoDescription || null,
         seoKeywords: body.seoKeywords || null,
+        faqs: (body.faqs as any) || null,
+        products: (body.products as any) || null,
         sortOrder: body.sortOrder,
       },
     });

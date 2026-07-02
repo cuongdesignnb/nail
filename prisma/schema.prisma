@@ -659,6 +659,9 @@ model BlogPost {
   seoDescription  String?
   seoKeywords     String?
 
+  faqs            Json?
+  products        Json?
+
   sortOrder       Int             @default(0)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt

@@ -18,7 +18,7 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
   const [globalError, setGlobalError] = useState("");
 
   // Media picker states
-  const [activePickerTarget, setActivePickerTarget] = useState<"coverImage" | "authorAvatar" | null>(null);
+  const [activePickerTarget, setActivePickerTarget] = useState<string | null>(null);
 
   // Form fields
   const [categoryId, setCategoryId] = useState("");
@@ -45,6 +45,9 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
   const [seoDescription, setSeoDescription] = useState("");
   const [seoKeywords, setSeoKeywords] = useState("");
 
+  const [faqs, setFaqs] = useState<{ question: string; answer: string }[]>([]);
+  const [products, setProducts] = useState<{ image: string; name: string; description: string; shopUrl: string }[]>([]);
+
   useEffect(() => {
     if (initialData) {
       setCategoryId(initialData.categoryId || "");
@@ -66,6 +69,8 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
       setSeoTitle(initialData.seoTitle || "");
       setSeoDescription(initialData.seoDescription || "");
       setSeoKeywords(initialData.seoKeywords || "");
+      setFaqs(initialData.faqs ? (typeof initialData.faqs === "string" ? JSON.parse(initialData.faqs) : initialData.faqs) : []);
+      setProducts(initialData.products ? (typeof initialData.products === "string" ? JSON.parse(initialData.products) : initialData.products) : []);
 
       // Date parsing
       if (initialData.scheduledAt) {
@@ -87,6 +92,13 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
       setCoverImageAlt(alt || title);
     } else if (activePickerTarget === "authorAvatar") {
       setAuthorAvatar(url);
+    } else if (activePickerTarget && activePickerTarget.startsWith("product-")) {
+      const idx = Number(activePickerTarget.split("-")[1]);
+      const newProds = [...products];
+      if (newProds[idx]) {
+        newProds[idx].image = url;
+        setProducts(newProds);
+      }
     }
     setActivePickerTarget(null);
   };
@@ -135,6 +147,8 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
       seoTitle: seoTitle || null,
       seoDescription: seoDescription || null,
       seoKeywords: seoKeywords || null,
+      faqs: faqs.length > 0 ? faqs : null,
+      products: products.length > 0 ? products : null,
     };
 
     try {
@@ -413,6 +427,152 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
               />
             </div>
           )}
+        </div>
+
+        {/* FAQ Repeater Section */}
+        <div className="border-t border-aera-champagne/20 pt-6 space-y-4">
+          <h4 className="font-heading text-xs font-bold text-aera-accent flex items-center gap-1.5 uppercase">
+            <Sparkles size={13} />
+            Article FAQ Accordion (Repeater)
+          </h4>
+          <div className="space-y-4">
+            {faqs.map((faq, idx) => (
+              <div key={idx} className="bg-aera-cream/15 p-4 rounded-2xl border border-aera-champagne/40 space-y-3 relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFaqs(faqs.filter((_, fIdx) => fIdx !== idx));
+                  }}
+                  className="absolute top-2 right-2 text-rose-500 hover:text-rose-700 bg-transparent border-none cursor-pointer"
+                >
+                  <X size={14} />
+                </button>
+                <div className="grid grid-cols-1 gap-2">
+                  <FormField
+                    label={`Question #${idx + 1}`}
+                    value={faq.question}
+                    onChange={(e) => {
+                      const newFaqs = [...faqs];
+                      newFaqs[idx].question = e.target.value;
+                      setFaqs(newFaqs);
+                    }}
+                    placeholder="e.g. How often should I get my gel nails done?"
+                  />
+                  <FormTextarea
+                    label="Answer"
+                    value={faq.answer}
+                    onChange={(e) => {
+                      const newFaqs = [...faqs];
+                      newFaqs[idx].answer = e.target.value;
+                      setFaqs(newFaqs);
+                    }}
+                    placeholder="Write detailed answer..."
+                    rows={2}
+                  />
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setFaqs([...faqs, { question: "", answer: "" }])}
+              className="bg-white hover:bg-aera-cream text-aera-accent border border-aera-champagne px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+            >
+              <Plus size={13} />
+              <span>Add FAQ Item</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Recommended Products Repeater Section */}
+        <div className="border-t border-aera-champagne/20 pt-6 space-y-4">
+          <h4 className="font-heading text-xs font-bold text-aera-accent flex items-center gap-1.5 uppercase">
+            <Sparkles size={13} />
+            Recommended Care Products (Repeater)
+          </h4>
+          <div className="space-y-4">
+            {products.map((prod, idx) => (
+              <div key={idx} className="bg-aera-cream/15 p-4 rounded-2xl border border-aera-champagne/40 space-y-3 relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProducts(products.filter((_, pIdx) => pIdx !== idx));
+                  }}
+                  className="absolute top-2 right-2 text-rose-500 hover:text-rose-700 bg-transparent border-none cursor-pointer"
+                >
+                  <X size={14} />
+                </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-bold text-aera-ink uppercase">Product Image</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        placeholder="No image chosen"
+                        value={prod.image}
+                        className="flex-grow rounded-xl border border-aera-champagne/60 px-3 py-2 text-xs outline-none bg-gray-50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setActivePickerTarget(`product-${idx}`)}
+                        className="bg-aera-cream hover:bg-aera-champagne/30 text-aera-accent border border-aera-champagne px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                      >
+                        <ImageIcon size={12} />
+                        <span>Browse</span>
+                      </button>
+                    </div>
+                    {prod.image && (
+                      <div className="relative w-12 h-12 rounded-xl overflow-hidden border">
+                        <Image src={prod.image} alt="Product Preview" fill className="object-cover" />
+                      </div>
+                    )}
+                  </div>
+
+                  <FormField
+                    label="Product Name"
+                    value={prod.name}
+                    onChange={(e) => {
+                      const newProds = [...products];
+                      newProds[idx].name = e.target.value;
+                      setProducts(newProds);
+                    }}
+                    placeholder="e.g. Cuticle Oil"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    label="Description"
+                    value={prod.description}
+                    onChange={(e) => {
+                      const newProds = [...products];
+                      newProds[idx].description = e.target.value;
+                      setProducts(newProds);
+                    }}
+                    placeholder="e.g. Nourish & strengthen for healthy cuticles."
+                  />
+                  <FormField
+                    label="Shop URL Link"
+                    value={prod.shopUrl}
+                    onChange={(e) => {
+                      const newProds = [...products];
+                      newProds[idx].shopUrl = e.target.value;
+                      setProducts(newProds);
+                    }}
+                    placeholder="e.g. /booking or shop-link"
+                  />
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setProducts([...products, { image: "", name: "", description: "", shopUrl: "" }])}
+              className="bg-white hover:bg-aera-cream text-aera-accent border border-aera-champagne px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+            >
+              <Plus size={13} />
+              <span>Add Recommended Product</span>
+            </button>
+          </div>
         </div>
 
         {/* SEO configs tabs section */}
