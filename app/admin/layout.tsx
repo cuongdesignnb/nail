@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, CalendarDays, ClipboardList, Gem, Home, Inbox, LayoutDashboard, Package, Settings, Star, Users, Wrench } from "lucide-react";
+import { Bell, CalendarDays, ClipboardList, FileText, Gem, Home, Inbox, LayoutDashboard, Package, Settings, Star, Users, Wrench } from "lucide-react";
 import { business } from "@/lib/data";
 
 const nav = [
@@ -11,6 +11,7 @@ const nav = [
   ["Services", "/admin/services", Gem],
   ["Technicians", "/admin/technicians", Users],
   ["Packages", "/admin/packages", Package],
+  ["Blogs", "/admin/blog", FileText],
   ["Inventory", "/admin/inventory", Inbox],
   ["Promotions", "/admin/promotions", Star],
   ["Reviews", "/admin/reviews", Star],
