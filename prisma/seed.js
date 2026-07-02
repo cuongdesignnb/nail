@@ -1,5 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
+const fs = require("fs");
+const path = require("path");
 
 const prisma = new PrismaClient();
 
@@ -26,6 +28,21 @@ async function main() {
       type: "percentage",
       active: true,
       validUntil: new Date("2026-12-31")
+    }
+  });
+
+  const aboutJsonPath = path.join(__dirname, "..", "data", "about.default.json");
+  const defaultAboutContent = JSON.parse(fs.readFileSync(aboutJsonPath, "utf8"));
+  await prisma.sitePageContent.upsert({
+    where: { slug: "about" },
+    update: {},
+    create: {
+      slug: "about",
+      draftContent: defaultAboutContent,
+      publishedContent: defaultAboutContent,
+      updatedBy: "seed",
+      publishedBy: "seed",
+      publishedAt: new Date()
     }
   });
 

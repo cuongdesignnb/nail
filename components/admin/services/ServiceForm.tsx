@@ -1,0 +1,342 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { FormField, FormTextarea, FormSelect } from "@/components/common/FormField";
+import { ServiceCategoryDTO } from "@/types/services";
+import { Plus, Trash2 } from "lucide-react";
+
+interface ServiceFormProps {
+  categories: ServiceCategoryDTO[];
+  initialData?: any;
+  onSave: () => void;
+  onCancel: () => void;
+}
+
+export function ServiceForm({ categories, initialData, onSave, onCancel }: ServiceFormProps) {
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [priceLabel, setPriceLabel] = useState("");
+  const [durationMinutes, setDurationMinutes] = useState("");
+  const [durationLabel, setDurationLabel] = useState("");
+  const [image, setImage] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [isActive, setIsActive] = useState(true);
+  const [sortOrder, setSortOrder] = useState(0);
+  
+  // Dynamic features list
+  const [features, setFeatures] = useState<string[]>([]);
+  const [newFeature, setNewFeature] = useState("");
+
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [loading, setLoading] = useState(false);
+  const [globalError, setGlobalError] = useState("");
+
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name || "");
+      setSlug(initialData.slug || "");
+      setCategoryId(initialData.categoryId || "");
+      setShortDescription(initialData.shortDescription || "");
+      setDescription(initialData.description || "");
+      setPrice(initialData.price !== undefined && initialData.price !== null ? initialData.price.toString() : "");
+      setPriceLabel(initialData.priceLabel || "");
+      setDurationMinutes(initialData.durationMinutes !== undefined && initialData.durationMinutes !== null ? initialData.durationMinutes.toString() : "");
+      setDurationLabel(initialData.durationLabel || "");
+      setImage(initialData.image || "");
+      setImageAlt(initialData.imageAlt || "");
+      setIsFeatured(!!initialData.isFeatured);
+      setIsActive(initialData.isActive !== false);
+      setSortOrder(initialData.sortOrder || 0);
+      setFeatures(Array.isArray(initialData.features) ? initialData.features : []);
+    } else {
+      if (categories.length > 0) {
+        setCategoryId(categories[0].id);
+      }
+    }
+  }, [initialData, categories]);
+
+  const addFeature = () => {
+    if (newFeature.trim()) {
+      setFeatures([...features, newFeature.trim()]);
+      setNewFeature("");
+    }
+  };
+
+  const removeFeature = (idx: number) => {
+    setFeatures(features.filter((_, i) => i !== idx));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrors({});
+    setGlobalError("");
+
+    const payload = {
+      categoryId: categoryId || null,
+      name,
+      slug: slug || null,
+      shortDescription: shortDescription || null,
+      description: description || null,
+      price: price !== "" ? Number(price) : null,
+      priceLabel: priceLabel || null,
+      durationMinutes: durationMinutes !== "" ? Number(durationMinutes) : null,
+      durationLabel: durationLabel || null,
+      image: image || null,
+      imageAlt: imageAlt || null,
+      features,
+      isFeatured,
+      isActive,
+      sortOrder: Number(sortOrder),
+    };
+
+    try {
+      const url = initialData
+        ? `/api/admin/services/${initialData.id}`
+        : "/api/admin/services";
+      
+      const method = initialData ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        if (json.errors) {
+          setErrors(json.errors);
+        } else {
+          setGlobalError(json.message || "Failed to save service");
+        }
+      } else {
+        onSave();
+      }
+    } catch (error) {
+      console.error(error);
+      setGlobalError("A connection error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const categoryOptions = categories.map((cat) => ({
+    value: cat.id,
+    label: cat.name,
+  }));
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury w-full max-w-2xl mx-auto font-sans">
+      <h2 className="font-heading text-xl font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+        {initialData ? "Edit Service" : "Add New Service"}
+      </h2>
+
+      {globalError && (
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg p-3 mb-5">
+          {globalError}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          label="Service Name *"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g. Classic Manicure"
+          error={errors.name?.[0]}
+          required
+        />
+
+        <FormField
+          label="URL Slug (Optional)"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
+          placeholder="e.g. classic-manicure"
+          error={errors.slug?.[0]}
+          description="Lowercase alphanumeric with dashes. Generated from name if empty."
+        />
+
+        {categoryOptions.length > 0 && (
+          <FormSelect
+            label="Category"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            options={categoryOptions}
+            error={errors.categoryId?.[0]}
+          />
+        )}
+
+        <FormField
+          label="Sort Order"
+          type="number"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(Number(e.target.value))}
+          error={errors.sortOrder?.[0]}
+        />
+      </div>
+
+      <FormField
+        label="Short Description"
+        value={shortDescription}
+        onChange={(e) => setShortDescription(e.target.value)}
+        placeholder="Brief highlight display..."
+        error={errors.shortDescription?.[0]}
+      />
+
+      <FormTextarea
+        label="Full Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="Provide a detailed outline of this nail treatment..."
+        error={errors.description?.[0]}
+        rows={3}
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          label="Price ($)"
+          type="number"
+          step="0.01"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="e.g. 45"
+          error={errors.price?.[0]}
+        />
+
+        <FormField
+          label="Price Label"
+          value={priceLabel}
+          onChange={(e) => setPriceLabel(e.target.value)}
+          placeholder="e.g. $45 or From $15"
+          error={errors.priceLabel?.[0]}
+          description="Display label overrides raw price representation."
+        />
+
+        <FormField
+          label="Duration (Minutes)"
+          type="number"
+          value={durationMinutes}
+          onChange={(e) => setDurationMinutes(e.target.value)}
+          placeholder="e.g. 45"
+          error={errors.durationMinutes?.[0]}
+        />
+
+        <FormField
+          label="Duration Label"
+          value={durationLabel}
+          onChange={(e) => setDurationLabel(e.target.value)}
+          placeholder="e.g. 45 min or 20 min+"
+          error={errors.durationLabel?.[0]}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          label="Image Path / URL"
+          value={image}
+          onChange={(e) => setImage(e.target.value)}
+          placeholder="e.g. /images/salon-experience-2.jpg"
+          error={errors.image?.[0]}
+        />
+
+        <FormField
+          label="Image Alt Text"
+          value={imageAlt}
+          onChange={(e) => setImageAlt(e.target.value)}
+          placeholder="e.g. Classic Manicure Treatment"
+          error={errors.imageAlt?.[0]}
+        />
+      </div>
+
+      {/* Feature Tags Editor */}
+      <div className="mb-6 font-sans">
+        <label className="text-xs font-semibold text-aera-ink tracking-wide block mb-2">
+          Features / Key Highlights
+        </label>
+        
+        <div className="flex gap-2 mb-3">
+          <input
+            type="text"
+            value={newFeature}
+            onChange={(e) => setNewFeature(e.target.value)}
+            placeholder="Add key service item (e.g. Cuticle care)"
+            className="flex-grow rounded-lg border border-aera-champagne/60 px-3 py-2 text-xs font-sans text-aera-ink outline-none focus:border-aera-accent bg-white"
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addFeature(); } }}
+          />
+          <button
+            type="button"
+            onClick={addFeature}
+            className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-lg px-3 py-2 flex items-center justify-center border-none cursor-pointer"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
+
+        <ul className="space-y-1.5 pl-0">
+          {features.map((feature, idx) => (
+            <li key={idx} className="flex items-center justify-between bg-aera-champagne/15 px-3 py-1.5 rounded-lg border border-aera-champagne/30 text-xs">
+              <span className="text-aera-muted">{feature}</span>
+              <button
+                type="button"
+                onClick={() => removeFeature(idx)}
+                className="text-rose-500 hover:text-rose-700 bg-transparent border-none cursor-pointer p-1 rounded hover:bg-rose-50"
+              >
+                <Trash2 size={13} />
+              </button>
+            </li>
+          ))}
+          {features.length === 0 && (
+            <p className="text-[10px] text-aera-muted italic">No features added yet.</p>
+          )}
+        </ul>
+      </div>
+
+      <div className="flex gap-4 border-t border-aera-champagne/40 pt-5 mt-5">
+        <label className="inline-flex items-center gap-2 cursor-pointer font-sans text-xs">
+          <input
+            type="checkbox"
+            checked={isFeatured}
+            onChange={(e) => setIsFeatured(e.target.checked)}
+            className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+          />
+          <span>Featured Service</span>
+        </label>
+
+        <label className="inline-flex items-center gap-2 cursor-pointer font-sans text-xs">
+          <input
+            type="checkbox"
+            checked={isActive}
+            onChange={(e) => setIsActive(e.target.checked)}
+            className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+          />
+          <span>Active Status</span>
+        </label>
+      </div>
+
+      <div className="flex justify-end gap-3 mt-8 border-t border-aera-champagne/40 pt-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="border border-aera-champagne text-aera-muted hover:bg-aera-champagne/10 rounded-full px-5 py-2 text-xs font-semibold cursor-pointer font-sans"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-full px-6 py-2 text-xs font-semibold cursor-pointer border-none font-sans"
+        >
+          {loading ? "Saving..." : "Save Service"}
+        </button>
+      </div>
+    </form>
+  );
+}
+export default ServiceForm;

@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -32,27 +33,40 @@ model Customer {
 }
 
 model ServiceCategory {
-  id        String    @id @default(cuid())
-  name      String
-  slug      String    @unique
-  services  Service[]
-  createdAt DateTime  @default(now())
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  icon        String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  services    Service[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Service {
-  id          String           @id @default(cuid())
-  categoryId  String?
-  category    ServiceCategory? @relation(fields: [categoryId], references: [id])
-  name        String
-  slug        String           @unique
-  description String
-  duration    Int
-  price       Decimal
-  image       String?
-  isActive    Boolean          @default(true)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  items       BookingItem[]
+  id              String           @id @default(cuid())
+  categoryId      String?
+  category        ServiceCategory? @relation(fields: [categoryId], references: [id])
+  name            String
+  slug            String           @unique
+  shortDescription String?
+  description     String?
+  duration        Int              @default(30)
+  durationMinutes Int?
+  durationLabel   String?
+  price           Decimal          @default(0)
+  priceLabel      String?
+  image           String?
+  imageAlt        String?
+  features        Json?
+  isFeatured      Boolean          @default(false)
+  isActive        Boolean          @default(true)
+  sortOrder       Int              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  items           BookingItem[]
 }
 
 model Technician {
@@ -145,24 +159,23 @@ model Review {
 }
 
 model GalleryItem {
-  id        String   @id @default(cuid())
-  title     String
-  category  String
-  image     String
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id          String           @id @default(cuid())
+  categoryId  String?
+  category    GalleryCategory? @relation(fields: [categoryId], references: [id])
+  title       String
+  slug        String           @unique
+  description String?
+  image       String
+  imageAlt    String?
+  tag         String?
+  isHighlight Boolean          @default(false)
+  isActive    Boolean          @default(true)
+  sortOrder   Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
 
-model BlogPost {
-  id        String   @id @default(cuid())
-  title     String
-  slug      String   @unique
-  excerpt   String
-  content   String
-  published Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+
 
 model AuditLog {
   id        String   @id @default(cuid())
@@ -171,3 +184,500 @@ model AuditLog {
   entity    String
   createdAt DateTime @default(now())
 }
+
+model SitePageContent {
+  id               String    @id @default(cuid())
+  slug             String    @unique
+  draftContent     Json
+  publishedContent Json?
+  version          Int       @default(1)
+  updatedBy        String?
+  publishedBy      String?
+  publishedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([slug])
+}
+
+model ServiceAddon {
+  id          String   @id @default(cuid())
+  name        String
+  price       Decimal?
+  priceLabel  String?
+  description String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ServicePackage {
+  id          String   @id @default(cuid())
+  name        String
+  subtitle    String?
+  price       Decimal?
+  priceLabel  String?
+  badge       String?
+  features    Json?
+  isPopular   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ServiceFaq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ServiceGalleryItem {
+  id        String   @id @default(cuid())
+  title     String?
+  image     String
+  imageAlt  String?
+  tag       String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ServicesPageSetting {
+  id                    String   @id @default(cuid())
+  heroEyebrow           String?
+  heroTitle             String?
+  heroHighlight         String?
+  heroDescription       String?
+  heroImage             String?
+  heroImageAlt          String?
+  primaryButtonLabel    String?
+  primaryButtonHref     String?
+  secondaryButtonLabel  String?
+  secondaryButtonHref   String?
+  whyChooseTitle        String?
+  whyChooseDescription  String?
+  whyChooseImage        String?
+  ctaTitle              String?
+  ctaDescription        String?
+  ctaButtonLabel        String?
+  ctaButtonHref         String?
+  phone                 String?
+  email                 String?
+  address               String?
+  hours                 String?
+  seoTitle              String?
+  seoDescription        String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model GalleryPageSetting {
+  id                   String   @id @default(cuid())
+  seoTitle             String?
+  seoDescription       String?
+  heroEyebrow          String?
+  heroTitle            String?
+  heroHighlight        String?
+  heroDescription      String?
+  heroImage            String?
+  heroImageAlt         String?
+  primaryButtonLabel   String?
+  primaryButtonHref    String?
+  secondaryButtonLabel String?
+  secondaryButtonHref  String?
+  whyEyebrow           String?
+  whyTitle             String?
+  whyDescription       String?
+  whyImage             String?
+  whyImageAlt          String?
+  ctaTitle             String?
+  ctaDescription       String?
+  ctaButtonLabel       String?
+  ctaButtonHref        String?
+  phone                String?
+  email                String?
+  address              String?
+  hours                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model GalleryCategory {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  sortOrder   Int           @default(0)
+  isActive    Boolean       @default(true)
+  items       GalleryItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model GalleryCollection {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?
+  image       String
+  imageAlt    String?
+  designCount Int      @default(0)
+  sortOrder   Int      @default(0)
+  isFeatured  Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GalleryTrend {
+  id        String   @id @default(cuid())
+  title     String
+  image     String?
+  imageAlt  String?
+  slug      String   @unique
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GalleryProcessStep {
+  id          String   @id @default(cuid())
+  step        String
+  icon        String?
+  title       String
+  description String
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GalleryTestimonial {
+  id        String   @id @default(cuid())
+  name      String
+  avatar    String?
+  avatarAlt String?
+  rating    Int      @default(5)
+  quote     String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PackagePageSetting {
+  id                   String   @id @default(cuid())
+  seoTitle             String?
+  seoDescription       String?
+  heroEyebrow          String?
+  heroTitle            String?
+  heroHighlight        String?
+  heroDescription      String?
+  heroImage            String?
+  heroImageAlt         String?
+  primaryButtonLabel   String?
+  primaryButtonHref    String?
+  secondaryButtonLabel String?
+  secondaryButtonHref  String?
+  benefitsEyebrow      String?
+  benefitsTitle        String?
+  benefitsDescription  String?
+  benefitsImage        String?
+  benefitsImageAlt     String?
+  benefitsButtonLabel  String?
+  benefitsButtonHref   String?
+  comparisonTitle      String?
+  rewardsTitle         String?
+  occasionsTitle       String?
+  processTitle         String?
+  testimonialsTitle    String?
+  faqTitle             String?
+  ctaTitle             String?
+  ctaDescription       String?
+  ctaButtonLabel       String?
+  ctaButtonHref        String?
+  phone                String?
+  email                String?
+  address              String?
+  hours                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model PackageCategory {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  sortOrder   Int           @default(0)
+  isActive    Boolean       @default(true)
+  packages    NailPackage[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model NailPackage {
+  id               String           @id @default(cuid())
+  categoryId       String?
+  category         PackageCategory? @relation(fields: [categoryId], references: [id])
+  name             String
+  slug             String           @unique
+  subtitle         String?
+  shortDescription String?
+  description      String?
+  image            String?
+  imageAlt         String?
+  price            Decimal?
+  priceLabel       String?
+  durationLabel    String?
+  visitCountLabel  String?
+  badge            String?
+  features         Json?
+  isPopular        Boolean          @default(false)
+  isFeatured       Boolean          @default(true)
+  isActive         Boolean          @default(true)
+  sortOrder        Int              @default(0)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model PackageBenefit {
+  id          String   @id @default(cuid())
+  icon        String?
+  title       String
+  description String
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PackageComparisonFeature {
+  id             String   @id @default(cuid())
+  featureName    String
+  essentialValue String?
+  signatureValue String?
+  premiumValue   String?
+  vipValue       String?
+  sortOrder      Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model PackageReward {
+  id          String   @id @default(cuid())
+  icon        String?
+  title       String
+  description String
+  image       String?
+  imageAlt    String?
+  promoTitle  String?
+  promoValue  String?
+  buttonLabel String?
+  buttonHref  String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PackageOccasion {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  image       String?
+  imageAlt    String?
+  icon        String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PackageProcessStep {
+  id          String   @id @default(cuid())
+  step        String
+  icon        String?
+  title       String
+  description String
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PageTestimonial {
+  id        String   @id @default(cuid())
+  pageKey   String
+  name      String
+  role      String?
+  avatar    String?
+  avatarAlt String?
+  rating    Int      @default(5)
+  quote     String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pageKey])
+}
+
+model PageFaq {
+  id        String   @id @default(cuid())
+  pageKey   String
+  question  String
+  answer    String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pageKey])
+}
+
+model PageContentBlock {
+  id         String   @id @default(cuid())
+  pageKey    String
+  sectionKey String
+  blockKey   String
+  label      String?
+  value      String?
+  jsonValue  Json?
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([pageKey])
+  @@index([sectionKey])
+}
+
+model BlogPageSetting {
+  id                   String   @id @default(cuid())
+
+  seoTitle             String?
+  seoDescription       String?
+
+  heroEyebrow          String?
+  heroTitle            String?
+  heroHighlight        String?
+  heroDescription      String?
+  heroImage            String?
+  heroImageAlt         String?
+  primaryButtonLabel   String?
+  primaryButtonHref    String?
+  secondaryButtonLabel String?
+  secondaryButtonHref  String?
+
+  latestTitle          String?
+  browseTitle          String?
+  editorsPickTitle     String?
+  testimonialsTitle    String?
+
+  sidebarCategoriesTitle String?
+  sidebarTrendingTitle   String?
+  newsletterTitle        String?
+  newsletterDescription  String?
+  newsletterPlaceholder  String?
+  newsletterButtonLabel  String?
+
+  ctaTitle             String?
+  ctaDescription       String?
+  ctaButtonLabel       String?
+  ctaButtonHref        String?
+  phone                String?
+  email                String?
+  address              String?
+  hours                String?
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model BlogCategory {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  image       String?
+  imageAlt    String?
+  icon        String?
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+  posts       BlogPost[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum BlogPostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+model BlogPost {
+  id              String          @id @default(cuid())
+  categoryId      String?
+  category        BlogCategory?   @relation(fields: [categoryId], references: [id])
+
+  title           String
+  slug            String          @unique
+  excerpt         String?
+  content         String?
+  contentJson     Json?
+
+  coverImage      String?
+  coverImageAlt   String?
+
+  authorName      String?
+  authorAvatar    String?
+  authorRole      String?
+
+  readTimeMinutes Int?
+  status          BlogPostStatus  @default(DRAFT)
+
+  isFeatured      Boolean         @default(false)
+  isTrending      Boolean         @default(false)
+  isEditorsPick   Boolean         @default(false)
+  isPinned        Boolean         @default(false)
+
+  publishedAt     DateTime?
+  scheduledAt     DateTime?
+
+  seoTitle        String?
+  seoDescription  String?
+  seoKeywords     String?
+
+  sortOrder       Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model MediaAsset {
+  id          String   @id @default(cuid())
+  fileName    String
+  originalName String?
+  url         String
+  mimeType    String?
+  size        Int?
+  width       Int?
+  height      Int?
+  alt         String?
+  title       String?
+  folder      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
