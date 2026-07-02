@@ -1,0 +1,91 @@
+"use client";
+
+import React from "react";
+import Image from "next/image";
+import { Check } from "lucide-react";
+import { motion } from "framer-motion";
+
+interface MediaAsset {
+  id: string;
+  fileName: string;
+  originalName: string | null;
+  url: string;
+  mimeType: string | null;
+  size: number | null;
+  width: number | null;
+  height: number | null;
+  alt: string | null;
+  title: string | null;
+  folder: string | null;
+  createdAt: string;
+}
+
+interface MediaCardProps {
+  asset: MediaAsset;
+  selected: boolean;
+  onSelect: () => void;
+}
+
+function formatSize(bytes: number | null): string {
+  if (!bytes) return "";
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)}KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+export function MediaCard({ asset, selected, onSelect }: MediaCardProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2 }}
+      onClick={onSelect}
+      className={`group relative aspect-square rounded-2xl overflow-hidden border cursor-pointer bg-white shadow-sm hover:shadow-md transition-all duration-200 ${
+        selected
+          ? "border-aera-accent ring-2 ring-aera-accent/30"
+          : "border-aera-champagne/50 hover:border-aera-accent/40"
+      }`}
+    >
+      {/* Image */}
+      <div className="relative w-full h-full">
+        <Image
+          src={asset.url}
+          alt={asset.alt || asset.fileName}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+      </div>
+
+      {/* Hover overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="absolute bottom-0 left-0 right-0 p-2">
+          <p className="text-[10px] text-white truncate font-medium">
+            {asset.originalName || asset.fileName}
+          </p>
+          <div className="flex items-center gap-2 text-[9px] text-white/70">
+            {asset.width && asset.height && (
+              <span>
+                {asset.width}×{asset.height}
+              </span>
+            )}
+            {asset.size && <span>{formatSize(asset.size)}</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Selected checkmark */}
+      {selected && (
+        <motion.span
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="absolute top-2 right-2 bg-aera-accent text-white p-1 rounded-full z-10 shadow-lg"
+        >
+          <Check size={10} strokeWidth={3} />
+        </motion.span>
+      )}
+    </motion.div>
+  );
+}
+
+export default MediaCard;

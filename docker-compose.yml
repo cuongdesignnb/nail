@@ -30,12 +30,16 @@ services:
       DATABASE_URL: postgresql://aera:aera_password@postgres:5432/aera_nail?schema=public
       NEXTAUTH_SECRET: local-dev-secret-change-me
       NEXTAUTH_URL: http://localhost:3000
+      AUTH_SECRET: local-dev-secret-change-me
+      STORAGE_PROVIDER: local
       NODE_ENV: production
     ports:
       - "39487:3000"
     volumes:
       - aera_runtime:/app/.data
+      - aera_uploads:/app/public/uploads
 
 volumes:
   aera_postgres:
   aera_runtime:
+  aera_uploads:

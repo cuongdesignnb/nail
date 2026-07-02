@@ -1834,6 +1834,45 @@ async function main() {
     });
   }
 
+  console.log("Seeding media folders...");
+  const mediaFolders = [
+    { name: "General", slug: "general", sortOrder: 0 },
+    { name: "About", slug: "about", sortOrder: 1 },
+    { name: "Services", slug: "services", sortOrder: 2 },
+    { name: "Gallery", slug: "gallery", sortOrder: 3 },
+    { name: "Packages", slug: "packages", sortOrder: 4 },
+    { name: "Blog", slug: "blog", sortOrder: 5 },
+    { name: "SEO", slug: "seo", sortOrder: 6 },
+    { name: "Team", slug: "team", sortOrder: 7 },
+    { name: "Promotions", slug: "promotions", sortOrder: 8 },
+  ];
+  for (const folder of mediaFolders) {
+    await prisma.mediaFolder.upsert({
+      where: { slug: folder.slug },
+      update: { name: folder.name, sortOrder: folder.sortOrder },
+      create: folder,
+    });
+  }
+
+  console.log("Seeding SEO metadata...");
+  const seoDefaults = [
+    { scopeKey: "page:home", pageKey: "home", title: "Aera Nail Lounge — Luxury Nail Salon", description: "Experience luxury nail care at Aera Nail Lounge. Premium manicures, pedicures, nail art & spa treatments." },
+    { scopeKey: "page:about", pageKey: "about", title: "About Us — Aera Nail Lounge", description: "Discover our story, our team of expert nail artists, and our commitment to luxury nail care." },
+    { scopeKey: "page:services", pageKey: "services", title: "Our Services — Aera Nail Lounge", description: "Explore our full range of manicure, pedicure, gel polish, nail art, spa treatments & extensions." },
+    { scopeKey: "page:gallery", pageKey: "gallery", title: "Gallery — Aera Nail Lounge", description: "Browse our nail art gallery featuring trending designs, collections, and client transformations." },
+    { scopeKey: "page:packages", pageKey: "packages", title: "Packages — Aera Nail Lounge", description: "Choose from our curated nail care packages designed for every occasion and budget." },
+    { scopeKey: "page:promotions", pageKey: "promotions", title: "Promotions — Aera Nail Lounge", description: "Check out our latest deals, seasonal offers, and exclusive discounts." },
+    { scopeKey: "page:contact", pageKey: "contact", title: "Contact Us — Aera Nail Lounge", description: "Get in touch with Aera Nail Lounge. Book an appointment, find our location, or reach us by phone." },
+    { scopeKey: "page:blog", pageKey: "blog", title: "Nail Beauty Journal — Aera Nail Lounge", description: "Read our expert tips on nail care, trending styles, beauty routines, and salon news." },
+  ];
+  for (const seo of seoDefaults) {
+    await prisma.seoMetadata.upsert({
+      where: { scopeKey: seo.scopeKey },
+      update: {},
+      create: seo,
+    });
+  }
+
   console.log("TS Seed completed successfully!");
 }
 
