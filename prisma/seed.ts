@@ -32,6 +32,52 @@ async function main() {
       validUntil: new Date("2026-12-31"),
     },
   });
+  // 2.5 Technicians
+  const technicianSeed = [
+    { id: "tech-emily", name: "Emily Nguyen", role: "Nail Artist", specialty: "Gel X, minimal art", rating: 4.9, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=85" },
+    { id: "tech-sophia", name: "Sophia Tran", role: "Senior Nail Technician", specialty: "Pedicure, BIAB", rating: 4.8, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=85" },
+    { id: "tech-lily", name: "Lily Pham", role: "Nail Specialist", specialty: "Nail art, gel polish", rating: 4.9, avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=500&q=85" },
+    { id: "tech-maria", name: "Maria Lee", role: "Spa Technician", specialty: "Spa treatment, luxury pedicure", rating: 4.7, avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=85" },
+  ];
+  for (const tech of technicianSeed) {
+    await prisma.technician.upsert({
+      where: { id: tech.id },
+      update: {},
+      create: { ...tech, rating: tech.rating, isActive: true },
+    });
+  }
+  console.log("Seeded technicians:", technicianSeed.length);
+
+  // 2.6 Reviews
+  const reviewSeed = [
+    { id: "review-1", customer: "Jessica M.", rating: 5, text: "The best nail salon experience. The staff is friendly, talented and incredibly detailed.", approved: true },
+    { id: "review-2", customer: "Amanda R.", rating: 5, text: "Beautiful salon, clean tools and my gel set lasted perfectly.", approved: true },
+    { id: "review-3", customer: "Kelly S.", rating: 4, text: "Calm, premium and very professional.", approved: true },
+  ];
+  for (const review of reviewSeed) {
+    await prisma.review.upsert({
+      where: { id: review.id },
+      update: {},
+      create: review,
+    });
+  }
+  console.log("Seeded reviews:", reviewSeed.length);
+
+  // 2.7 Inventory
+  const inventorySeed = [
+    { id: "inv-gel-polish", name: "Gel Polish", sku: "GEL-001", category: "Polish", unit: "bottle", currentStock: 8, reorderLevel: 10, supplier: "Aera Pro Supply", costPerUnit: 7.5 },
+    { id: "inv-acrylic-powder", name: "Acrylic Powder", sku: "ACR-001", category: "Extensions", unit: "jar", currentStock: 3, reorderLevel: 5, supplier: "Aera Pro Supply", costPerUnit: 12.0 },
+    { id: "inv-cuticle-oil", name: "Cuticle Oil", sku: "OIL-001", category: "Care", unit: "bottle", currentStock: 25, reorderLevel: 10, supplier: "Beauty Supply Co", costPerUnit: 4.5 },
+    { id: "inv-nail-tips", name: "Nail Tips", sku: "TIP-001", category: "Extensions", unit: "box", currentStock: 2, reorderLevel: 5, supplier: "Aera Pro Supply", costPerUnit: 8.0 },
+  ];
+  for (const item of inventorySeed) {
+    await prisma.inventoryItem.upsert({
+      where: { sku: item.sku },
+      update: {},
+      create: { ...item, costPerUnit: item.costPerUnit, isActive: true },
+    });
+  }
+  console.log("Seeded inventory items:", inventorySeed.length);
 
   // 3. Service Categories
   const categories = [
