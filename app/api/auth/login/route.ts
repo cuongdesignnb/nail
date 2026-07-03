@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { signAdminSession } from "@/lib/auth/require-admin";
+import { prisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -18,10 +19,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "Invalid email or password" }, { status: 401 });
   }
 
-  const token = signAdminSession({ email, role: "Owner" });
+  // Look up user name from DB
+  const user = await prisma.user.findUnique({ where: { email }, select: { name: true, role: true } });
+  const role = (user?.role as "Owner" | "Manager") || "Owner";
+  const displayName = user?.name?.split(" ")[0] || "Admin";
+
+  const token = signAdminSession({ email, role });
   const secureCookie = (process.env.NEXTAUTH_URL || "").startsWith("https://");
   cookies().set("aera_admin_session", token, {
     httpOnly: true,
+    secure: secureCookie,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 8
+  });
+  // Non-httpOnly cookie so client JS can read admin name for greeting
+  cookies().set("adminName", displayName, {
+    httpOnly: false,
     secure: secureCookie,
     sameSite: "lax",
     path: "/",

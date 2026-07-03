@@ -32,6 +32,10 @@ export default function AdminDashboardClient() {
       setLoading(true);
       setError(null);
       const res = await fetch(`/api/admin/dashboard?range=${range}`);
+      if (res.status === 401 || res.status === 403) {
+        window.location.href = '/login?next=/admin';
+        return;
+      }
       if (!res.ok) throw new Error(`Failed to load dashboard (${res.status})`);
       const json = await res.json();
       setData(json.data);

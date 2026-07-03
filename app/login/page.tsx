@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("admin@aeranailounge.com");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,7 +25,8 @@ export default function LoginPage() {
       setLoading(false);
       return;
     }
-    router.push("/admin/settings/about");
+    const next = searchParams.get("next") || "/admin";
+    router.push(next);
   }
 
   return (
@@ -39,5 +41,13 @@ export default function LoginPage() {
         <button className="primary-btn" disabled={loading}>{loading ? "Signing in..." : "Sign In"}</button>
       </form>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
