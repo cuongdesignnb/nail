@@ -1873,6 +1873,18 @@ async function main() {
     });
   }
 
+  // Seed Business Settings
+  console.log("Seeding business settings...");
+  await prisma.businessSetting.upsert({
+    where: { key: "default" },
+    update: {},
+    create: {
+      key: "default",
+      timezone: "America/Los_Angeles",
+      currency: "USD",
+    },
+  });
+
   console.log("TS Seed completed successfully!");
 }
 

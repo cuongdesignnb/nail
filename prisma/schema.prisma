@@ -76,6 +76,7 @@ model Technician {
   specialty String
   rating    Decimal   @default(5)
   avatar    String?
+  isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   bookings  Booking[]
 }
@@ -98,6 +99,10 @@ model Booking {
   totalAmount      Decimal
   notes            String?
   internalNotes    String?
+  checkedInAt      DateTime?
+  completedAt      DateTime?
+  cancelledAt      DateTime?
+  noShowAt         DateTime?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   items            BookingItem[]
@@ -115,13 +120,15 @@ model BookingItem {
 }
 
 model Payment {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   bookingId String
   amount    Decimal
   status    String
-  provider  String   @default("manual")
-  createdAt DateTime @default(now())
-  booking   Booking  @relation(fields: [bookingId], references: [id])
+  provider  String    @default("manual")
+  currency  String    @default("USD")
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  booking   Booking   @relation(fields: [bookingId], references: [id])
 }
 
 model Promotion {
@@ -723,4 +730,13 @@ model SeoMetadata {
   updatedAt     DateTime @updatedAt
 
   @@index([pageKey])
+}
+
+model BusinessSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique @default("default")
+  timezone  String   @default("America/Los_Angeles")
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
