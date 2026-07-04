@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { FormField, FormTextarea } from "@/components/common/FormField";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 export function PackageSettingsForm() {
   const [loading, setLoading] = useState(false);
@@ -245,21 +246,18 @@ export function PackageSettingsForm() {
           error={errors.heroDescription?.[0]}
           rows={2}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            label="Hero Image Path / URL"
+        <div className="mb-6">
+          <MediaPickerField
+            label="Hero Image"
             value={heroImage}
-            onChange={(e) => setHeroImage(e.target.value)}
-            placeholder="/images/packages-hero.jpg"
-            error={errors.heroImage?.[0]}
+            onChange={(url) => setHeroImage(url)}
+            alt={heroImageAlt}
+            onAltChange={(altVal) => setHeroImageAlt(altVal)}
+            folder="packages"
           />
-          <FormField
-            label="Hero Image Alt Text"
-            value={heroImageAlt}
-            onChange={(e) => setHeroImageAlt(e.target.value)}
-            placeholder="Luxury pampering session"
-            error={errors.heroImageAlt?.[0]}
-          />
+          {errors.heroImage?.[0] && (
+            <p className="mt-1 text-xs text-rose-500">{errors.heroImage[0]}</p>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-aera-champagne/30 pt-4 mt-4">
           <FormField
@@ -322,21 +320,18 @@ export function PackageSettingsForm() {
           error={errors.benefitsDescription?.[0]}
           rows={2}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            label="Benefits Image URL"
+        <div className="mb-6">
+          <MediaPickerField
+            label="Benefits Image"
             value={benefitsImage}
-            onChange={(e) => setBenefitsImage(e.target.value)}
-            placeholder="/images/about-salon.jpg"
-            error={errors.benefitsImage?.[0]}
+            onChange={(url) => setBenefitsImage(url)}
+            alt={benefitsImageAlt}
+            onAltChange={(altVal) => setBenefitsImageAlt(altVal)}
+            folder="packages"
           />
-          <FormField
-            label="Benefits Image Alt"
-            value={benefitsImageAlt}
-            onChange={(e) => setBenefitsImageAlt(e.target.value)}
-            placeholder="Manicure workstations"
-            error={errors.benefitsImageAlt?.[0]}
-          />
+          {errors.benefitsImage?.[0] && (
+            <p className="mt-1 text-xs text-rose-500">{errors.benefitsImage[0]}</p>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-aera-champagne/30">
           <FormField

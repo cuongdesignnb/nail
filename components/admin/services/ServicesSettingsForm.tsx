@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { FormField, FormTextarea } from "@/components/common/FormField";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 export function ServicesSettingsForm() {
   const [loading, setLoading] = useState(false);
@@ -227,21 +228,18 @@ export function ServicesSettingsForm() {
           error={errors.heroDescription?.[0]}
           rows={2}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            label="Hero Image Path / URL"
+        <div className="mb-6">
+          <MediaPickerField
+            label="Hero Image"
             value={heroImage}
-            onChange={(e) => setHeroImage(e.target.value)}
-            placeholder="e.g. /images/about-hero-nail.jpg"
-            error={errors.heroImage?.[0]}
+            onChange={(url) => setHeroImage(url)}
+            alt={heroImageAlt}
+            onAltChange={(altVal) => setHeroImageAlt(altVal)}
+            folder="services"
           />
-          <FormField
-            label="Hero Image Alt Text"
-            value={heroImageAlt}
-            onChange={(e) => setHeroImageAlt(e.target.value)}
-            placeholder="e.g. Beautiful luxury manicure nails"
-            error={errors.heroImageAlt?.[0]}
-          />
+          {errors.heroImage?.[0] && (
+            <p className="mt-1 text-xs text-rose-500">{errors.heroImage[0]}</p>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-aera-champagne/30 pt-4 mt-4">
           <FormField
@@ -295,13 +293,17 @@ export function ServicesSettingsForm() {
           error={errors.whyChooseDescription?.[0]}
           rows={3}
         />
-        <FormField
-          label="Why Choose Collaged Image URL"
-          value={whyChooseImage}
-          onChange={(e) => setWhyChooseImage(e.target.value)}
-          placeholder="/images/about-salon.jpg"
-          error={errors.whyChooseImage?.[0]}
-        />
+        <div className="mb-6">
+          <MediaPickerField
+            label="Why Choose Collaged Image"
+            value={whyChooseImage}
+            onChange={(url) => setWhyChooseImage(url)}
+            folder="services"
+          />
+          {errors.whyChooseImage?.[0] && (
+            <p className="mt-1 text-xs text-rose-500">{errors.whyChooseImage[0]}</p>
+          )}
+        </div>
       </div>
 
       {/* CTA Section */}

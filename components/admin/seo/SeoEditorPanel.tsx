@@ -5,6 +5,7 @@ import { Save, AlertTriangle } from 'lucide-react';
 import { SeoSerpPreview } from './SeoSerpPreview';
 import { SeoSocialPreview } from './SeoSocialPreview';
 import { SeoRobotsControl } from './SeoRobotsControl';
+import SeoSchemaEditor from './SeoSchemaEditor';
 
 interface SeoData {
   title?: string;
@@ -262,22 +263,14 @@ export function SeoEditorPanel({ scopeKey, pageKey, initialData, onSave }: SeoEd
         siteName="Aera Nail Lounge"
       />
 
-      {/* Schema JSON */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-aera-muted">
-          Structured Data (JSON-LD)
-        </h3>
-        <textarea
-          value={form.schemaJson}
-          onChange={(e) => update('schemaJson', e.target.value)}
-          placeholder='{"@context":"https://schema.org",...}'
-          rows={8}
-          className={`${inputClass} font-mono text-xs`}
+      {/* Schema JSON - Enhanced with SeoSchemaEditor */}
+      <div className="rounded-xl border border-gray-200 bg-white p-5">
+        <SeoSchemaEditor
+          value={form.schemaJson || ''}
+          onChange={(val) => update('schemaJson', val)}
         />
-        <p className="text-xs text-aera-muted">
-          Optional custom JSON-LD structured data for this page
-        </p>
       </div>
     </div>
   );
 }
+

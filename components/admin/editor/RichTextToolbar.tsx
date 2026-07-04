@@ -23,7 +23,7 @@ import {
   Redo2,
 } from 'lucide-react';
 import { RichTextLinkDialog } from './RichTextLinkDialog';
-import { RichTextImageDialog } from './RichTextImageDialog';
+import { MediaPickerDialog } from '@/components/admin/media/MediaPickerDialog';
 
 interface RichTextToolbarProps {
   editor: Editor;
@@ -49,8 +49,8 @@ function ToolbarButton({
       disabled={disabled}
       title={title}
       className={`
-        flex h-8 w-8 items-center justify-center rounded-lg transition-colors
-        ${active ? 'bg-aera-champagne text-aera-accent' : 'text-aera-muted hover:bg-aera-champagne/50 hover:text-aera-ink'}
+        flex h-8 w-8 items-center justify-center rounded-lg transition-colors border-none bg-transparent
+        ${active ? 'bg-aera-champagne/40 text-aera-accent font-bold' : 'text-aera-muted hover:bg-aera-cream/50 hover:text-aera-ink'}
         ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
       `}
     >
@@ -76,7 +76,7 @@ export function RichTextToolbar({ editor }: RichTextToolbarProps) {
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-0.5 border-b border-gray-200 px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-aera-champagne/45 bg-aera-cream/10 px-2 py-1.5">
         {/* Text type */}
         <ToolbarButton
           onClick={() => editor.chain().focus().setParagraph().run()}
@@ -253,14 +253,21 @@ export function RichTextToolbar({ editor }: RichTextToolbarProps) {
           setLinkDialogOpen(false);
         }}
       />
-      <RichTextImageDialog
+      <MediaPickerDialog
         open={imageDialogOpen}
         onClose={() => setImageDialogOpen(false)}
-        onInsert={(src, alt) => {
-          if (src) {
-            editor.chain().focus().setImage({ src, alt: alt || '' }).run();
+        onSelect={(asset) => {
+          const selectedAsset = Array.isArray(asset) ? asset[0] : asset;
+          if (selectedAsset?.url) {
+            editor
+              .chain()
+              .focus()
+              .setImage({
+                src: selectedAsset.url,
+                alt: selectedAsset.alt || selectedAsset.originalName || 'Image',
+              })
+              .run();
           }
-          setImageDialogOpen(false);
         }}
       />
     </>

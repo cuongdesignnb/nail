@@ -76,11 +76,11 @@ function ItemsManagerPanel() {
       {/* Header */}
       <section className="admin-section-heading flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading">
+          <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading leading-snug mb-1.5">
             <Gift size={24} className="text-aera-accent" />
             Nail Package Cards
           </h1>
-          <p className="text-xs text-aera-muted mt-1">
+          <p className="text-xs text-aera-muted">
             Manage individual package layouts, pricing cards, and features.
           </p>
         </div>

@@ -54,11 +54,11 @@ export default function AdminServicesPage() {
       {/* Page Header */}
       <section className="admin-section-heading flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading">
+          <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading leading-snug mb-1.5">
             <Gem size={24} className="text-aera-accent" />
             Services Management
           </h1>
-          <p className="text-xs text-aera-muted mt-1">
+          <p className="text-xs text-aera-muted">
             Manage services menu items, details, pricing overrides, and availability.
           </p>
         </div>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Quicksand, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -8,10 +8,11 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-const inter = Inter({
-  subsets: ["latin"],
+const quicksand = Quicksand({
+  subsets: ["latin", "vietnamese"],
   variable: "--font-inter",
   display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -26,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body className={`${inter.variable} ${playfair.variable}`}>{children}</body>
+    <html lang="en" className={`${playfair.variable} ${quicksand.variable}`}>
+      <body className={`${quicksand.variable} ${playfair.variable}`}>{children}</body>
     </html>
   );
 }

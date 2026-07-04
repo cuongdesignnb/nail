@@ -76,11 +76,11 @@ export default function AdminBlogDashboard() {
     <div className="admin-page font-sans text-left p-6">
       {/* Header */}
       <section className="admin-section-heading mb-6">
-        <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading">
+        <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading leading-snug mb-1.5">
           <FileText size={24} className="text-aera-accent" />
           Journal Dashboard
         </h1>
-        <p className="text-xs text-aera-muted mt-1">
+        <p className="text-xs text-aera-muted">
           Monitor your publication schedule, categories, and reader reviews dynamically.
         </p>
       </section>

@@ -192,7 +192,7 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
   ];
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury text-left font-sans max-w-5xl mx-auto">
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury text-left font-sans max-w-4xl">
       {/* Header */}
       <div className="flex justify-between items-center border-b border-aera-champagne/40 pb-4 mb-6">
         <h3 className="font-heading text-lg font-normal text-aera-ink">

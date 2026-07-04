@@ -132,13 +132,19 @@ model Payment {
 }
 
 model Promotion {
-  id         String    @id @default(cuid())
-  code       String    @unique
-  title      String
-  amount     Decimal
-  type       String
-  active     Boolean   @default(true)
-  validUntil DateTime?
+  id               String    @id @default(cuid())
+  code             String    @unique
+  title            String
+  description      String?
+  amount           Decimal
+  type             String
+  active           Boolean   @default(true)
+  firstBookingOnly Boolean   @default(false)
+  validUntil       DateTime?
+  bannerImage      String?
+  termsHtml        String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model InventoryItem {
@@ -154,6 +160,8 @@ model InventoryItem {
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  movements    InventoryMovement[]
 }
 
 model Review {
@@ -185,11 +193,18 @@ model GalleryItem {
 
 
 model AuditLog {
-  id        String   @id @default(cuid())
-  actor     String
-  action    String
-  entity    String
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  actor       String
+  action      String
+  entity      String
+  entityType  String?
+  entityId    String?
+  performedBy String?
+  details     Json?
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([action])
 }
 
 model SitePageContent {
@@ -683,51 +698,90 @@ model MediaFolder {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  assets    MediaAsset[]
+
   @@index([parentId])
 }
 
 model MediaAsset {
-  id           String    @id @default(cuid())
-  fileName     String
-  originalName String?
-  url          String
-  mimeType     String?
-  size         Int?
-  width        Int?
-  height       Int?
-  alt          String?
-  title        String?
-  folder       String?
-  storageKey   String?
-  provider     String?   @default("local")
-  folderId     String?
-  uploadedBy   String?
-  isDeleted    Boolean   @default(false)
-  deletedAt    DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id               String    @id @default(cuid())
+  fileName         String
+  originalName     String?
+  url              String
+  mimeType         String?
+  originalMimeType String?
+  size             Int?
+  width            Int?
+  height           Int?
+  alt              String?
+  title            String?
+  folder           String?
+  storageKey       String?
+  provider         String?   @default("local")
+  folderId         String?
+  uploadedBy       String?
+  isDeleted        Boolean   @default(false)
+  deletedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  mediaFolder      MediaFolder? @relation(fields: [folderId], references: [id])
+  usages           MediaUsage[]
 
   @@index([folderId])
   @@index([isDeleted])
 }
 
+model MediaUsage {
+  id         String   @id @default(cuid())
+  mediaId    String
+  entityType String
+  entityId   String
+  fieldKey   String
+  createdAt  DateTime @default(now())
+
+  media      MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, entityType, entityId, fieldKey])
+  @@index([mediaId])
+  @@index([entityType, entityId])
+}
+
+model InventoryMovement {
+  id              String   @id @default(cuid())
+  inventoryItemId String
+  type            String   // "adjustment", "purchase", "usage", "return"
+  quantity        Int
+  previousStock   Int
+  newStock        Int
+  reason          String?
+  performedBy     String?
+  createdAt       DateTime @default(now())
+
+  item            InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  @@index([inventoryItemId])
+}
+
 model SeoMetadata {
-  id            String   @id @default(cuid())
-  scopeKey      String   @unique
-  pageKey       String
-  title         String?
-  description   String?
-  keywords      String?
-  canonicalPath String?
-  robots        String?
-  ogTitle       String?
-  ogDescription String?
-  ogImage       String?
-  ogImageAlt    String?
-  twitterCard   String?
-  schemaJson    Json?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(cuid())
+  scopeKey        String   @unique
+  pageKey         String
+  title           String?
+  description     String?
+  keywords        String?
+  focusKeyphrase  String?
+  canonicalPath   String?
+  robots          String?
+  ogTitle         String?
+  ogDescription   String?
+  ogImage         String?
+  ogImageMediaId  String?
+  ogImageAlt      String?
+  twitterCard     String?
+  schemaJson      Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([pageKey])
 }
@@ -740,3 +794,4 @@ model BusinessSetting {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+

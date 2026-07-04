@@ -80,11 +80,11 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <select
             value={categoryId}
             onChange={(e) => { setCategoryId(e.target.value); setPage(1); }}
-            className="rounded-lg border border-aera-champagne/65 bg-white px-3 py-2 text-xs text-aera-ink outline-none"
+            className="rounded-lg border border-aera-champagne/65 bg-white px-3 py-2 text-xs text-aera-ink outline-none w-full md:!w-[150px]"
           >
             <option value="">All Categories</option>
             {categories.map((c) => (
@@ -95,7 +95,7 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
           <select
             value={isActive}
             onChange={(e) => { setIsActive(e.target.value); setPage(1); }}
-            className="rounded-lg border border-aera-champagne/65 bg-white px-3 py-2 text-xs text-aera-ink outline-none"
+            className="rounded-lg border border-aera-champagne/65 bg-white px-3 py-2 text-xs text-aera-ink outline-none w-full md:!w-[140px]"
           >
             <option value="">All Status</option>
             <option value="true">Active Only</option>
@@ -105,7 +105,7 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
           <select
             value={isFeatured}
             onChange={(e) => { setIsFeatured(e.target.value); setPage(1); }}
-            className="rounded-lg border border-aera-champagne/65 bg-white px-3 py-2 text-xs text-aera-ink outline-none"
+            className="rounded-lg border border-aera-champagne/65 bg-white px-3 py-2 text-xs text-aera-ink outline-none w-full md:!w-[140px]"
           >
             <option value="">Featured Status</option>
             <option value="true">Featured Only</option>

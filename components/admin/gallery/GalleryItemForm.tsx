@@ -111,7 +111,7 @@ export function GalleryItemForm({ categories, initialData, onSave, onCancel }: G
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury text-left font-sans"
+      className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury text-left font-sans max-w-4xl"
     >
       <h3 className="font-heading text-lg font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
         {initialData ? "Edit Nail Design Item" : "Create Nail Design Item"}

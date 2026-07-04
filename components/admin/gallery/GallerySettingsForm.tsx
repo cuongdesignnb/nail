@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { FormField, FormTextarea } from "@/components/common/FormField";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 export function GallerySettingsForm() {
   const [loading, setLoading] = useState(false);
@@ -231,21 +232,18 @@ export function GallerySettingsForm() {
           error={errors.heroDescription?.[0]}
           rows={2}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            label="Hero Image Path / URL"
+        <div className="mb-6">
+          <MediaPickerField
+            label="Hero Image"
             value={heroImage}
-            onChange={(e) => setHeroImage(e.target.value)}
-            placeholder="/images/gallery-hero.jpg"
-            error={errors.heroImage?.[0]}
+            onChange={(url) => setHeroImage(url)}
+            alt={heroImageAlt}
+            onAltChange={(altVal) => setHeroImageAlt(altVal)}
+            folder="gallery"
           />
-          <FormField
-            label="Hero Image Alt Text"
-            value={heroImageAlt}
-            onChange={(e) => setHeroImageAlt(e.target.value)}
-            placeholder="Elegant luxury manicured nails"
-            error={errors.heroImageAlt?.[0]}
-          />
+          {errors.heroImage?.[0] && (
+            <p className="mt-1 text-xs text-rose-500">{errors.heroImage[0]}</p>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-aera-champagne/30 pt-4 mt-4">
           <FormField
@@ -308,21 +306,18 @@ export function GallerySettingsForm() {
           error={errors.whyDescription?.[0]}
           rows={3}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            label="Why Image URL"
+        <div className="mb-6">
+          <MediaPickerField
+            label="Why Choose Section Image"
             value={whyImage}
-            onChange={(e) => setWhyImage(e.target.value)}
-            placeholder="/images/about-salon.jpg"
-            error={errors.whyImage?.[0]}
+            onChange={(url) => setWhyImage(url)}
+            alt={whyImageAlt}
+            onAltChange={(altVal) => setWhyImageAlt(altVal)}
+            folder="gallery"
           />
-          <FormField
-            label="Why Image Alt"
-            value={whyImageAlt}
-            onChange={(e) => setWhyImageAlt(e.target.value)}
-            placeholder="Luxury Nail Lounge Interior"
-            error={errors.whyImageAlt?.[0]}
-          />
+          {errors.whyImage?.[0] && (
+            <p className="mt-1 text-xs text-rose-500">{errors.whyImage[0]}</p>
+          )}
         </div>
       </div>
 

@@ -76,7 +76,7 @@ export function RichTextEditor({
   if (!editor) return null;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white transition-colors focus-within:border-aera-accent">
+    <div className="rounded-xl border border-aera-champagne/60 bg-white transition-colors focus-within:border-aera-accent">
       <RichTextToolbar editor={editor} />
       <RichTextBubbleMenu editor={editor} />
       <div className="px-4 py-3">

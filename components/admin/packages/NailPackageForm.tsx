@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { FormField, FormTextarea, FormSelect } from "@/components/common/FormField";
 import { Plus, Trash2, X, Save } from "lucide-react";
 import { PackageCategoryDTO } from "@/types/packages";
+import { RichTextEditor } from "@/components/admin/editor/RichTextEditor";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 interface NailPackageFormProps {
   categories: PackageCategoryDTO[];
@@ -141,10 +143,14 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
   ];
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury text-left font-sans max-w-4xl mx-auto">
-      <h3 className="font-heading text-lg font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3 flex justify-between items-center">
-        <span>{initialData ? `Edit Package: ${initialData.name}` : "Create New Package"}</span>
-        <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer">
+    <div className="p-6 bg-white rounded-xl border border-aera-champagne/20">
+      <h3 className="text-sm font-bold text-aera-ink uppercase tracking-wide flex justify-between items-center mb-6">
+        {initialData ? "Edit Nail Package" : "Create New Nail Package"}
+        <button
+          type="button"
+          onClick={onCancel}
+          className="text-aera-muted hover:text-aera-ink cursor-pointer border-none bg-transparent p-1"
+        >
           <X size={16} />
         </button>
       </h3>
@@ -232,21 +238,18 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            label="Image URL/Path"
+        <div className="mb-6">
+          <MediaPickerField
+            label="Package Image"
             value={image}
-            onChange={(e) => setImage(e.target.value)}
-            placeholder="/images/package-signature.jpg"
-            error={errors.image?.[0]}
+            onChange={(url) => setImage(url)}
+            alt={imageAlt}
+            onAltChange={(altVal) => setImageAlt(altVal)}
+            folder="packages"
           />
-          <FormField
-            label="Image Alt Text"
-            value={imageAlt}
-            onChange={(e) => setImageAlt(e.target.value)}
-            placeholder="Signature luxe nail care details"
-            error={errors.imageAlt?.[0]}
-          />
+          {errors.image?.[0] && (
+            <p className="mt-1 text-xs text-rose-500">{errors.image[0]}</p>
+          )}
         </div>
 
         <FormTextarea
@@ -258,14 +261,19 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
           rows={2}
         />
 
-        <FormTextarea
-          label="Detailed Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Complete descriptive layout of the treatment..."
-          error={errors.description?.[0]}
-          rows={3}
-        />
+        <div className="mb-6 font-sans">
+          <label className="text-[11px] font-semibold text-aera-ink uppercase tracking-wide block mb-2">
+            Detailed Description
+          </label>
+          <RichTextEditor
+            value={description}
+            onChange={(html) => setDescription(html)}
+            placeholder="Complete descriptive layout of the treatment..."
+          />
+          {errors.description?.[0] && (
+            <p className="mt-1 text-xs text-rose-500">{errors.description[0]}</p>
+          )}
+        </div>
 
         {/* Dynamic feature checklist list */}
         <div className="border border-aera-champagne/30 rounded-2xl p-4 md:p-6 bg-aera-cream/10">

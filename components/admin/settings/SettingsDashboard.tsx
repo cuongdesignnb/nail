@@ -1,0 +1,126 @@
+"use client";
+
+import React, { useState } from "react";
+import {
+  Building2, Clock, FileText, Palette, Settings,
+} from "lucide-react";
+import { AdminPageHeader, AdminTabs } from "@/components/admin/ui";
+import SalonInfoSettings from "./SalonInfoSettings";
+import BusinessHoursSettings from "./BusinessHoursSettings";
+import BookingPolicySettings from "./BookingPolicySettings";
+import BrandingSettings from "./BrandingSettings";
+
+const SETTINGS_TABS = [
+  { key: "salon", label: "Salon Info", icon: Building2 },
+  { key: "hours", label: "Business Hours", icon: Clock },
+  { key: "policies", label: "Booking Policies", icon: FileText },
+  { key: "branding", label: "Branding", icon: Palette },
+  { key: "general", label: "General", icon: Settings },
+];
+
+export default function SettingsDashboard() {
+  const [activeTab, setActiveTab] = useState("salon");
+
+  return (
+    <div className="p-6 space-y-6">
+      <AdminPageHeader
+        title="Settings"
+        description="Salon information, business hours, booking policies, branding and general configuration."
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Settings" },
+        ]}
+      />
+
+      <AdminTabs tabs={SETTINGS_TABS} activeKey={activeTab} onChange={setActiveTab}>
+        {activeTab === "salon" && <SalonInfoSettings />}
+        {activeTab === "hours" && <BusinessHoursSettings />}
+        {activeTab === "policies" && <BookingPolicySettings />}
+        {activeTab === "branding" && <BrandingSettings />}
+        {activeTab === "general" && <GeneralSettings />}
+      </AdminTabs>
+    </div>
+  );
+}
+
+function GeneralSettings() {
+  const [timezone, setTimezone] = useState("America/Los_Angeles");
+  const [currency, setCurrency] = useState("USD");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  React.useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/admin/settings");
+        const json = await res.json();
+        if (json.success && json.data) {
+          setTimezone(json.data.timezone || "America/Los_Angeles");
+          setCurrency(json.data.currency || "USD");
+        }
+      } catch {}
+    }
+    load();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ timezone, currency }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      }
+    } catch (err) {
+      console.error("Save settings error:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inputClass =
+    "w-full rounded-xl border border-aera-champagne/60 bg-white px-3 py-2.5 text-xs text-aera-ink focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20";
+
+  return (
+    <div className="max-w-xl space-y-6">
+      <div className="rounded-2xl border border-aera-champagne/30 bg-white p-6 space-y-5">
+        <h3 className="text-sm font-bold text-aera-ink">General Settings</h3>
+
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold text-aera-ink">Timezone</label>
+          <select value={timezone} onChange={(e) => setTimezone(e.target.value)} className={inputClass}>
+            <option value="America/Los_Angeles">Pacific Time (LA)</option>
+            <option value="America/Denver">Mountain Time</option>
+            <option value="America/Chicago">Central Time</option>
+            <option value="America/New_York">Eastern Time</option>
+            <option value="Asia/Ho_Chi_Minh">Vietnam (ICT)</option>
+          </select>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="block text-xs font-semibold text-aera-ink">Currency</label>
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)} className={inputClass}>
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="VND">VND (₫)</option>
+          </select>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="rounded-full bg-aera-accent px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover disabled:opacity-40"
+        >
+          {saving ? "Saving..." : saved ? "Saved!" : "Save Changes"}
+        </button>
+      </div>
+    </div>
+  );
+}

@@ -9,11 +9,11 @@ export default function AdminCategoriesPage() {
     <div className="admin-page font-sans text-left p-6">
       {/* Page Header */}
       <section className="admin-section-heading mb-6">
-        <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading">
+        <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading leading-snug mb-1.5">
           <Layers size={24} className="text-aera-accent" />
           Service Categories
         </h1>
-        <p className="text-xs text-aera-muted mt-1">
+        <p className="text-xs text-aera-muted">
           Group nail treatments into categories like Manicure, Pedicure, and Gel Polish.
         </p>
       </section>

@@ -1,8 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FormField, FormTextarea, FormSelect } from "@/components/common/FormField";
+import { FormField, FormSelect } from "@/components/common/FormField";
 import { ServiceCategoryDTO } from "@/types/services";
 import { Plus, Trash2 } from "lucide-react";
+import { RichTextEditor } from "@/components/admin/editor/RichTextEditor";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 interface ServiceFormProps {
   categories: ServiceCategoryDTO[];
@@ -132,7 +134,7 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
   }));
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury w-full max-w-2xl mx-auto font-sans">
+    <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury w-full max-w-4xl font-sans">
       <h2 className="font-heading text-xl font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
         {initialData ? "Edit Service" : "Add New Service"}
       </h2>
@@ -189,14 +191,19 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
         error={errors.shortDescription?.[0]}
       />
 
-      <FormTextarea
-        label="Full Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Provide a detailed outline of this nail treatment..."
-        error={errors.description?.[0]}
-        rows={3}
-      />
+      <div className="mb-6 font-sans">
+        <label className="text-[11px] font-semibold text-aera-ink uppercase tracking-wide block mb-2">
+          Full Description
+        </label>
+        <RichTextEditor
+          value={description}
+          onChange={(html) => setDescription(html)}
+          placeholder="Provide a detailed outline of this nail treatment..."
+        />
+        {errors.description?.[0] && (
+          <p className="mt-1 text-xs text-rose-500">{errors.description[0]}</p>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
@@ -236,22 +243,18 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField
-          label="Image Path / URL"
+      <div className="mb-6">
+        <MediaPickerField
+          label="Service Image"
           value={image}
-          onChange={(e) => setImage(e.target.value)}
-          placeholder="e.g. /images/salon-experience-2.jpg"
-          error={errors.image?.[0]}
+          onChange={(url) => setImage(url)}
+          alt={imageAlt}
+          onAltChange={(altVal) => setImageAlt(altVal)}
+          folder="services"
         />
-
-        <FormField
-          label="Image Alt Text"
-          value={imageAlt}
-          onChange={(e) => setImageAlt(e.target.value)}
-          placeholder="e.g. Classic Manicure Treatment"
-          error={errors.imageAlt?.[0]}
-        />
+        {errors.image?.[0] && (
+          <p className="mt-1 text-xs text-rose-500">{errors.image[0]}</p>
+        )}
       </div>
 
       {/* Feature Tags Editor */}
