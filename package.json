@@ -10,6 +10,7 @@
     "prisma:generate": "prisma generate",
     "prisma:seed": "tsx prisma/seed.ts",
     "data:backfill-bookings": "tsx scripts/backfill-file-bookings-to-prisma.ts",
+    "data:migrate-content-hub": "tsx scripts/migrate-page-content-to-content-hub.ts",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down"
   },

@@ -1,0 +1,133 @@
+"use client";
+
+import Link from "next/link";
+import { ChevronRight, Eye, ExternalLink } from "lucide-react";
+import type { ContentRegistryItem, ContentStatus } from "@/lib/content/content.types";
+
+/* ────────────── Status Chip ────────────── */
+
+function StatusChip({ status }: { status: ContentStatus }) {
+  const config: Record<ContentStatus, { label: string; cls: string }> = {
+    published: {
+      label: "Published",
+      cls: "bg-green-50 text-green-700 border-green-200",
+    },
+    "draft-changes": {
+      label: "Draft Changes",
+      cls: "bg-amber-50 text-amber-700 border-amber-200",
+    },
+    "not-published": {
+      label: "Not Published",
+      cls: "bg-gray-100 text-gray-600 border-gray-200",
+    },
+    "needs-attention": {
+      label: "Needs Attention",
+      cls: "bg-red-50 text-red-700 border-red-200",
+    },
+  };
+
+  const { label, cls } = config[status];
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${cls}`}
+    >
+      {label}
+    </span>
+  );
+}
+
+/* ────────────── Timestamp ────────────── */
+
+function TimeAgo({ date, label }: { date: string | null; label: string }) {
+  if (!date) return null;
+  const d = new Date(date);
+  const formatted = d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  return (
+    <span className="text-[11px] text-aera-muted">
+      {label}: <span className="font-medium text-aera-ink/70">{formatted}</span>
+    </span>
+  );
+}
+
+/* ────────────── Header ────────────── */
+
+interface ContentEditorHeaderProps {
+  registryItem: ContentRegistryItem;
+  status: ContentStatus;
+  updatedAt: string | null;
+  publishedAt: string | null;
+}
+
+export function ContentEditorHeader({
+  registryItem,
+  status,
+  updatedAt,
+  publishedAt,
+}: ContentEditorHeaderProps) {
+  return (
+    <div className="space-y-3">
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-1.5 text-[11px] text-aera-muted">
+        <Link
+          href="/admin/content"
+          className="font-medium hover:text-aera-accent transition-colors no-underline"
+        >
+          Content Hub
+        </Link>
+        <ChevronRight size={12} className="flex-shrink-0" />
+        <span className="font-bold text-aera-ink">{registryItem.label}</span>
+      </nav>
+
+      {/* Title Row */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-heading text-[clamp(22px,3vw,32px)] font-medium text-aera-ink leading-tight">
+            {registryItem.label}
+          </h1>
+          <p className="mt-1 text-xs text-aera-muted max-w-lg">
+            {registryItem.description}
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          {registryItem.previewEnabled && (
+            <Link
+              href={`/admin/content/${registryItem.key}/preview`}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-aera-champagne/50 bg-white px-3.5 py-2 text-[11px] font-bold text-aera-ink hover:border-aera-accent/30 hover:shadow-sm transition-all no-underline"
+            >
+              <Eye size={13} />
+              Preview Draft
+            </Link>
+          )}
+          {registryItem.publicPath && (
+            <a
+              href={registryItem.publicPath}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-aera-champagne/50 bg-white px-3.5 py-2 text-[11px] font-bold text-aera-ink hover:border-aera-accent/30 hover:shadow-sm transition-all no-underline"
+            >
+              <ExternalLink size={13} />
+              View Public Page
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Status + Timestamps */}
+      <div className="flex flex-wrap items-center gap-3">
+        <StatusChip status={status} />
+        <TimeAgo date={updatedAt} label="Last saved" />
+        <TimeAgo date={publishedAt} label="Published" />
+      </div>
+    </div>
+  );
+}
