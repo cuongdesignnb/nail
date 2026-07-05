@@ -1,6 +1,7 @@
 import { unstable_noStore as noStore, revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { DEFAULT_NAVIGATION_ITEMS, NAVIGATION_LOCATIONS, getNavigationLocation } from "./navigation.registry";
+import { mapStoredNavigationItems } from "./navigation.mapper";
 import { normalizeMenuItem, validateNavigationItems } from "./navigation.validation";
 import type { NavigationLocation, NavigationMenuItem, NavigationMenuSettingDTO } from "./navigation.types";
 
@@ -13,7 +14,11 @@ const DEFAULT_SETTINGS: NavigationMenuSettingDTO = {
 };
 
 function asItems(value: unknown): NavigationMenuItem[] {
-  return Array.isArray(value) ? (value as NavigationMenuItem[]) : [];
+  return mapStoredNavigationItems(value, "header_primary").items;
+}
+
+function asItemsForLocation(value: unknown, location: NavigationLocation): NavigationMenuItem[] {
+  return mapStoredNavigationItems(value, location).items;
 }
 
 function enabledItems(items: NavigationMenuItem[]): NavigationMenuItem[] {
@@ -114,8 +119,9 @@ export async function listNavigationMenus() {
     getNavigationSettings(),
   ]);
   return menus.map((menu) => {
-    const draftItems = asItems(menu.draftItems);
-    const publishedItems = asItems(menu.publishedItems);
+    const location = menu.location as NavigationLocation;
+    const draftItems = asItemsForLocation(menu.draftItems, location);
+    const publishedItems = asItemsForLocation(menu.publishedItems, location);
     const definition = getNavigationLocation(menu.location);
     const enabledCount = countEnabled(draftItems);
     const totalCount = countItems(draftItems);
@@ -146,10 +152,14 @@ export async function getNavigationMenuByKey(key: string) {
   await ensureDefaultNavigationMenus();
   const menu = await prisma.navigationMenu.findUnique({ where: { key } });
   if (!menu) return null;
+  const location = menu.location as NavigationLocation;
+  const draft = mapStoredNavigationItems(menu.draftItems, location);
+  const published = mapStoredNavigationItems(menu.publishedItems, location);
   return {
     ...menu,
-    draftItems: asItems(menu.draftItems),
-    publishedItems: asItems(menu.publishedItems),
+    draftItems: draft.items,
+    publishedItems: published.items,
+    dataIssues: [...draft.issues, ...published.issues],
   };
 }
 
@@ -157,7 +167,8 @@ export async function saveNavigationMenuDraft(key: string, items: NavigationMenu
   const menu = await prisma.navigationMenu.findUnique({ where: { key } });
   if (!menu) throw new Error("Menu not found.");
   const location = menu.location as NavigationLocation;
-  const normalized = items.map((item) => normalizeMenuItem(item, location));
+  const safeItems = Array.isArray(items) ? items : [];
+  const normalized = safeItems.map((item) => normalizeMenuItem(item, location));
   const validation = validateNavigationItems(normalized, location);
   if (!validation.valid) throw new Error(validation.errors.join(" "));
   const updated = await prisma.navigationMenu.update({
@@ -168,14 +179,14 @@ export async function saveNavigationMenuDraft(key: string, items: NavigationMenu
       updatedBy: actor,
     },
   });
-  return { ...updated, draftItems: normalized, publishedItems: asItems(updated.publishedItems) };
+  return { ...updated, draftItems: normalized, publishedItems: asItemsForLocation(updated.publishedItems, location) };
 }
 
 export async function publishNavigationMenu(key: string, actor = "admin") {
   const menu = await prisma.navigationMenu.findUnique({ where: { key } });
   if (!menu) throw new Error("Menu not found.");
   const location = menu.location as NavigationLocation;
-  const draft = asItems(menu.draftItems).map((item) => normalizeMenuItem(item, location));
+  const draft = asItemsForLocation(menu.draftItems, location).map((item) => normalizeMenuItem(item, location));
   const validation = validateNavigationItems(draft, location);
   if (!validation.valid) throw new Error(validation.errors.join(" "));
 
@@ -191,7 +202,41 @@ export async function publishNavigationMenu(key: string, actor = "admin") {
   });
 
   revalidatePath("/", "layout");
-  return { ...published, draftItems: draft, publishedItems: asItems(published.publishedItems) };
+  return { ...published, draftItems: draft, publishedItems: asItemsForLocation(published.publishedItems, location) };
+}
+
+export async function discardNavigationMenuDraft(key: string, actor = "admin") {
+  const menu = await prisma.navigationMenu.findUnique({ where: { key } });
+  if (!menu) throw new Error("Menu not found.");
+  const location = menu.location as NavigationLocation;
+  const published = asItemsForLocation(menu.publishedItems, location);
+  const draftItems = published.length ? published : asItemsForLocation(menu.draftItems, location);
+  const updated = await prisma.navigationMenu.update({
+    where: { key },
+    data: {
+      draftItems,
+      version: { increment: 1 },
+      updatedBy: actor,
+    },
+  });
+  return { ...updated, draftItems, publishedItems: asItemsForLocation(updated.publishedItems, location) };
+}
+
+export async function restoreDefaultNavigationMenuDraft(key: string, actor = "admin") {
+  const menu = await prisma.navigationMenu.findUnique({ where: { key } });
+  if (!menu) throw new Error("Menu not found.");
+  const location = menu.location as NavigationLocation;
+  const defaults = DEFAULT_NAVIGATION_ITEMS[location] || [];
+  const draftItems = defaults.map((item) => normalizeMenuItem(item, location));
+  const updated = await prisma.navigationMenu.update({
+    where: { key },
+    data: {
+      draftItems,
+      version: { increment: 1 },
+      updatedBy: actor,
+    },
+  });
+  return { ...updated, draftItems, publishedItems: asItemsForLocation(updated.publishedItems, location) };
 }
 
 export async function getPublishedPrimaryMenu() {
@@ -254,8 +299,9 @@ async function getPublishedMenu(key: string) {
     const definition = NAVIGATION_LOCATIONS.find((entry) => entry.key === key);
     return definition ? enabledItems(DEFAULT_NAVIGATION_ITEMS[definition.location]) : [];
   }
-  const published = asItems(menu.publishedItems);
-  return enabledItems(published.length ? published : asItems(menu.draftItems));
+  const location = menu.location as NavigationLocation;
+  const published = asItemsForLocation(menu.publishedItems, location);
+  return enabledItems(published.length ? published : asItemsForLocation(menu.draftItems, location));
 }
 
 function countItems(items: NavigationMenuItem[]): number {

@@ -1,63 +1,93 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { AdminErrorState, AdminLoadingState, AdminPageHeader, AdminSectionCard } from "@/components/admin/ui";
+import { AdminConfirmDialog, AdminErrorState, AdminLoadingState } from "@/components/admin/ui";
+import type { NavigationLocation, NavigationMenuDTO, NavigationMenuItem } from "@/lib/navigation/navigation.types";
+import { MenuEditorToolbar } from "./MenuEditorToolbar";
 import { MenuItemInspector } from "./MenuItemInspector";
+import { MenuMobileActionBar } from "./MenuMobileActionBar";
 import { MenuPreviewPanel } from "./MenuPreviewPanel";
+import { MenuTree } from "./MenuTree";
+import { MenuValidationPanel } from "./MenuValidationPanel";
+import { addMenuItem, deleteMenuItem, findMenuItem, flattenMenuItems, updateMenuItem } from "./menu-tree.utils";
+
+type MenuDTOWithIssues = NavigationMenuDTO & {
+  dataIssues?: Array<{ message: string; severity: string; label?: string }>;
+};
 
 export function MenuEditorPage({ menuKey }: { menuKey: string }) {
-  const [menu, setMenu] = useState<any>(null);
-  const [itemsJson, setItemsJson] = useState("[]");
+  const [menu, setMenu] = useState<MenuDTOWithIssues | null>(null);
+  const [items, setItems] = useState<NavigationMenuItem[]>([]);
+  const [savedItems, setSavedItems] = useState<NavigationMenuItem[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/admin/navigation/menus/${menuKey}`, { cache: "no-store" })
       .then((res) => res.json())
       .then((json) => {
         if (!json.success) throw new Error(json.error || "Menu not found.");
-        setMenu(json.data);
-        setItemsJson(JSON.stringify(json.data.draftItems || [], null, 2));
+        loadMenu(json.data);
       })
       .catch((err) => setError(err instanceof Error ? err.message : "Unable to load menu."))
       .finally(() => setLoading(false));
   }, [menuKey]);
 
-  const location = menu?.location || "";
-  const contextBadge = useMemo(() => {
-    const labels: Record<string, string> = {
-      footer_company: "Footer - Company Links",
-      footer_services: "Footer - Services Links",
-      footer_explore: "Footer - Explore Links",
-      footer_legal: "Footer - Legal Links",
-      footer_social: "Footer - Social Links",
-      header_primary: "Header - Primary Navigation",
-      header_mobile: "Header - Mobile Navigation",
-    };
-    return labels[location] || location;
-  }, [location]);
+  const location = (menu?.location || "header_primary") as NavigationLocation;
+  const selectedItem = selectedId ? findMenuItem(items, selectedId) : null;
+  const selectedDepth = selectedId ? flattenMenuItems(items).find((item) => item.id === selectedId)?.depth || 1 : 1;
+  const hasLocalChanges = useMemo(() => !menuItemsEqual(items, savedItems), [items, savedItems]);
+  const hasDraftChanges = useMemo(() => !menuItemsEqual(savedItems, menu?.publishedItems || []), [savedItems, menu?.publishedItems]);
+  const validationIssues = useMemo(() => validateItemsForAdmin(items, location, menu?.dataIssues), [items, location, menu?.dataIssues]);
+  const status = validationIssues.length ? "Needs Attention" : hasLocalChanges ? "Unsaved Changes" : hasDraftChanges ? "Draft Changes" : "Saved";
 
-  async function saveDraft() {
+  function loadMenu(nextMenu: MenuDTOWithIssues) {
+    const draft = Array.isArray(nextMenu.draftItems) ? nextMenu.draftItems : [];
+    setMenu(nextMenu);
+    setItems(draft);
+    setSavedItems(draft);
+    setSelectedId(draft[0]?.id || null);
+  }
+
+  function handleItemsChange(nextItems: NavigationMenuItem[]) {
+    setItems(nextItems);
+    if (selectedId && !findMenuItem(nextItems, selectedId)) {
+      setSelectedId(flattenMenuItems(nextItems)[0]?.id || null);
+    }
+  }
+
+  function patchSelected(patch: Partial<NavigationMenuItem>) {
+    if (!selectedId) return;
+    handleItemsChange(updateMenuItem(items, selectedId, patch));
+  }
+
+  function addChildToSelected() {
+    if (!selectedId) return;
+    handleItemsChange(addMenuItem(items, location, selectedId));
+  }
+
+  async function saveDraft(nextItems = items) {
     setSaving(true);
     setError("");
     setMessage("");
     try {
-      const items = JSON.parse(itemsJson);
       const res = await fetch(`/api/admin/navigation/menus/${menuKey}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items: nextItems }),
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Unable to save draft.");
-      setMenu(json.data);
-      setItemsJson(JSON.stringify(json.data.draftItems || [], null, 2));
+      loadMenu(json.data);
       setMessage("Draft saved. Public navigation is unchanged until publishing.");
+      return json.data as MenuDTOWithIssues;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid menu JSON.");
+      setError(err instanceof Error ? err.message : "Unable to save draft.");
+      return null;
     } finally {
       setSaving(false);
     }
@@ -68,11 +98,14 @@ export function MenuEditorPage({ menuKey }: { menuKey: string }) {
     setError("");
     setMessage("");
     try {
-      await saveDraft();
+      if (hasLocalChanges) {
+        const saved = await saveDraft(items);
+        if (!saved) return;
+      }
       const res = await fetch(`/api/admin/navigation/menus/${menuKey}/publish`, { method: "POST" });
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Unable to publish menu.");
-      setMenu(json.data);
+      loadMenu(json.data);
       setMessage("Menu published and public Header/Footer revalidated.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to publish menu.");
@@ -81,54 +114,124 @@ export function MenuEditorPage({ menuKey }: { menuKey: string }) {
     }
   }
 
-  let previewItems: any[] = [];
-  try {
-    previewItems = JSON.parse(itemsJson);
-  } catch {
-    previewItems = [];
+  async function runMenuAction(path: "discard" | "restore-default") {
+    setSaving(true);
+    setError("");
+    setMessage("");
+    try {
+      const res = await fetch(`/api/admin/navigation/menus/${menuKey}/${path}`, { method: "POST" });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Unable to update menu.");
+      loadMenu(json.data);
+      setMessage(path === "discard" ? "Draft discarded. Editor now matches the published menu." : "Default menu restored as a draft.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to update menu.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        title={menu?.name || "Menu Editor"}
-        description="Edit draft menu items, preview the draft, then publish when ready."
-        breadcrumbs={[{ label: "Menus", href: "/admin/menus" }, { label: menu?.name || menuKey }]}
-        actions={<Link href="/admin/menus" className="rounded-full border border-aera-champagne px-4 py-2 text-xs font-bold uppercase tracking-wider text-aera-ink">Back to Menus</Link>}
-      />
-
+    <div className="space-y-6 pb-24 lg:pb-6">
       {loading && <AdminLoadingState variant="form" />}
       {error && <AdminErrorState title="Menu editor error" description={error} />}
 
       {!loading && menu && (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="space-y-6">
-            <AdminSectionCard title="Draft Menu Items">
-              <div className="mb-4 flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-aera-champagne/40 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-aera-ink">{contextBadge}</span>
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700">Draft Preview</span>
-              </div>
-              <MenuItemInspector location={location} />
-              <textarea
-                value={itemsJson}
-                onChange={(event) => setItemsJson(event.target.value)}
-                rows={18}
-                className="mt-4 w-full rounded-xl border border-aera-champagne/60 bg-white p-4 font-mono text-xs text-aera-ink"
+        <>
+          <MenuEditorToolbar
+            menuName={menu.name || menuKey}
+            status={status}
+            saving={saving}
+            hasLocalChanges={hasLocalChanges}
+            hasDraftChanges={hasDraftChanges}
+            onSave={() => saveDraft()}
+            onPublish={publish}
+            onDiscard={() => runMenuAction("discard")}
+            onRestore={() => runMenuAction("restore-default")}
+          />
+
+          {message && <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{message}</div>}
+          <MenuValidationPanel issues={validationIssues} />
+
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
+            <div className="xl:col-span-4">
+              <MenuTree
+                items={items}
+                location={location}
+                selectedId={selectedId}
+                onChange={handleItemsChange}
+                onSelect={setSelectedId}
+                onRequestDelete={setDeleteId}
               />
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <button disabled={saving} onClick={saveDraft} className="rounded-full bg-aera-ink px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white disabled:opacity-60">
-                  {saving ? "Saving..." : "Save Draft"}
-                </button>
-                <button disabled={saving} onClick={publish} className="rounded-full bg-aera-accent px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white disabled:opacity-60">
-                  Publish Menu
-                </button>
-                {message && <p className="text-xs font-semibold text-emerald-700">{message}</p>}
-              </div>
-            </AdminSectionCard>
+            </div>
+            <div className="xl:col-span-5">
+              <MenuItemInspector
+                item={selectedItem}
+                depth={selectedDepth}
+                location={location}
+                onChange={patchSelected}
+                onAddChild={addChildToSelected}
+                onDelete={() => selectedId && setDeleteId(selectedId)}
+              />
+            </div>
+            <div className="xl:col-span-3">
+              <MenuPreviewPanel location={location} items={items} />
+            </div>
           </div>
-          <MenuPreviewPanel location={location} items={previewItems} />
-        </div>
+
+          <MenuMobileActionBar saving={saving} canSave={hasLocalChanges} canPublish={hasDraftChanges || hasLocalChanges} onSave={() => saveDraft()} onPublish={publish} />
+        </>
       )}
+
+      <AdminConfirmDialog
+        open={Boolean(deleteId)}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => {
+          if (!deleteId) return;
+          handleItemsChange(deleteMenuItem(items, deleteId));
+          setDeleteId(null);
+        }}
+        title="Delete menu item?"
+        description="This removes the selected link and any submenu links from the draft."
+        confirmLabel="Delete Item"
+        variant="danger"
+      />
     </div>
   );
+}
+
+function validateItemsForAdmin(items: NavigationMenuItem[], location: NavigationLocation, dataIssues?: Array<{ message: string; label?: string }>) {
+  const issues: string[] = [];
+  const seen = new Set<string>();
+  const flat = flattenMenuItems(items);
+  for (const item of flat) {
+    const label = item.label?.trim() || "Untitled link";
+    if (!item.label?.trim()) issues.push(`${label} needs a navigation label.`);
+    if (seen.has(item.id)) issues.push(`${label} appears more than once. Duplicate and delete one copy to repair it.`);
+    seen.add(item.id);
+    if (item.isEnabled !== false && item.type !== "none" && !item.href?.trim()) issues.push(`${label} has no valid destination.`);
+    if (item.type === "external" && item.href && !/^https?:\/\//i.test(item.href)) issues.push(`${label} requires a full external URL.`);
+    if (item.type === "internal" && item.href && !item.href.startsWith("/")) issues.push(`${label} internal route must start with "/".`);
+    if (location === "footer_social" && !/^https?:\/\//i.test(item.href || "")) issues.push(`${label} requires a valid social URL.`);
+    if ((location === "footer_legal" || location === "footer_social") && item.children?.length) issues.push(`${label} cannot have child menu items in this location.`);
+  }
+  dataIssues?.forEach((issue) => issues.push(`${issue.label || "Stored menu"}: ${issue.message}`));
+  return Array.from(new Set(issues));
+}
+
+function menuItemsEqual(left: NavigationMenuItem[], right: NavigationMenuItem[]): boolean {
+  if (left.length !== right.length) return false;
+  return left.every((item, index) => menuItemEqual(item, right[index]));
+}
+
+function menuItemEqual(left: NavigationMenuItem, right?: NavigationMenuItem): boolean {
+  if (!right) return false;
+  return left.id === right.id
+    && left.label === right.label
+    && left.href === right.href
+    && left.type === right.type
+    && left.target === right.target
+    && left.isEnabled === right.isEnabled
+    && left.icon === right.icon
+    && menuItemsEqual(left.children || [], right.children || []);
 }
