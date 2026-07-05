@@ -45,17 +45,19 @@ export async function GET(
     }
 
     // Calculate stats
-    const completedBookings = customer.bookings.filter(
-      (b) => b.status === "COMPLETED"
+    const paidPayments = customer.bookings.flatMap((booking) =>
+      booking.payments.filter((payment) => ["paid", "Paid"].includes(payment.status))
     );
-    const totalSpend = completedBookings.reduce(
-      (sum, b) => sum + Number(b.totalAmount),
-      0
+    const completedBookings = customer.bookings.filter((b) =>
+      ["Completed", "COMPLETED"].includes(b.status)
     );
+    const totalSpend = paidPayments.reduce((sum, payment) => sum + Number(payment.amount), 0);
     const stats = {
-      totalBookings: customer.bookings.length,
+      totalBookings: customer.totalBookings || customer.bookings.length,
       completedBookings: completedBookings.length,
       totalSpend,
+      totalPaidPayments: paidPayments.length,
+      lastPaymentAt: customer.lastPaymentAt,
       memberSince: customer.createdAt,
     };
 

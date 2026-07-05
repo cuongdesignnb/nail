@@ -16,6 +16,9 @@ interface Booking {
   scheduledStartAt: string;
   status: string;
   paymentStatus: string;
+  paymentProvider: string;
+  chargeMode: string | null;
+  paidAmount: number;
   totalAmount: number;
 }
 
@@ -108,7 +111,7 @@ export default function AdminBookingsPage() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(116,55,15,0.08)" }}>
-                {["Code", "Client", "Services", "Technician", "Scheduled", "Status", "Payment", ""].map((h) => (
+                {["Code", "Client", "Services", "Technician", "Scheduled", "Status", "Payment", "Paid", ""].map((h) => (
                   <th key={h} style={{ padding: "12px 16px", fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#7f6d61", textAlign: "left" }}>{h}</th>
                 ))}
               </tr>
@@ -130,7 +133,11 @@ export default function AdminBookingsPage() {
                       <span style={{ padding: "4px 10px", borderRadius: 8, fontSize: 11, fontWeight: 700, background: sc.bg, color: sc.color }}>{b.status}</span>
                     </td>
                     <td style={{ padding: "14px 16px" }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: b.paymentStatus === "Paid" ? "#15803d" : "#b45309" }}>{b.paymentStatus}</span>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: ["Paid", "Deposit Paid"].includes(b.paymentStatus) ? "#15803d" : "#b45309" }}>{b.paymentStatus}</div>
+                      <div style={{ fontSize: 10, color: "#7f6d61", marginTop: 2 }}>{b.paymentProvider}{b.chargeMode ? ` · ${b.chargeMode}` : ""}</div>
+                    </td>
+                    <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, color: "#2f1c11" }}>
+                      ${Number(b.paidAmount || 0).toFixed(2)}
                     </td>
                     <td style={{ padding: "14px 16px" }}>
                       <Link href={`/admin/bookings/${b.id}`} style={{ color: "#a85d1e" }}><Eye size={16} /></Link>

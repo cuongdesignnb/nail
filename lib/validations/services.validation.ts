@@ -92,7 +92,7 @@ export const faqSchema = z.object({
 
 export const gallerySchema = z.object({
   title: z.string().optional().nullable(),
-  image: z.string().min(1, "Image path is required"),
+  image: z.string().min(1, "Media Library image is required"),
   imageAlt: z.string().optional().nullable(),
   tag: z.string().optional().nullable(),
   isActive: z.boolean().default(true),

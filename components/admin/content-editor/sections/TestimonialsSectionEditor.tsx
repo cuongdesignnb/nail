@@ -1,12 +1,13 @@
 'use client';
 
 import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { MediaPickerField } from '@/components/admin/media/MediaPickerField';
 
 type TestimonialItem = {
   id: string;
   name: string;
   role?: string;
-  avatar?: { src: string; alt: string };
+  avatar?: { mediaId?: string | null; src: string; alt: string; title?: string | null };
   rating: number;
   quote: string;
 };
@@ -99,16 +100,13 @@ export function TestimonialsSectionEditor({ data, onChange }: Props) {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-[#23212a] mb-1">Avatar URL</label>
-                <input
-                  type="text"
-                  value={item.avatar?.src ?? ''}
-                  onChange={(e) => updateItem(i, { avatar: { src: e.target.value, alt: item.avatar?.alt ?? item.name } })}
-                  placeholder="/images/avatar.jpg"
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
-                />
-              </div>
+              <MediaPickerField
+                label="Avatar"
+                value={item.avatar ?? null}
+                onChange={(avatar) => updateItem(i, { avatar: avatar ?? undefined })}
+                folder="testimonials"
+                aspectRatio="1/1"
+              />
               <div>
                 <label className="block text-sm font-medium text-[#23212a] mb-1">Rating (1-5)</label>
                 <input

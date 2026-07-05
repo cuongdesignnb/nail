@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { FormField, FormSelect, FormTextarea } from "@/components/common/FormField";
 import { GalleryCategoryDTO } from "@/types/gallery";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 interface GalleryItemFormProps {
   categories: GalleryCategoryDTO[];
@@ -173,25 +174,16 @@ export function GalleryItemForm({ categories, initialData, onSave, onCancel }: G
 
         {/* Right Side */}
         <div className="space-y-4">
-          <FormField
-            label="Image URL / Path *"
+          <MediaPickerField
+            label="Gallery Item Image"
             value={image}
-            onChange={(e) => {
-              setImage(e.target.value);
-              if (!imageAlt) setImageAlt(title || "Nail design");
-            }}
-            placeholder="e.g. /images/gallery-item-1.jpg"
-            error={errors.image?.[0]}
+            alt={imageAlt}
+            onChange={(url) => setImage(url)}
+            onAltChange={(alt) => setImageAlt(alt)}
+            folder="gallery"
             required
           />
-
-          <FormField
-            label="Image Alt Text"
-            value={imageAlt}
-            onChange={(e) => setImageAlt(e.target.value)}
-            placeholder="e.g. Chrome shiny almond manicure detail"
-            error={errors.imageAlt?.[0]}
-          />
+          {errors.image?.[0] && <p className="text-xs text-rose-500">{errors.image[0]}</p>}
 
           <FormField
             label="Sort Order"

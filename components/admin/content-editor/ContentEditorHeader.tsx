@@ -64,6 +64,7 @@ interface ContentEditorHeaderProps {
   status: ContentStatus;
   updatedAt: string | null;
   publishedAt: string | null;
+  isDirty: boolean;
 }
 
 export function ContentEditorHeader({
@@ -71,6 +72,7 @@ export function ContentEditorHeader({
   status,
   updatedAt,
   publishedAt,
+  isDirty,
 }: ContentEditorHeaderProps) {
   return (
     <div className="space-y-3">
@@ -124,7 +126,14 @@ export function ContentEditorHeader({
 
       {/* Status + Timestamps */}
       <div className="flex flex-wrap items-center gap-3">
-        <StatusChip status={status} />
+        <div className="flex items-center gap-2">
+          <StatusChip status={status} />
+          {isDirty && (
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full ring-1 text-blue-700 bg-blue-50/50 ring-blue-200/60 animate-pulse">
+              Unsaved Changes
+            </span>
+          )}
+        </div>
         <TimeAgo date={updatedAt} label="Last saved" />
         <TimeAgo date={publishedAt} label="Published" />
       </div>

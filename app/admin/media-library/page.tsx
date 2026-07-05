@@ -21,7 +21,7 @@ export default function AdminMediaLibraryPage() {
           Media Library Hub
         </h1>
         <p className="text-xs text-aera-muted">
-          Register external image paths or browse through uploaded assets to use in blog posts and pages.
+          Upload, organize, and browse reusable media assets for blog posts and pages.
         </p>
       </section>
 

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FormField, FormTextarea } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Plus, Edit2, Trash2, X, Save } from "lucide-react";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 export function PackageRewardForm() {
   const [list, setList] = useState<any[]>([]);
@@ -293,22 +294,15 @@ export function PackageRewardForm() {
                   error={errors.promoValue?.[0]}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  label="Promo Image Path"
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  placeholder="/images/reward-promo.jpg"
-                  error={errors.image?.[0]}
-                />
-                <FormField
-                  label="Image Alt Text"
-                  value={imageAlt}
-                  onChange={(e) => setImageAlt(e.target.value)}
-                  placeholder="Promo details"
-                  error={errors.imageAlt?.[0]}
-                />
-              </div>
+              <MediaPickerField
+                label="Promo Image"
+                value={image}
+                alt={imageAlt}
+                onChange={(url) => setImage(url)}
+                onAltChange={(alt) => setImageAlt(alt)}
+                folder="packages"
+              />
+              {errors.image?.[0] && <p className="text-xs text-rose-500">{errors.image[0]}</p>}
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   label="Button Label"

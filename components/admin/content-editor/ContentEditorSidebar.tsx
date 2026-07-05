@@ -59,6 +59,7 @@ export function ContentEditorSidebar({
         version={version}
         updatedAt={updatedAt}
         publishedAt={publishedAt}
+        isDirty={isDirty}
       />
 
       {/* Publish / Discard / Restore */}

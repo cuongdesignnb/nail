@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { X, ImageIcon } from 'lucide-react';
+import { MediaPickerField } from '@/components/admin/media/MediaPickerField';
 
 interface RichTextImageDialogProps {
   open: boolean;
@@ -16,13 +17,11 @@ export function RichTextImageDialog({
 }: RichTextImageDialogProps) {
   const [src, setSrc] = useState('');
   const [alt, setAlt] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
       setSrc('');
       setAlt('');
-      setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [open]);
 
@@ -57,30 +56,14 @@ export function RichTextImageDialog({
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-medium text-aera-ink">
-              Image URL
-            </label>
-            <input
-              ref={inputRef}
-              type="url"
-              value={src}
-              onChange={(e) => setSrc(e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-aera-ink placeholder:text-aera-muted/50 focus:border-aera-accent focus:outline-none"
-            />
-          </div>
-
           <div className="mb-6">
-            <label className="mb-1.5 block text-sm font-medium text-aera-ink">
-              Alt text
-            </label>
-            <input
-              type="text"
-              value={alt}
-              onChange={(e) => setAlt(e.target.value)}
-              placeholder="Describe the image..."
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-aera-ink placeholder:text-aera-muted/50 focus:border-aera-accent focus:outline-none"
+            <MediaPickerField
+              label="Image"
+              value={src}
+              alt={alt}
+              onChange={(url) => setSrc(url)}
+              onAltChange={(nextAlt) => setAlt(nextAlt)}
+              folder="rich-text"
             />
             <p className="mt-1 text-xs text-aera-muted">
               Alt text helps with accessibility and SEO

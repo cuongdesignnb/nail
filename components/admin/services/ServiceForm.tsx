@@ -1,10 +1,11 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { FormField, FormSelect } from "@/components/common/FormField";
 import { ServiceCategoryDTO } from "@/types/services";
 import { Plus, Trash2 } from "lucide-react";
 import { RichTextEditor } from "@/components/admin/editor/RichTextEditor";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { asArray } from "@/lib/utils/array";
 
 interface ServiceFormProps {
   categories: ServiceCategoryDTO[];
@@ -14,6 +15,7 @@ interface ServiceFormProps {
 }
 
 export function ServiceForm({ categories, initialData, onSave, onCancel }: ServiceFormProps) {
+  const safeCategories = useMemo(() => asArray<ServiceCategoryDTO>(categories), [categories]);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -55,11 +57,11 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
       setSortOrder(initialData.sortOrder || 0);
       setFeatures(Array.isArray(initialData.features) ? initialData.features : []);
     } else {
-      if (categories.length > 0) {
-        setCategoryId(categories[0].id);
+      if (safeCategories.length > 0) {
+        setCategoryId(safeCategories[0].id);
       }
     }
-  }, [initialData, categories]);
+  }, [initialData, safeCategories]);
 
   const addFeature = () => {
     if (newFeature.trim()) {
@@ -109,13 +111,17 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
         body: JSON.stringify(payload),
       });
 
-      const json = await res.json();
+      const json = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        if (json.errors) {
-          setErrors(json.errors);
+        if (json.issues || json.errors) {
+          setErrors(json.issues || json.errors);
+        } else if (json.error) {
+          setGlobalError(json.error);
+        } else if (json.message) {
+          setGlobalError(json.message);
         } else {
-          setGlobalError(json.message || "Failed to save service");
+          setGlobalError("Failed to save service");
         }
       } else {
         onSave();
@@ -128,7 +134,7 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
     }
   };
 
-  const categoryOptions = categories.map((cat) => ({
+  const categoryOptions = safeCategories.map((cat) => ({
     value: cat.id,
     label: cat.name,
   }));

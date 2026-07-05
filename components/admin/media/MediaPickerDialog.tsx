@@ -39,6 +39,7 @@ export function MediaPickerDialog({
 }: MediaPickerDialogProps) {
   const [assets, setAssets] = useState<MediaAsset[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [uploading, setUploading] = useState(false);
@@ -47,6 +48,7 @@ export function MediaPickerDialog({
 
   const fetchAssets = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
       const params = new URLSearchParams();
       if (searchQuery) params.set("search", searchQuery);
@@ -55,12 +57,18 @@ export function MediaPickerDialog({
       params.set("sort", "newest");
 
       const res = await fetch(`/api/admin/media?${params.toString()}`);
-      if (res.ok) {
-        const json = await res.json();
-        setAssets(json.data?.items || []);
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json?.success === false) {
+        setAssets([]);
+        setError(json?.error || json?.message || "Unable to load media assets.");
+        return;
       }
+      const items = Array.isArray(json?.data?.items) ? json.data.items : [];
+      setAssets(items);
     } catch (err) {
       console.error("Failed to fetch media:", err);
+      setAssets([]);
+      setError("A connection error occurred while loading media.");
     } finally {
       setLoading(false);
     }
@@ -112,14 +120,21 @@ export function MediaPickerDialog({
         body: formData,
       });
 
-      if (res.ok) {
-        const json = await res.json();
-        // Add to list and auto-select
-        setAssets((prev) => [json.data, ...prev]);
-        setSelectedIds(new Set([json.data.id]));
+      const json = await res.json().catch(() => ({}));
+      const uploaded = json?.data;
+      if (!res.ok || json?.success === false) {
+        setError(json?.error || json?.message || "Upload failed.");
+        return;
       }
+      if (!uploaded?.id || !uploaded?.url) {
+        setError("Upload completed but returned an invalid media payload.");
+        return;
+      }
+      setAssets((prev) => [uploaded, ...prev]);
+      setSelectedIds(new Set([uploaded.id]));
     } catch (err) {
       console.error("Upload failed:", err);
+      setError("A connection error occurred while uploading.");
     } finally {
       setUploading(false);
     }
@@ -226,6 +241,17 @@ export function MediaPickerDialog({
               {loading ? (
                 <div className="flex items-center justify-center py-16">
                   <div className="animate-spin h-6 w-6 border-2 border-aera-accent border-t-transparent rounded-full" />
+                </div>
+              ) : error ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+                  <p className="text-xs font-semibold text-rose-600">{error}</p>
+                  <button
+                    type="button"
+                    onClick={fetchAssets}
+                    className="rounded-full bg-aera-accent px-4 py-2 text-xs font-bold text-white transition hover:bg-aera-accentHover"
+                  >
+                    Retry
+                  </button>
                 </div>
               ) : assets.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">

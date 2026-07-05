@@ -86,9 +86,14 @@ export function mergeWithDefaults<T extends Record<string, unknown>>(
     const partialValue = (partial as Record<string, unknown>)[key];
     const defaultValue = (defaults as Record<string, unknown>)[key];
 
-    if (
+    if (partialValue === undefined) {
+      continue;
+    }
+
+    if (Array.isArray(defaultValue)) {
+      result[key] = Array.isArray(partialValue) ? partialValue : defaultValue;
+    } else if (
       partialValue !== null &&
-      partialValue !== undefined &&
       typeof partialValue === "object" &&
       !Array.isArray(partialValue) &&
       typeof defaultValue === "object" &&
@@ -99,7 +104,7 @@ export function mergeWithDefaults<T extends Record<string, unknown>>(
         partialValue as Record<string, unknown>,
         defaultValue as Record<string, unknown>
       );
-    } else if (partialValue !== undefined) {
+    } else {
       result[key] = partialValue;
     }
   }

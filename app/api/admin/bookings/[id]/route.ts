@@ -30,6 +30,7 @@ export async function GET(
         items: {
           include: { service: true },
         },
+        addonItems: true,
         payments: {
           orderBy: { createdAt: "desc" },
         },
@@ -112,6 +113,7 @@ export async function PATCH(
         customer: true,
         technician: true,
         items: { include: { service: true } },
+        addonItems: true,
         payments: { orderBy: { createdAt: "desc" } },
       },
     });

@@ -11,11 +11,16 @@
     "prisma:seed": "tsx prisma/seed.ts",
     "data:backfill-bookings": "tsx scripts/backfill-file-bookings-to-prisma.ts",
     "data:migrate-content-hub": "tsx scripts/migrate-page-content-to-content-hub.ts",
+    "data:migrate-images-to-library": "tsx scripts/migrate-legacy-image-urls-to-media-library.ts",
+    "audit:image-library": "tsx scripts/audit-image-library-usage.ts",
+    "verify:content-hub": "tsx scripts/verify-content-hub-completeness.ts",
+    "payments:reconcile-paypal": "tsx scripts/reconcile-paypal-payments.ts",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1078.0",
+    "@paypal/react-paypal-js": "^10.1.1",
     "@prisma/client": "^5.22.0",
     "@tiptap/extension-image": "^3.27.1",
     "@tiptap/extension-link": "^3.27.1",

@@ -1,5 +1,6 @@
 import React, { InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from "react";
 import clsx from "clsx";
+import { asArray } from "@/lib/utils/array";
 
 interface FormFieldBase {
   label: string;
@@ -99,6 +100,8 @@ export function FormSelect({
   className,
   ...props
 }: SelectProps) {
+  const safeOptions = asArray<{ value: string; label: string }>(options);
+
   return (
     <div className={clsx("flex flex-col gap-1.5 w-full font-sans mb-4", className)}>
       <label htmlFor={id} className="text-xs font-semibold text-aera-ink tracking-wide">
@@ -114,7 +117,7 @@ export function FormSelect({
         )}
         {...props}
       >
-        {options.map((opt) => (
+        {safeOptions.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>

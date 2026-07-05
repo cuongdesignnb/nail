@@ -155,7 +155,7 @@ export function MediaLibraryGrid({ refreshTrigger, onRefresh }: MediaLibraryGrid
               </div>
 
               <div>
-                <span className="text-[10px] text-aera-muted uppercase block font-semibold">Direct Image URL</span>
+                <span className="text-[10px] text-aera-muted uppercase block font-semibold">Stored Media URL</span>
                 <div className="flex items-center gap-2 mt-0.5">
                   <input
                     type="text"

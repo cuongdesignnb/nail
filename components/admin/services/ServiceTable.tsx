@@ -4,6 +4,8 @@ import { ServiceCategoryDTO } from "@/types/services";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2, Search, Star, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import { AdminConfirmDialog } from "@/components/admin/ui/AdminConfirmDialog";
+import { asArray, isRecord } from "@/lib/utils/array";
 
 interface ServiceTableProps {
   categories: ServiceCategoryDTO[];
@@ -13,6 +15,7 @@ interface ServiceTableProps {
 }
 
 export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeeded }: ServiceTableProps) {
+  const safeCategories = asArray<ServiceCategoryDTO>(categories);
   const [services, setServices] = useState<any[]>([]);
   const [keyword, setKeyword] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -21,9 +24,12 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [deactivateId, setDeactivateId] = useState<string | null>(null);
 
   const fetchServices = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -35,13 +41,24 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
       if (isFeatured) params.append("isFeatured", isFeatured);
 
       const res = await fetch(`/api/admin/services?${params.toString()}`);
-      if (res.ok) {
-        const json = await res.json();
-        setServices(json.data || []);
-        setTotalPages(json.meta?.totalPages || 1);
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json?.success === false) {
+        setServices([]);
+        setTotalPages(1);
+        setError(json?.error || json?.message || "Unable to load services.");
+        return;
       }
+      setServices(asArray<any>(json?.data));
+      const meta = isRecord(json?.meta) ? json.meta : {};
+      const nextTotalPages = typeof meta.totalPages === "number" && Number.isFinite(meta.totalPages)
+        ? meta.totalPages
+        : 1;
+      setTotalPages(Math.max(1, nextTotalPages));
     } catch (error) {
       console.error("Fetch services failed:", error);
+      setServices([]);
+      setTotalPages(1);
+      setError("A connection error occurred while loading services.");
     } finally {
       setLoading(false);
     }
@@ -52,17 +69,17 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
   }, [fetchServices, refreshTrigger]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to deactivate this service?")) return;
     try {
       const res = await fetch(`/api/admin/services/${id}`, { method: "DELETE" });
+      const json = await res.json().catch(() => ({}));
       if (res.ok) {
         onRefreshNeeded();
       } else {
-        alert("Failed to deactivate service");
+        setError(json?.error || json?.message || "Failed to deactivate service.");
       }
     } catch (err) {
       console.error(err);
-      alert("Error occurred deactivating service");
+      setError("A connection error occurred while deactivating service.");
     }
   };
 
@@ -87,7 +104,7 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
             className="rounded-lg border border-aera-champagne/65 bg-white px-3 py-2 text-xs text-aera-ink outline-none w-full md:!w-[150px]"
           >
             <option value="">All Categories</option>
-            {categories.map((c) => (
+            {safeCategories.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
@@ -115,6 +132,20 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
       </div>
 
       {/* Services Table */}
+      {error && (
+        <div className="mx-4 mt-4 rounded-2xl border border-rose-200 bg-rose-50/80 p-4 text-xs text-rose-700">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="font-semibold">{error}</span>
+            <button
+              type="button"
+              onClick={fetchServices}
+              className="rounded-full bg-white px-4 py-2 text-[11px] font-bold text-rose-700 shadow-sm transition hover:bg-rose-100"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
       <div className="overflow-x-auto w-full">
         <table className="w-full border-collapse text-left text-xs font-sans text-aera-ink">
           <thead>
@@ -136,24 +167,30 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
                   Loading services...
                 </td>
               </tr>
-            ) : services.length === 0 ? (
+            ) : asArray<any>(services).length === 0 ? (
               <tr>
                 <td colSpan={8} className="text-center py-10 text-aera-muted italic">
                   No services found matching filters.
                 </td>
               </tr>
             ) : (
-              services.map((service) => (
+              asArray<any>(services).map((service) => (
                 <tr key={service.id} className="border-b border-aera-champagne/30 hover:bg-aera-champagne/5 transition-colors">
                   <td className="px-6 py-3 whitespace-nowrap">
-                    <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-aera-champagne/15 border border-aera-champagne/30">
-                      <Image
-                        src={service.image || "/images/about-nail-detail.jpg"}
-                        alt={service.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+                    {service.image ? (
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-aera-champagne/15 border border-aera-champagne/30">
+                        <Image
+                          src={service.image}
+                          alt={service.imageAlt || service.name || "Service image"}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-aera-champagne/30 bg-aera-champagne/15 text-aera-accent">
+                        <Sparkles size={17} />
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-3">
                     <div>
@@ -198,7 +235,7 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
                         <Edit size={14} />
                       </button>
                       <button
-                        onClick={() => handleDelete(service.id)}
+                        onClick={() => setDeactivateId(service.id)}
                         className="p-1 text-rose-500 hover:bg-rose-50 rounded border-none bg-transparent cursor-pointer"
                         title="Deactivate Service"
                       >
@@ -237,6 +274,17 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
           </div>
         </div>
       )}
+      <AdminConfirmDialog
+        open={deactivateId !== null}
+        onClose={() => setDeactivateId(null)}
+        onConfirm={() => {
+          if (deactivateId) void handleDelete(deactivateId);
+        }}
+        title="Deactivate Service"
+        description="This will hide the service from active selections while preserving its record."
+        confirmLabel="Deactivate"
+        variant="danger"
+      />
     </div>
   );
 }

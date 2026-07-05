@@ -10,6 +10,7 @@ import { prisma } from "@/lib/db";
 import { ContentPageKey, ContentPageMeta, ContentPageData } from "./content.types";
 import { isValidPageKey } from "./content-registry";
 import { computeContentStatus, computeCompletion } from "./content-status";
+import { mergeWithDefaults } from "./content-mapper";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */
@@ -37,6 +38,17 @@ async function ensurePageRecord(pageKey: ContentPageKey) {
   });
 }
 
+async function withDefaultContent(
+  pageKey: ContentPageKey,
+  content: unknown
+): Promise<Record<string, unknown>> {
+  const defaults = await getDefaultForPage(pageKey);
+  if (!content || typeof content !== "object" || Array.isArray(content)) {
+    return defaults;
+  }
+  return mergeWithDefaults(content as Record<string, unknown>, defaults);
+}
+
 async function audit(action: string, actor: string, pageKey: string) {
   try {
     await prisma.auditLog.create({
@@ -57,8 +69,10 @@ async function audit(action: string, actor: string, pageKey: string) {
  */
 export async function getPageContent(pageKey: ContentPageKey): Promise<ContentPageData> {
   const record = await ensurePageRecord(pageKey);
-  const draft = (record.draftContent ?? {}) as Record<string, unknown>;
-  const published = record.publishedContent as Record<string, unknown> | null;
+  const draft = await withDefaultContent(pageKey, record.draftContent);
+  const published = record.publishedContent
+    ? await withDefaultContent(pageKey, record.publishedContent)
+    : null;
 
   return {
     key: pageKey,
@@ -89,8 +103,10 @@ export async function getAllPageMeta(): Promise<ContentPageMeta[]> {
 
   for (const pageKey of allKeys) {
     const record = await ensurePageRecord(pageKey);
-    const draft = (record.draftContent ?? {}) as Record<string, unknown>;
-    const published = record.publishedContent as Record<string, unknown> | null;
+    const draft = await withDefaultContent(pageKey, record.draftContent);
+    const published = record.publishedContent
+      ? await withDefaultContent(pageKey, record.publishedContent)
+      : null;
     const hasUnpublishedChanges = published
       ? JSON.stringify(draft) !== JSON.stringify(published)
       : true;
@@ -123,7 +139,7 @@ export async function getAllPageMeta(): Promise<ContentPageMeta[]> {
 export async function getPublishedContent(pageKey: ContentPageKey): Promise<Record<string, unknown>> {
   const record = await ensurePageRecord(pageKey);
   if (record.publishedContent) {
-    return record.publishedContent as Record<string, unknown>;
+    return await withDefaultContent(pageKey, record.publishedContent);
   }
   return await getDefaultForPage(pageKey);
 }
@@ -133,7 +149,7 @@ export async function getPublishedContent(pageKey: ContentPageKey): Promise<Reco
  */
 export async function getDraftContent(pageKey: ContentPageKey): Promise<Record<string, unknown>> {
   const record = await ensurePageRecord(pageKey);
-  return (record.draftContent ?? await getDefaultForPage(pageKey)) as Record<string, unknown>;
+  return await withDefaultContent(pageKey, record.draftContent);
 }
 
 /* ------------------------------------------------------------------ */

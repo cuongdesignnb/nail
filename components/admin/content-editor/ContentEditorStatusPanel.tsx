@@ -15,6 +15,7 @@ interface ContentEditorStatusPanelProps {
   version: number;
   updatedAt: string | null;
   publishedAt: string | null;
+  isDirty: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -49,6 +50,7 @@ export function ContentEditorStatusPanel({
   version,
   updatedAt,
   publishedAt,
+  isDirty,
 }: ContentEditorStatusPanelProps) {
   return (
     <motion.div
@@ -63,8 +65,13 @@ export function ContentEditorStatusPanel({
       </p>
 
       {/* Status chip */}
-      <div>
+      <div className="flex flex-wrap items-center gap-2">
         <ContentStatusChip status={status} />
+        {isDirty && (
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full ring-1 text-blue-700 bg-blue-50/50 ring-blue-200/60 animate-pulse">
+            Unsaved Changes
+          </span>
+        )}
       </div>
 
       {/* Meta info */}

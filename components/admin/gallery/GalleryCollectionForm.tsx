@@ -4,6 +4,7 @@ import { FormField } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2, Star } from "lucide-react";
 import Image from "next/image";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 export function GalleryCollectionForm() {
   const [collections, setCollections] = useState<any[]>([]);
@@ -264,25 +265,16 @@ export function GalleryCollectionForm() {
             required
           />
 
-          <FormField
-            label="Image URL / Path *"
+          <MediaPickerField
+            label="Collection Image"
             value={image}
-            onChange={(e) => {
-              setImage(e.target.value);
-              if (!imageAlt) setImageAlt(title || "Collection Nails");
-            }}
-            placeholder="e.g. /images/salon-experience-2.jpg"
-            error={errors.image?.[0]}
+            alt={imageAlt}
+            onChange={(url) => setImage(url)}
+            onAltChange={(alt) => setImageAlt(alt)}
+            folder="gallery"
             required
           />
-
-          <FormField
-            label="Image Alt Text"
-            value={imageAlt}
-            onChange={(e) => setImageAlt(e.target.value)}
-            placeholder="e.g. Minimal nude nail design set"
-            error={errors.imageAlt?.[0]}
-          />
+          {errors.image?.[0] && <p className="mb-4 text-xs text-rose-500">{errors.image[0]}</p>}
 
           <div className="grid grid-cols-2 gap-4">
             <FormField

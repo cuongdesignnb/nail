@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { serviceSchema } from "@/lib/validations/services.validation";
-
-// TODO: Replace with real admin auth check
-async function requireAdmin() {
-  return true;
-}
+import { authErrorResponse, requireAdmin } from "@/lib/auth/require-admin";
 
 // Generate slug function
 function slugify(text: string) {
@@ -20,10 +16,7 @@ function slugify(text: string) {
 
 export async function GET(req: NextRequest) {
   try {
-    const isAdmin = await requireAdmin();
-    if (!isAdmin) {
-      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-    }
+    requireAdmin();
 
     const { searchParams } = new URL(req.url);
     const keyword = searchParams.get("keyword") || "";
@@ -79,25 +72,24 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
+    const auth = authErrorResponse(error);
+    if (auth) return auth;
     console.error("GET Services Error:", error);
-    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Internal server error", issues: {} }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const isAdmin = await requireAdmin();
-    if (!isAdmin) {
-      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-    }
+    requireAdmin();
 
     const body = await req.json();
     const result = serviceSchema.safeParse(body);
 
     if (!result.success) {
       return NextResponse.json(
-        { success: false, message: "Validation failed", errors: result.error.flatten().fieldErrors },
-        { status: 400 }
+        { success: false, error: "Validation failed", issues: result.error.flatten().fieldErrors },
+        { status: 422 }
       );
     }
 
@@ -113,8 +105,8 @@ export async function POST(req: NextRequest) {
 
     if (existing) {
       return NextResponse.json(
-        { success: false, message: "Validation failed", errors: { slug: ["Slug must be unique"] } },
-        { status: 400 }
+        { success: false, error: "Validation failed", issues: { slug: ["Slug must be unique"] } },
+        { status: 422 }
       );
     }
 
@@ -142,7 +134,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: newService });
   } catch (error) {
+    const auth = authErrorResponse(error);
+    if (auth) return auth;
     console.error("POST Services Error:", error);
-    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Internal server error", issues: {} }, { status: 500 });
   }
 }

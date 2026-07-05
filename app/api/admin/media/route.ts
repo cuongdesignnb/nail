@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
 import { mediaListQuerySchema } from "@/lib/validations/media.schema";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request) {
   try {
     requireAdmin();

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
 import { isValidPageKey } from "@/lib/content/content-registry";
-import { publishContent } from "@/lib/content/content.repository";
+import { publishContent, getPageContent } from "@/lib/content/content.repository";
 import { revalidateContentCache } from "@/lib/content/content-cache";
 import type { ContentPageKey } from "@/lib/content/content.types";
+import { getSchemaForPage } from "@/validations/content";
 
 export async function POST(
   request: NextRequest,
@@ -35,6 +36,29 @@ export async function POST(
       return NextResponse.json(
         { success: false, error: "Missing required field: version" },
         { status: 400 }
+      );
+    }
+
+    // Load the draft content to validate strictly
+    const pageData = await getPageContent(pageKey as ContentPageKey);
+    if (!pageData) {
+      return NextResponse.json(
+        { success: false, error: "Page content not found" },
+        { status: 404 }
+      );
+    }
+
+    // Strict validation check
+    const publishSchema = getSchemaForPage(pageKey as ContentPageKey, "publish");
+    const parseResult = publishSchema.safeParse(pageData.draftContent);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Validation failed: please complete all required fields in this page before publishing.",
+          details: parseResult.error.flatten(),
+        },
+        { status: 422 }
       );
     }
 

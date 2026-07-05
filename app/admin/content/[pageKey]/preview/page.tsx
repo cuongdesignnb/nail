@@ -1,15 +1,189 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { unstable_noStore as noStore } from "next/cache";
+import { ArrowLeft, ArrowRight, Eye, Star } from "lucide-react";
+
+import { RichTextRenderer } from "@/components/admin/editor/RichTextRenderer";
+import { authErrorResponse, requireAdmin } from "@/lib/auth/require-admin";
 import { isValidPageKey, getRegistryItemOrThrow } from "@/lib/content/content-registry";
 import { getDraftContent } from "@/lib/content/content.repository";
 import type { ContentPageKey } from "@/lib/content/content.types";
-import { ArrowLeft, Eye } from "lucide-react";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
+type AnyRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is AnyRecord {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function text(value: unknown, fallback = "") {
+  return typeof value === "string" ? value : fallback;
+}
+
+function imageFrom(value: unknown) {
+  if (!isRecord(value)) return null;
+  const src = text(value.src);
+  if (!src) return null;
+  return { src, alt: text(value.alt, "Aera Nail Lounge") };
+}
+
+function buttonFrom(value: unknown) {
+  if (!isRecord(value)) return null;
+  const label = text(value.label);
+  const href = text(value.href);
+  if (!label || !href) return null;
+  return { label, href };
+}
+
+function RichCopy({ value }: { value: unknown }) {
+  const html = text(value);
+  if (!html) return null;
+  return <RichTextRenderer html={html} className="text-sm leading-7 text-aera-muted" />;
+}
+
+function PreviewImage({ image }: { image: { src: string; alt: string } | null }) {
+  if (!image) return null;
+  return (
+    <div className="relative min-h-[220px] overflow-hidden rounded-2xl border border-aera-champagne/40 bg-aera-cream">
+      <Image src={image.src} alt={image.alt} fill sizes="(max-width: 768px) 100vw, 420px" className="object-cover" />
+    </div>
+  );
+}
+
+function PreviewButton({ button }: { button: { label: string; href: string } | null }) {
+  if (!button) return null;
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full bg-aera-accent px-4 py-2 text-xs font-bold text-white shadow-sm">
+      {button.label}
+      <ArrowRight size={14} />
+    </span>
+  );
+}
+
+function renderList(items: unknown) {
+  if (!Array.isArray(items) || items.length === 0) return null;
+  return (
+    <div className="grid gap-3 md:grid-cols-2">
+      {items.map((item, index) => {
+        const row = isRecord(item) ? item : {};
+        const image = imageFrom(row.image) || imageFrom(row.avatar);
+        return (
+          <article key={text(row.id, `item-${index}`)} className="rounded-xl border border-aera-champagne/30 bg-white p-4 shadow-sm">
+            <div className="flex gap-3">
+              {image && (
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-aera-cream">
+                  <Image src={image.src} alt={image.alt} fill sizes="56px" className="object-cover" />
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-aera-accent">
+                  {text(row.step) || text(row.role) || text(row.label)}
+                </p>
+                <h3 className="mt-1 font-heading text-lg font-bold text-aera-ink">
+                  {text(row.title) || text(row.name) || text(row.question) || `Item ${index + 1}`}
+                </h3>
+                {typeof row.rating === "number" && (
+                  <div className="mt-1 flex text-aera-accent" aria-label={`${row.rating} star rating`}>
+                    {Array.from({ length: Math.max(0, Math.min(5, row.rating)) }).map((_, starIndex) => (
+                      <Star key={starIndex} size={13} fill="currentColor" />
+                    ))}
+                  </div>
+                )}
+                <div className="mt-2">
+                  <RichCopy value={row.description || row.answer || row.quote || row.content} />
+                </div>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function SectionPreview({ label, data }: { label: string; data: unknown }) {
+  if (!isRecord(data)) {
+    return (
+      <section className="rounded-2xl border border-aera-champagne/30 bg-white p-6 shadow-sm">
+        <h2 className="font-heading text-xl font-bold text-aera-ink">{label}</h2>
+        <p className="mt-3 text-sm text-aera-muted">This section has no draft content yet.</p>
+      </section>
+    );
+  }
+
+  const heroImage = imageFrom(data.image) || imageFrom(data.logo) || imageFrom(data.defaultShareImage);
+  const primaryButton = buttonFrom(data.primaryButton) || buttonFrom(data.button) || buttonFrom(data.cta);
+  const secondaryButton = buttonFrom(data.secondaryButton);
+  const items = data.items || data.steps || data.features || data.quickLinks || data.serviceLinks || data.schedule;
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-aera-champagne/30 bg-white shadow-sm">
+      <div className="grid gap-6 p-6 md:grid-cols-[1.1fr_0.9fr]">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-aera-accent">
+            {text(data.eyebrow, label)}
+          </p>
+          <h2 className="mt-2 font-heading text-3xl font-bold text-aera-ink">
+            {text(data.title) || text(data.name) || label}
+            {text(data.highlight) && <span className="text-aera-accent"> {text(data.highlight)}</span>}
+          </h2>
+          <div className="mt-4 space-y-3">
+            <RichCopy value={data.description || data.content || data.brandText || data.tagline} />
+          </div>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <PreviewButton button={primaryButton} />
+            <PreviewButton button={secondaryButton} />
+          </div>
+          <div className="mt-5 grid gap-2 text-sm text-aera-muted sm:grid-cols-2">
+            {["phone", "email", "address", "hours", "googleMapsUrl", "instagramUrl", "facebookUrl", "tiktokUrl"].map((key) => (
+              text(data[key]) ? <div key={key}>{text(data[key])}</div> : null
+            ))}
+          </div>
+        </div>
+        <PreviewImage image={heroImage} />
+      </div>
+      {renderList(items) && <div className="border-t border-aera-champagne/20 bg-aera-cream/30 p-6">{renderList(items)}</div>}
+    </section>
+  );
+}
 
 export default async function ContentPreviewPage({
   params,
 }: {
   params: { pageKey: string };
 }) {
+  noStore();
+
+  try {
+    requireAdmin();
+  } catch (error) {
+    const response = authErrorResponse(error);
+    if (response?.status === 401) {
+      return (
+        <main className="min-h-screen bg-aera-bg p-8 text-center">
+          <p className="text-sm text-aera-muted">Please sign in as an Owner or Manager to preview draft content.</p>
+          <Link className="primary-btn mt-4 inline-flex" href="/login">Sign In</Link>
+        </main>
+      );
+    }
+    return (
+      <main className="min-h-screen bg-aera-bg p-8 text-center">
+        <p className="text-sm text-aera-muted">You do not have permission to preview draft content.</p>
+      </main>
+    );
+  }
+
   if (!isValidPageKey(params.pageKey)) notFound();
 
   const pageKey = params.pageKey as ContentPageKey;
@@ -17,92 +191,36 @@ export default async function ContentPreviewPage({
   const draftContent = await getDraftContent(pageKey);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Draft Preview Banner */}
+    <main className="min-h-screen bg-aera-bg">
       <div className="sticky top-0 z-50 border-b border-amber-200 bg-amber-50/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-4 py-2.5 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
               href={`/admin/content/${pageKey}`}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-white border border-amber-200 px-3 py-1.5 text-xs font-bold text-aera-ink hover:bg-amber-50 transition-colors no-underline"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-bold text-aera-ink no-underline transition-colors hover:bg-amber-50"
             >
               <ArrowLeft size={14} />
               Back to Editor
             </Link>
             <div className="flex items-center gap-2">
               <Eye size={14} className="text-amber-600" />
-              <span className="text-xs font-bold text-amber-700">
-                Draft Preview
-              </span>
-              <span className="text-xs text-amber-600">
-                — {registryItem.label}
-              </span>
+              <span className="text-xs font-bold text-amber-700">Draft Preview</span>
+              <span className="text-xs text-amber-600">This preview shows unpublished changes.</span>
             </div>
           </div>
-          <span className="hidden text-[10px] font-bold uppercase tracking-wider text-amber-500 sm:block">
-            This preview shows unpublished changes
-          </span>
         </div>
       </div>
 
-      {/* Preview Content */}
-      <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6">
-        <div className="mb-6">
-          <h1 className="font-heading text-2xl font-bold text-aera-ink">
-            {registryItem.label} — Draft Preview
-          </h1>
-          <p className="mt-1 text-sm text-aera-muted">
-            Preview of all draft sections for this page.
-          </p>
+      <div className="mx-auto max-w-[1200px] space-y-6 px-4 py-8 sm:px-6">
+        <div>
+          <h1 className="font-heading text-3xl font-bold text-aera-ink">{registryItem.label}</h1>
+          <p className="mt-1 text-sm text-aera-muted">Saved draft content rendered as a visual page preview.</p>
         </div>
 
-        {/* Render each section's draft content */}
-        <div className="space-y-6">
-          {registryItem.sections.map((section) => {
-            const sectionData = draftContent[section.id];
-            const hasContent =
-              sectionData !== undefined && sectionData !== null;
-
-            return (
-              <div
-                key={section.id}
-                className="rounded-2xl border border-aera-champagne/30 bg-white p-6 shadow-sm"
-              >
-                <div className="mb-4 flex items-center gap-3 border-b border-aera-champagne/20 pb-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-aera-champagne to-aera-cream">
-                    <span className="text-xs font-bold text-aera-accent">
-                      {section.label.charAt(0)}
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-aera-ink">
-                      {section.label}
-                    </h2>
-                    <p className="text-[11px] text-aera-muted">
-                      {section.description}
-                    </p>
-                  </div>
-                  {!hasContent && (
-                    <span className="ml-auto rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold text-gray-500">
-                      No content
-                    </span>
-                  )}
-                </div>
-
-                {hasContent ? (
-                  <pre className="max-h-[400px] overflow-auto rounded-xl bg-gray-50 p-4 text-xs text-aera-ink/80 leading-relaxed">
-                    {JSON.stringify(sectionData, null, 2)}
-                  </pre>
-                ) : (
-                  <p className="py-4 text-center text-xs text-aera-muted italic">
-                    This section has no draft content yet.
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        {registryItem.sections.map((section) => (
+          <SectionPreview key={section.id} label={section.label} data={draftContent[section.id]} />
+        ))}
       </div>
-    </div>
+    </main>
   );
 }

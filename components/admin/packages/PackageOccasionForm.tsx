@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FormField, FormTextarea } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Plus, Edit2, Trash2, X, Save } from "lucide-react";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 export function PackageOccasionForm() {
   const [list, setList] = useState<any[]>([]);
@@ -217,7 +218,7 @@ export function PackageOccasionForm() {
             error={errors.description?.[0]}
             rows={2}
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <FormField
               label="Lucide Icon"
               value={icon}
@@ -225,21 +226,16 @@ export function PackageOccasionForm() {
               placeholder="e.g. gem, sparkles, heart, gift"
               error={errors.icon?.[0]}
             />
-            <FormField
-              label="Image Path"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              placeholder="/images/occasion-bridal.jpg"
-              error={errors.image?.[0]}
-            />
           </div>
-          <FormField
-            label="Image Alt Text"
-            value={imageAlt}
-            onChange={(e) => setImageAlt(e.target.value)}
-            placeholder="Wedding bridal prep details"
-            error={errors.imageAlt?.[0]}
+          <MediaPickerField
+            label="Occasion Image"
+            value={image}
+            alt={imageAlt}
+            onChange={(url) => setImage(url)}
+            onAltChange={(alt) => setImageAlt(alt)}
+            folder="packages"
           />
+          {errors.image?.[0] && <p className="text-xs text-rose-500">{errors.image[0]}</p>}
           <div className="grid grid-cols-2 gap-4 border-t border-aera-champagne/20 pt-4 mt-4">
             <FormField
               label="Sort Order"

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { ImagePlus, Replace, X } from "lucide-react";
 import { MediaPickerDialog } from "./MediaPickerDialog";
+import type { MediaReference } from "@/lib/media/media.types";
 
 interface MediaAsset {
   id: string;
@@ -22,14 +23,16 @@ interface MediaAsset {
 
 interface MediaPickerFieldProps {
   label: string;
-  value: string;
+  value: string | MediaReference | null;
   alt?: string;
-  onChange: (url: string) => void;
+  onChange: (value: any) => void;
   onAltChange?: (alt: string) => void;
   folder?: string;
   aspectRatio?: string;
   multiple?: boolean;
   required?: boolean;
+  allowRemove?: boolean;
+  allowAltOverride?: boolean;
 }
 
 export function MediaPickerField({
@@ -40,29 +43,48 @@ export function MediaPickerField({
   onAltChange,
   folder,
   aspectRatio = "16/10",
+  multiple = false,
   required = false,
+  allowRemove = true,
+  allowAltOverride = true,
 }: MediaPickerFieldProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
+  const isMediaReference = typeof value === "object" && value !== null;
+  const mediaValue = isMediaReference ? value : null;
+  const src = mediaValue?.src ?? (typeof value === "string" ? value : "");
+  const effectiveAlt = mediaValue?.alt ?? alt ?? "";
+
+  const toReference = (asset: MediaAsset): MediaReference => ({
+    mediaId: asset.id,
+    src: asset.url,
+    alt: asset.alt || effectiveAlt || asset.title || asset.originalName || asset.fileName,
+    title: asset.title || asset.originalName || asset.fileName,
+  });
 
   const handleSelect = (asset: MediaAsset | MediaAsset[]) => {
-    if (Array.isArray(asset)) {
-      if (asset.length > 0) {
-        onChange(asset[0].url);
-        if (onAltChange && asset[0].alt) {
-          onAltChange(asset[0].alt);
-        }
-      }
+    const selected = Array.isArray(asset) ? asset[0] : asset;
+    if (!selected) return;
+    const reference = toReference(selected);
+    if (isMediaReference) {
+      onChange(reference);
     } else {
-      onChange(asset.url);
-      if (onAltChange && asset.alt) {
-        onAltChange(asset.alt);
-      }
+      onChange(reference.src);
+    }
+    if (onAltChange && reference.alt) {
+      onAltChange(reference.alt);
     }
   };
 
   const handleRemove = () => {
-    onChange("");
+    onChange(isMediaReference ? null : "");
     if (onAltChange) onAltChange("");
+  };
+
+  const handleAltChange = (nextAlt: string) => {
+    if (isMediaReference && mediaValue) {
+      onChange({ ...mediaValue, alt: nextAlt });
+    }
+    if (onAltChange) onAltChange(nextAlt);
   };
 
   return (
@@ -72,7 +94,7 @@ export function MediaPickerField({
         {required && <span className="text-rose-400 ml-0.5">*</span>}
       </label>
 
-      {value ? (
+      {src ? (
         <div className="space-y-2">
           {/* Preview */}
           <div
@@ -81,8 +103,8 @@ export function MediaPickerField({
             onClick={() => setPickerOpen(true)}
           >
             <Image
-              src={value}
-              alt={alt || "Selected image"}
+              src={src}
+              alt={effectiveAlt || "Selected image"}
               fill
               className="object-cover"
             />
@@ -103,25 +125,27 @@ export function MediaPickerField({
             >
               Change
             </button>
-            <button
-              type="button"
-              onClick={handleRemove}
-              className="text-[11px] text-aera-muted hover:text-rose-500 font-medium transition-colors cursor-pointer flex items-center gap-0.5"
-            >
-              <X size={11} /> Remove
-            </button>
+            {allowRemove && (
+              <button
+                type="button"
+                onClick={handleRemove}
+                className="text-[11px] text-aera-muted hover:text-rose-500 font-medium transition-colors cursor-pointer flex items-center gap-0.5"
+              >
+                <X size={11} /> Remove
+              </button>
+            )}
           </div>
 
           {/* Alt text input */}
-          {onAltChange && (
+          {allowAltOverride && (onAltChange || isMediaReference) && (
             <div>
               <label className="text-[10px] text-aera-muted block mb-1">
                 Alt Text
               </label>
               <input
                 type="text"
-                value={alt}
-                onChange={(e) => onAltChange(e.target.value)}
+                value={effectiveAlt}
+                onChange={(e) => handleAltChange(e.target.value)}
                 placeholder="Describe this image..."
                 className="w-full rounded-lg border border-aera-champagne/60 px-3 py-1.5 text-xs outline-none focus:border-aera-accent bg-white transition-colors"
               />
@@ -148,6 +172,7 @@ export function MediaPickerField({
         onClose={() => setPickerOpen(false)}
         onSelect={handleSelect}
         folder={folder}
+        multiple={multiple}
         title={`Select ${label}`}
       />
     </div>

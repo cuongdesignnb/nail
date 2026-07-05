@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const querySchema = z.object({
   from: z.string().optional(),
   to: z.string().optional(),

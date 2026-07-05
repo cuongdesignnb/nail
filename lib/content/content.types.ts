@@ -120,8 +120,10 @@ export type ContentPageData = {
 /* ------------------------------------------------------------------ */
 
 export type ImageField = {
+  mediaId?: string | null;
   src: string;
   alt: string;
+  title?: string | null;
 };
 
 export type ButtonField = {

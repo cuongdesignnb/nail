@@ -14,6 +14,8 @@ interface Customer {
   totalBookings: number;
   totalSpend: number;
   lastVisit: string | null;
+  lastPayment: string | null;
+  paymentProvider: string | null;
 }
 
 export default function AdminCustomersPage() {
@@ -60,7 +62,7 @@ export default function AdminCustomersPage() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(116,55,15,0.08)" }}>
-                {["Name", "Email", "Phone", "Bookings", "Total Spend", "Last Visit", ""].map((h) => (
+                {["Name", "Email", "Phone", "Bookings", "Total Paid", "Last Payment", "Provider", ""].map((h) => (
                   <th key={h} style={{ padding: "12px 16px", fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#7f6d61", textAlign: "left" }}>{h}</th>
                 ))}
               </tr>
@@ -73,7 +75,8 @@ export default function AdminCustomersPage() {
                   <td style={{ padding: "14px 16px", fontSize: 13, color: "#4a2d1e" }}>{c.phone || "—"}</td>
                   <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, color: "#a85d1e" }}>{c.totalBookings}</td>
                   <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, color: "#2f1c11" }}>${c.totalSpend?.toFixed(2)}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 12, color: "#7f6d61" }}>{c.lastVisit ? new Date(c.lastVisit).toLocaleDateString() : "Never"}</td>
+                  <td style={{ padding: "14px 16px", fontSize: 12, color: "#7f6d61" }}>{c.lastPayment ? new Date(c.lastPayment).toLocaleDateString() : "Never"}</td>
+                  <td style={{ padding: "14px 16px", fontSize: 12, color: "#4a2d1e", textTransform: "capitalize" }}>{c.paymentProvider || "—"}</td>
                   <td style={{ padding: "14px 16px" }}>
                     <Link href={`/admin/customers/${c.id}`} style={{ color: "#a85d1e" }}><Eye size={16} /></Link>
                   </td>

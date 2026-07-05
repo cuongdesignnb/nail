@@ -4,6 +4,7 @@ import { FormField, FormTextarea, FormSelect } from "@/components/common/FormFie
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2, Star } from "lucide-react";
 import Image from "next/image";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 export function GalleryTestimonialForm() {
   const [testimonials, setTestimonials] = useState<any[]>([]);
@@ -248,24 +249,15 @@ export function GalleryTestimonialForm() {
             error={errors.rating?.[0]}
           />
 
-          <FormField
-            label="Avatar Image URL"
+          <MediaPickerField
+            label="Avatar Image"
             value={avatar}
-            onChange={(e) => {
-              setAvatar(e.target.value);
-              if (!avatarAlt) setAvatarAlt(name || "Client Avatar");
-            }}
-            placeholder="e.g. /images/client-1.jpg"
-            error={errors.avatar?.[0]}
+            alt={avatarAlt}
+            onChange={(url) => setAvatar(url)}
+            onAltChange={(alt) => setAvatarAlt(alt)}
+            folder="testimonials"
           />
-
-          <FormField
-            label="Avatar Alt Text"
-            value={avatarAlt}
-            onChange={(e) => setAvatarAlt(e.target.value)}
-            placeholder="e.g. Portrait of Jessica"
-            error={errors.avatarAlt?.[0]}
-          />
+          {errors.avatar?.[0] && <p className="mb-4 text-xs text-rose-500">{errors.avatar[0]}</p>}
 
           <FormField
             label="Sort Order"

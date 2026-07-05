@@ -44,3 +44,23 @@ export { BlogCategoryNavSectionEditor } from './BlogCategoryNavSectionEditor';
 export { BlogEditorsPicksSectionEditor } from './BlogEditorsPicksSectionEditor';
 export { BlogTrendingStoriesSectionEditor } from './BlogTrendingStoriesSectionEditor';
 export { BlogNewsletterSectionEditor } from './BlogNewsletterSectionEditor';
+
+// New Section Editors
+export { AboutStorySectionEditor } from './AboutStorySectionEditor';
+export { AboutMissionVisionValuesSectionEditor } from './AboutMissionVisionValuesSectionEditor';
+export { AboutBenefitsSectionEditor } from './AboutBenefitsSectionEditor';
+export { AboutExpertsSectionEditor } from './AboutExpertsSectionEditor';
+export { AboutSalonExperienceSectionEditor } from './AboutSalonExperienceSectionEditor';
+export { ServicesQuickCategoriesSectionEditor } from './ServicesQuickCategoriesSectionEditor';
+export { ServicesWhyChooseSectionEditor } from './ServicesWhyChooseSectionEditor';
+export { ServicesPricingMatrixSectionEditor } from './ServicesPricingMatrixSectionEditor';
+export { ServicesDesignInspirationSectionEditor } from './ServicesDesignInspirationSectionEditor';
+export { ServicesFeaturedPackagesSectionEditor } from './ServicesFeaturedPackagesSectionEditor';
+export { GalleryFilterLabelsSectionEditor } from './GalleryFilterLabelsSectionEditor';
+export { GalleryFeaturedCollectionsSectionEditor } from './GalleryFeaturedCollectionsSectionEditor';
+export { PackagesBenefitsSectionEditor } from './PackagesBenefitsSectionEditor';
+export { PackagesComparisonSectionEditor } from './PackagesComparisonSectionEditor';
+export { PackagesRewardsSectionEditor } from './PackagesRewardsSectionEditor';
+export { PackagesOccasionsSectionEditor } from './PackagesOccasionsSectionEditor';
+export { GlobalDefaultShareImageSectionEditor } from './GlobalDefaultShareImageSectionEditor';
+

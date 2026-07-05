@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
       { customer: { firstName: { contains: search, mode: "insensitive" } } },
       { customer: { lastName: { contains: search, mode: "insensitive" } } },
       { customer: { email: { contains: search, mode: "insensitive" } } },
+      { payments: { some: { providerOrderId: { contains: search, mode: "insensitive" } } } },
+      { payments: { some: { providerCaptureId: { contains: search, mode: "insensitive" } } } },
     ];
   }
 
@@ -32,7 +34,10 @@ export async function GET(req: NextRequest) {
         customer: { select: { firstName: true, lastName: true, email: true } },
         items: { include: { service: { select: { name: true } } } },
         technician: { select: { name: true } },
-        payments: { select: { amount: true, status: true } },
+        payments: {
+          select: { amount: true, status: true, provider: true, purpose: true },
+          orderBy: { createdAt: "desc" },
+        },
       },
       orderBy: { scheduledStartAt: "desc" },
       skip: (page - 1) * limit,
@@ -51,6 +56,11 @@ export async function GET(req: NextRequest) {
     scheduledStartAt: b.scheduledStartAt.toISOString(),
     status: b.status,
     paymentStatus: b.paymentStatus,
+    paymentProvider: b.payments[0]?.provider || "manual",
+    chargeMode: b.payments[0]?.purpose || null,
+    paidAmount: b.payments
+      .filter((p: any) => ["paid", "Paid"].includes(p.status))
+      .reduce((sum: number, p: any) => sum + Number(p.amount), 0),
     totalAmount: Number(b.totalAmount || 0),
     notes: b.notes,
   }));

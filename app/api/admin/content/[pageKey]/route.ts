@@ -3,6 +3,7 @@ import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
 import { isValidPageKey } from "@/lib/content/content-registry";
 import { getPageContent, saveDraftContent } from "@/lib/content/content.repository";
 import type { ContentPageKey } from "@/lib/content/content.types";
+import { getSchemaForPage } from "@/validations/content";
 
 export async function GET(
   _request: NextRequest,
@@ -73,6 +74,20 @@ export async function PUT(
     if (!content || typeof version !== "number") {
       return NextResponse.json(
         { success: false, error: "Missing required fields: content, version" },
+        { status: 400 }
+      );
+    }
+
+    // Relaxed draft validation
+    const draftSchema = getSchemaForPage(pageKey as ContentPageKey, "draft");
+    const parseResult = draftSchema.safeParse(content);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Draft validation failed",
+          details: parseResult.error.flatten(),
+        },
         { status: 400 }
       );
     }

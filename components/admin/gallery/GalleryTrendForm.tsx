@@ -4,6 +4,7 @@ import { FormField } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 export function GalleryTrendForm() {
   const [trends, setTrends] = useState<any[]>([]);
@@ -248,24 +249,15 @@ export function GalleryTrendForm() {
             required
           />
 
-          <FormField
-            label="Image URL"
+          <MediaPickerField
+            label="Trend Image"
             value={image}
-            onChange={(e) => {
-              setImage(e.target.value);
-              if (!imageAlt) setImageAlt(title || "Trending design");
-            }}
-            placeholder="e.g. /images/trend-chrome.jpg"
-            error={errors.image?.[0]}
+            alt={imageAlt}
+            onChange={(url) => setImage(url)}
+            onAltChange={(alt) => setImageAlt(alt)}
+            folder="gallery"
           />
-
-          <FormField
-            label="Image Alt Text"
-            value={imageAlt}
-            onChange={(e) => setImageAlt(e.target.value)}
-            placeholder="e.g. Chrome glossy nails"
-            error={errors.imageAlt?.[0]}
-          />
+          {errors.image?.[0] && <p className="mb-4 text-xs text-rose-500">{errors.image[0]}</p>}
 
           <FormField
             label="Sort Order"

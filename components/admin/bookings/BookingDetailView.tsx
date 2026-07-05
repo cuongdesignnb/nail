@@ -36,6 +36,9 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> =
 const PAYMENT_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
   PENDING: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
   PAID: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
+  paid: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
+  pending: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
+  failed: { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
   REFUNDED: { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
   PARTIAL: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500" },
 };
@@ -152,10 +155,28 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                 >
                   <div>
                     <p className="text-xs font-semibold text-aera-ink">
-                      {item.service?.name || "Service"}
+                      {item.serviceNameSnapshot || item.service?.name || "Service"}
                     </p>
                     <p className="text-[11px] text-aera-muted mt-0.5">
                       {item.duration} min
+                    </p>
+                  </div>
+                  <p className="text-xs font-bold text-aera-ink">
+                    ${Number(item.price).toFixed(2)}
+                  </p>
+                </div>
+              ))}
+              {booking.addonItems?.map((item: any) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between rounded-xl bg-aera-champagne/15 px-4 py-3"
+                >
+                  <div>
+                    <p className="text-xs font-semibold text-aera-ink">
+                      {item.addonNameSnapshot}
+                    </p>
+                    <p className="text-[11px] text-aera-muted mt-0.5">
+                      Add-on
                     </p>
                   </div>
                   <p className="text-xs font-bold text-aera-ink">
@@ -196,7 +217,7 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                 {booking.payments.map((payment: any) => (
                   <div
                     key={payment.id}
-                    className="flex items-center justify-between rounded-xl bg-aera-champagne/15 px-4 py-3"
+                    className="rounded-xl bg-aera-champagne/15 px-4 py-3"
                   >
                     <div className="flex items-center gap-3">
                       <DollarSign className="h-4 w-4 text-aera-muted" />
@@ -217,6 +238,14 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                         </p>
                       )}
                     </div>
+                    {(payment.providerOrderId || payment.providerCaptureId || payment.providerPayerEmail) && (
+                      <div className="mt-3 grid grid-cols-1 gap-2 border-t border-aera-champagne/30 pt-3 text-left text-[11px] text-aera-muted md:grid-cols-2">
+                        {payment.providerOrderId && <p><b>PayPal Order:</b> {payment.providerOrderId}</p>}
+                        {payment.providerCaptureId && <p><b>Capture:</b> {payment.providerCaptureId}</p>}
+                        {payment.providerPayerName && <p><b>Payer:</b> {payment.providerPayerName}</p>}
+                        {payment.providerPayerEmail && <p><b>Payer Email:</b> {payment.providerPayerEmail}</p>}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

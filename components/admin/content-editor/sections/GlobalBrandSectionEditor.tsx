@@ -1,8 +1,10 @@
 'use client';
 
+import { MediaPickerField } from '@/components/admin/media/MediaPickerField';
+
 type BrandData = {
   name: string;
-  logo: { src: string; alt: string };
+  logo: { mediaId?: string | null; src: string; alt: string; title?: string | null };
   tagline: string;
 };
 
@@ -28,26 +30,13 @@ export function GlobalBrandSectionEditor({ data, onChange }: Props) {
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-3">
         <p className="text-sm font-medium text-[#23212a]">Logo</p>
-        <div>
-          <label className="block text-sm font-medium text-[#23212a] mb-1">Logo URL</label>
-          <input
-            type="text"
-            value={data.logo?.src ?? ''}
-            onChange={(e) => update({ logo: { ...data.logo, src: e.target.value } })}
-            placeholder="/images/logo.svg"
-            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-[#23212a] mb-1">Logo Alt Text</label>
-          <input
-            type="text"
-            value={data.logo?.alt ?? ''}
-            onChange={(e) => update({ logo: { ...data.logo, alt: e.target.value } })}
-            placeholder="Aera Nail Lounge Logo"
-            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
-          />
-        </div>
+        <MediaPickerField
+          label="Logo"
+          value={data.logo ?? null}
+          onChange={(logo) => update({ logo: logo ?? { mediaId: null, src: '', alt: 'Aera Nail Lounge logo' } })}
+          folder="brand"
+          aspectRatio="1/1"
+        />
       </div>
 
       <div>

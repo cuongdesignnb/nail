@@ -1,10 +1,12 @@
 'use client';
 
+import { MediaPickerField } from '@/components/admin/media/MediaPickerField';
+
 type AboutPreviewData = {
   eyebrow: string;
   title: string;
   description: string;
-  image: { src: string; alt: string };
+  image: { mediaId?: string | null; src: string; alt: string; title?: string | null };
   button: { label: string; href: string };
 };
 
@@ -49,26 +51,13 @@ export function HomeAboutPreviewSectionEditor({ data, onChange }: Props) {
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-3">
         <p className="text-sm font-medium text-[#23212a]">Image</p>
-        <div>
-          <label className="block text-sm font-medium text-[#23212a] mb-1">Image URL</label>
-          <input
-            type="text"
-            value={data.image?.src ?? ''}
-            onChange={(e) => update({ image: { ...data.image, src: e.target.value } })}
-            placeholder="/images/about-preview.jpg"
-            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-[#23212a] mb-1">Alt Text</label>
-          <input
-            type="text"
-            value={data.image?.alt ?? ''}
-            onChange={(e) => update({ image: { ...data.image, alt: e.target.value } })}
-            placeholder="About Aera Nail Lounge"
-            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
-          />
-        </div>
+        <MediaPickerField
+          label="About Preview Image"
+          value={data.image ?? null}
+          onChange={(image) => update({ image: image ?? { mediaId: null, src: '', alt: '' } })}
+          folder="content"
+          aspectRatio="4/3"
+        />
       </div>
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-3">

@@ -6,6 +6,7 @@ import { SeoSerpPreview } from './SeoSerpPreview';
 import { SeoSocialPreview } from './SeoSocialPreview';
 import { SeoRobotsControl } from './SeoRobotsControl';
 import SeoSchemaEditor from './SeoSchemaEditor';
+import { MediaPickerField } from '@/components/admin/media/MediaPickerField';
 
 interface SeoData {
   title?: string;
@@ -220,27 +221,15 @@ export function SeoEditorPanel({ scopeKey, pageKey, initialData, onSave }: SeoEd
           />
         </div>
 
-        <div>
-          <label className={labelClass}>OG Image URL</label>
-          <input
-            type="text"
-            value={form.ogImage}
-            onChange={(e) => update('ogImage', e.target.value)}
-            placeholder="https://example.com/og-image.jpg"
-            className={inputClass}
-          />
-        </div>
-
-        <div>
-          <label className={labelClass}>OG Image Alt Text</label>
-          <input
-            type="text"
-            value={form.ogImageAlt}
-            onChange={(e) => update('ogImageAlt', e.target.value)}
-            placeholder="Describe the image"
-            className={inputClass}
-          />
-        </div>
+        <MediaPickerField
+          label="OG Image"
+          value={form.ogImage || ''}
+          alt={form.ogImageAlt || ''}
+          onChange={(url) => update('ogImage', url)}
+          onAltChange={(alt) => update('ogImageAlt', alt)}
+          folder="seo"
+          aspectRatio="1200/630"
+        />
 
         <div>
           <label className={labelClass}>Twitter Card Type</label>
@@ -273,4 +262,3 @@ export function SeoEditorPanel({ scopeKey, pageKey, initialData, onSave }: SeoEd
     </div>
   );
 }
-

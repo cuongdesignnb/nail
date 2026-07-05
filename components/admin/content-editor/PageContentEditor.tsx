@@ -23,8 +23,7 @@ import { ContentEditorSkeleton } from "@/components/admin/content-editor/Content
 import { ContentEditorSidebar } from "@/components/admin/content-editor/ContentEditorSidebar";
 import { AdminConfirmDialog } from "@/components/admin/ui/AdminConfirmDialog";
 
-import { SeoSectionEditor } from "@/components/admin/content-editor/sections/SeoSectionEditor";
-import { HeroSectionEditor } from "@/components/admin/content-editor/sections/HeroSectionEditor";
+import { getSectionEditor } from "./section-editor.registry";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -87,10 +86,14 @@ function Toast({
   message,
   variant,
   onDismiss,
+  onAction,
+  actionLabel,
 }: {
   message: string;
   variant: "success" | "error";
   onDismiss: () => void;
+  onAction?: () => void;
+  actionLabel?: string;
 }) {
   const isError = variant === "error";
   return (
@@ -107,9 +110,17 @@ function Toast({
     >
       {isError ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
       <span className="flex-1">{message}</span>
+      {onAction && actionLabel && (
+        <button
+          onClick={onAction}
+          className="ml-3 rounded-lg bg-red-100 hover:bg-red-200 text-red-855 px-2.5 py-1 text-[10px] font-bold transition-all border border-red-200/50 shadow-sm"
+        >
+          {actionLabel}
+        </button>
+      )}
       <button
         onClick={onDismiss}
-        className="ml-2 text-current opacity-50 hover:opacity-100 text-sm"
+        className="ml-2 text-current opacity-50 hover:opacity-100 text-sm font-bold"
       >
         ×
       </button>
@@ -155,8 +166,8 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
   }, [savedDraft, payload]);
 
   const status = useMemo(
-    () => deriveStatus(hasUnpublishedChanges || isDirty, payload?.publishedAt ?? null),
-    [hasUnpublishedChanges, isDirty, payload?.publishedAt]
+    () => deriveStatus(hasUnpublishedChanges, payload?.publishedAt ?? null),
+    [hasUnpublishedChanges, payload?.publishedAt]
   );
 
   const completionMap = useMemo(() => {
@@ -216,7 +227,7 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
       const json = await res.json();
       if (res.status === 409) {
         setError(
-          "Version conflict — someone else updated this page. Please refresh and try again."
+          "This content was updated by another administrator. Reload the latest version before saving your changes."
         );
         setIsSaving(false);
         return;
@@ -256,7 +267,9 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
           });
           const json = await res.json();
           if (res.status === 409) {
-            setError("Version conflict — please refresh and try again.");
+            setError(
+              "This content was updated by another administrator. Reload the latest version before saving your changes."
+            );
             return;
           }
           if (!res.ok) {
@@ -359,34 +372,19 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
     if (!content) return null;
 
     const sectionData = content[sectionId];
+    const EditorComponent = getSectionEditor(pageKey as ContentPageKey, sectionId);
 
-    switch (sectionId) {
-      case "seo":
-        return (
-          <SeoSectionEditor
-            data={(sectionData ?? {}) as SeoFields}
-            onChange={(updated) => updateSection("seo", updated)}
-            scopeKey={registryItem?.seoScopeKey ?? pageKey}
-            pageKey={pageKey}
-          />
-        );
-      case "hero":
-        return (
-          <HeroSectionEditor
-            data={(sectionData ?? {}) as HeroFields}
-            onChange={(updated) => updateSection("hero", updated)}
-          />
-        );
-      default:
-        return (
-          <div className="flex items-center justify-center rounded-xl border border-dashed border-aera-champagne/40 bg-aera-cream/20 py-10 px-6">
-            <p className="text-sm text-aera-muted">
-              Coming soon:{" "}
-              <span className="font-bold text-aera-ink/70">{sectionLabel}</span>
-            </p>
-          </div>
-        );
+    const props: Record<string, any> = {
+      data: sectionData ?? {},
+      onChange: (updated: any) => updateSection(sectionId, updated),
+    };
+
+    if (sectionId === "seo") {
+      props.scopeKey = registryItem?.seoScopeKey ?? pageKey;
+      props.pageKey = pageKey;
     }
+
+    return <EditorComponent {...props} />;
   }
 
   /* ── Loading state ── */
@@ -427,6 +425,7 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
           status={status}
           updatedAt={payload?.updatedAt ?? null}
           publishedAt={payload?.publishedAt ?? null}
+          isDirty={isDirty}
         />
       </div>
 
@@ -447,6 +446,12 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
               message={error}
               variant="error"
               onDismiss={() => setError("")}
+              onAction={
+                error.includes("updated by another administrator")
+                  ? loadData
+                  : undefined
+              }
+              actionLabel="Reload Latest Content"
             />
           </div>
         )}

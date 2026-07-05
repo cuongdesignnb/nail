@@ -16,6 +16,9 @@ export async function GET(req: NextRequest) {
       { lastName: { contains: search, mode: "insensitive" } },
       { email: { contains: search, mode: "insensitive" } },
       { phone: { contains: search, mode: "insensitive" } },
+      { bookings: { some: { bookingCode: { contains: search, mode: "insensitive" } } } },
+      { bookings: { some: { payments: { some: { providerOrderId: { contains: search, mode: "insensitive" } } } } } },
+      { bookings: { some: { payments: { some: { providerCaptureId: { contains: search, mode: "insensitive" } } } } } },
     ];
   }
 
@@ -27,8 +30,7 @@ export async function GET(req: NextRequest) {
         select: {
           id: true,
           scheduledStartAt: true,
-          items: { select: { price: true } },
-          payments: { select: { amount: true, status: true } },
+          payments: { select: { amount: true, status: true, provider: true, paidAt: true } },
         },
         orderBy: { scheduledStartAt: "desc" },
       },
@@ -37,18 +39,26 @@ export async function GET(req: NextRequest) {
   });
 
   const data = customers.map((c) => {
-    const totalSpend = c.bookings.reduce((sum, b) =>
-      sum + b.payments.filter(p => p.status === "Paid").reduce((s, p) => s + Number(p.amount), 0), 0);
+    const paidPayments = c.bookings.flatMap((b) =>
+      b.payments.filter((p) => ["paid", "Paid"].includes(p.status))
+    );
+    const totalSpend = paidPayments.reduce((sum, p) => sum + Number(p.amount), 0);
     const lastVisit = c.bookings[0]?.scheduledStartAt?.toISOString() || null;
+    const lastPayment = paidPayments
+      .map((p) => p.paidAt)
+      .filter(Boolean)
+      .sort((a, b) => Number(b) - Number(a))[0]?.toISOString() || null;
     return {
       id: c.id,
       firstName: c.firstName,
       lastName: c.lastName,
       email: c.email,
       phone: c.phone,
-      totalBookings: c.bookings.length,
+      totalBookings: c.totalBookings || c.bookings.length,
       totalSpend,
       lastVisit,
+      lastPayment,
+      paymentProvider: paidPayments[0]?.provider || null,
     };
   });
 

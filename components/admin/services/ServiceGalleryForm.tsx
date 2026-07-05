@@ -4,6 +4,7 @@ import { FormField, FormSelect } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
 export function ServiceGalleryForm() {
   const [items, setItems] = useState<any[]>([]);
@@ -197,17 +198,16 @@ export function ServiceGalleryForm() {
             </div>
           )}
 
-          <FormField
-            label="Image URL *"
+          <MediaPickerField
+            label="Gallery Image"
             value={image}
-            onChange={(e) => {
-              setImage(e.target.value);
-              if (!imageAlt) setImageAlt(title || "Nail Art Inspiration");
-            }}
-            placeholder="e.g. /images/salon-experience-2.jpg"
-            error={errors.image?.[0]}
+            alt={imageAlt}
+            onChange={(url) => setImage(url)}
+            onAltChange={(alt) => setImageAlt(alt)}
+            folder="services"
             required
           />
+          {errors.image?.[0] && <p className="mb-4 text-xs text-rose-500">{errors.image[0]}</p>}
 
           <FormField
             label="Title"

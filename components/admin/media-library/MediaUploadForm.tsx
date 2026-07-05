@@ -78,7 +78,7 @@ export function MediaUploadForm({ onSuccess }: MediaUploadFormProps) {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormField
-          label="Direct Image URL / Path *"
+          label="Media Source URL / Path *"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="e.g. /images/blog-1.jpg"

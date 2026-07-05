@@ -52,7 +52,7 @@ export const collectionSchema = z.object({
     .min(1, "Slug is required")
     .regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and dashes"),
   description: z.string().optional().nullable(),
-  image: z.string().min(1, "Image path is required"),
+  image: z.string().min(1, "Media Library image is required"),
   imageAlt: z.string().optional().nullable(),
   designCount: z
     .union([z.number(), z.string()])
@@ -68,7 +68,7 @@ export const galleryItemSchema = z.object({
   title: z.string().min(1, "Title is required"),
   slug: z.string().optional().nullable(), // backend generated if empty
   description: z.string().optional().nullable(),
-  image: z.string().min(1, "Image path is required"),
+  image: z.string().min(1, "Media Library image is required"),
   imageAlt: z.string().optional().nullable(),
   tag: z.string().optional().nullable(),
   isHighlight: z.boolean().default(false),
