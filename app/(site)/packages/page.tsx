@@ -1,8 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
 import { fetchPackagesPageContent } from "@/services/packages-page.service";
-import { fetchAboutPageContent } from "@/services/about.service";
-import { Header } from "@/components/layout/Header";
 import { PackagesHero } from "@/components/packages/PackagesHero";
 import { PackageTabs } from "@/components/packages/PackageTabs";
 import { FeaturedPackages } from "@/components/packages/FeaturedPackages";
@@ -14,7 +12,6 @@ import { PackageProcess } from "@/components/packages/PackageProcess";
 import { PackageTestimonials } from "@/components/packages/PackageTestimonials";
 import { PackageFAQ } from "@/components/packages/PackageFAQ";
 import { PackagesCTA } from "@/components/packages/PackagesCTA";
-import { Footer } from "@/components/layout/Footer";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await fetchPackagesPageContent();
@@ -25,13 +22,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PackagesPage() {
-  const aboutContent = await fetchAboutPageContent();
   const content = await fetchPackagesPageContent();
 
   return (
     <main className="bg-aera-bg min-h-screen">
-      <Header data={aboutContent.header} activePath="/packages" />
-
       {/* Hero */}
       <PackagesHero data={content.hero} />
 
@@ -64,12 +58,6 @@ export default async function PackagesPage() {
 
       {/* Final CTA */}
       <PackagesCTA data={content.cta} />
-
-      <Footer
-        data={aboutContent.footer}
-        logo={aboutContent.header.logo}
-        brandName={aboutContent.header.brandName}
-      />
     </main>
   );
 }

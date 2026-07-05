@@ -1,7 +1,4 @@
 import React from "react";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { fetchAboutPageContent } from "@/services/about.service"; // reference standard header data
 import { fetchBlogPageContent } from "@/services/blog-page.service";
 import { BlogHero } from "@/components/blog/BlogHero";
 import { BlogCategoryFilters } from "@/components/blog/BlogCategoryFilters";
@@ -33,10 +30,6 @@ export async function generateMetadata() {
 }
 
 export default async function BlogListingPage({ searchParams }: BlogPageProps) {
-  // 1. Fetch header layout details from the shared service
-  const aboutData = await fetchAboutPageContent();
-  
-  // 2. Fetch Blog specific contents
   const pageNum = Number(searchParams.page) || 1;
   const categoryParam = searchParams.category || undefined;
   const keywordParam = searchParams.keyword || undefined;
@@ -50,9 +43,6 @@ export default async function BlogListingPage({ searchParams }: BlogPageProps) {
 
   return (
     <div className="bg-aera-cream/10 min-h-screen text-aera-ink flex flex-col justify-between">
-      {/* Dynamic layout header */}
-      <Header data={aboutData.header} activePath="/blog" />
-
       {/* Hero Banner */}
       <BlogHero data={content.hero} />
 
@@ -100,13 +90,6 @@ export default async function BlogListingPage({ searchParams }: BlogPageProps) {
 
       {/* CTA section */}
       <BlogCTA data={content.cta} />
-
-      {/* Shared site footer */}
-      <Footer
-        data={aboutData.footer}
-        logo={aboutData.header.logo}
-        brandName={aboutData.header.brandName}
-      />
     </div>
   );
 }

@@ -4042,3 +4042,386 @@ th {
     border-radius: 18px;
   }
 }
+
+/* Canonical public site shell */
+.aera-brand-logo {
+  align-items: center;
+  color: var(--ink);
+  display: inline-flex;
+  gap: 12px;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.aera-brand-logo__image {
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.aera-brand-logo__text {
+  color: var(--accent);
+  font-family: var(--font-playfair), serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.aera-public-header {
+  backdrop-filter: blur(18px);
+  background: rgba(255, 253, 249, 0.92);
+  border-bottom: 1px solid rgba(187, 148, 87, 0.16);
+  position: sticky;
+  top: 0;
+  z-index: 120;
+}
+
+.aera-public-header__inner {
+  align-items: center;
+  display: grid;
+  gap: 22px;
+  grid-template-columns: auto 1fr auto auto;
+  margin: 0 auto;
+  max-width: 1440px;
+  min-height: 82px;
+  padding: 0 32px;
+}
+
+.aera-public-header__desktop-nav {
+  align-items: center;
+  display: flex;
+  gap: clamp(14px, 2vw, 28px);
+  justify-content: center;
+  min-width: 0;
+}
+
+.aera-public-header__desktop-nav a,
+.aera-public-header__desktop-nav span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.aera-public-header__desktop-nav a:hover,
+.aera-public-header__desktop-nav .is-active {
+  color: var(--accent);
+}
+
+.aera-public-header__nav-item {
+  position: relative;
+}
+
+.aera-public-header__nav-row {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.aera-public-header__nav-row button,
+.aera-public-header__mobile-trigger,
+.aera-public-mobile-drawer__header button,
+.aera-public-mobile-drawer__toggle {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--accent);
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.aera-public-header__submenu {
+  background: #fffdf9;
+  border: 1px solid rgba(187, 148, 87, 0.18);
+  box-shadow: 0 18px 50px rgba(83, 56, 32, 0.12);
+  display: none;
+  left: 0;
+  min-width: 220px;
+  padding: 12px;
+  position: absolute;
+  top: calc(100% + 12px);
+}
+
+.aera-public-header__nav-item:hover > .aera-public-header__submenu,
+.aera-public-header__nav-item:focus-within > .aera-public-header__submenu {
+  display: grid;
+  gap: 10px;
+}
+
+.aera-public-header__cta {
+  align-items: center;
+  background: var(--accent);
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.aera-public-header__mobile-trigger {
+  display: none;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.aera-public-mobile-overlay {
+  background: rgba(37, 28, 22, 0.34);
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  transition: opacity 0.2s ease;
+  z-index: 130;
+}
+
+.aera-public-mobile-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.aera-public-mobile-drawer {
+  background: #fffdf9;
+  box-shadow: -22px 0 60px rgba(64, 42, 28, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  height: 100dvh;
+  max-width: min(88vw, 390px);
+  padding: 22px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  width: 390px;
+  z-index: 140;
+}
+
+.aera-public-mobile-drawer.is-open {
+  transform: translateX(0);
+}
+
+.aera-public-mobile-drawer__header,
+.aera-public-mobile-drawer__row {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.aera-public-mobile-drawer__header button,
+.aera-public-mobile-drawer__toggle {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.aera-public-mobile-drawer__nav,
+.aera-public-mobile-drawer__children {
+  display: grid;
+  gap: 8px;
+}
+
+.aera-public-mobile-drawer__link {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--ink);
+  display: flex;
+  flex: 1;
+  font-size: 15px;
+  font-weight: 800;
+  min-height: 44px;
+  text-align: left;
+  text-decoration: none;
+}
+
+.aera-public-footer {
+  background: linear-gradient(180deg, #fffaf0 0%, #f5ead8 100%);
+  border-top: 1px solid rgba(187, 148, 87, 0.18);
+  color: var(--ink);
+  padding: 0;
+}
+
+.aera-public-footer__inner {
+  display: grid;
+  gap: 36px;
+  grid-template-columns: minmax(240px, 1.45fr) repeat(4, minmax(0, 1fr));
+  margin: 0 auto;
+  max-width: 1440px;
+  padding: 64px 32px 30px;
+}
+
+.aera-public-footer[data-footer-layout="two_columns"] .aera-public-footer__inner {
+  grid-template-columns: minmax(240px, 1.45fr) repeat(2, minmax(0, 1fr));
+}
+
+.aera-public-footer[data-footer-layout="three_columns"] .aera-public-footer__inner {
+  grid-template-columns: minmax(240px, 1.45fr) repeat(3, minmax(0, 1fr));
+}
+
+.aera-public-footer__brand,
+.aera-public-footer__column,
+.aera-public-footer__contact,
+.aera-public-footer__newsletter,
+.aera-public-footer__column ul {
+  display: grid;
+  gap: 12px;
+}
+
+.aera-public-footer__brand p,
+.aera-public-footer__newsletter p,
+.aera-public-footer__contact span,
+.aera-public-footer__bottom span {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.aera-public-footer__column h3,
+.aera-public-footer__newsletter h3 {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 900;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.aera-public-footer__column ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.aera-public-footer a {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  gap: 8px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.aera-public-footer a:hover {
+  color: var(--accent);
+}
+
+.aera-public-footer__social,
+.aera-public-footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.aera-public-footer__social a {
+  align-items: center;
+  border: 1px solid rgba(187, 148, 87, 0.24);
+  border-radius: 999px;
+  display: inline-flex;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.aera-public-footer__bottom {
+  align-items: center;
+  border-top: 1px solid rgba(187, 148, 87, 0.18);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  grid-column: 1 / -1;
+  justify-content: space-between;
+  padding-top: 24px;
+}
+
+.aera-public-preview-banner {
+  align-items: center;
+  background: #2d241f;
+  color: #fff;
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  padding: 10px 16px;
+  position: relative;
+  z-index: 150;
+}
+
+.aera-public-shell-skeleton {
+  display: grid;
+  gap: 12px;
+  padding: 24px;
+}
+
+.aera-public-shell-skeleton div {
+  background: rgba(187, 148, 87, 0.16);
+  border-radius: 8px;
+  height: 18px;
+}
+
+@media (max-width: 1080px) {
+  .aera-public-header__inner {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .aera-public-header__desktop-nav {
+    display: none;
+  }
+
+  .aera-public-header__mobile-trigger {
+    display: inline-flex;
+  }
+
+  .aera-public-footer__inner,
+  .aera-public-footer[data-footer-layout="two_columns"] .aera-public-footer__inner,
+  .aera-public-footer[data-footer-layout="three_columns"] .aera-public-footer__inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .aera-public-footer__brand,
+  .aera-public-footer__bottom {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 680px) {
+  .aera-brand-logo__text {
+    font-size: 15px;
+  }
+
+  .aera-public-header__inner {
+    gap: 12px;
+    min-height: 72px;
+    padding: 0 16px;
+  }
+
+  .aera-public-header__cta {
+    display: none;
+  }
+
+  .aera-public-mobile-drawer .aera-public-header__cta {
+    display: inline-flex;
+    justify-content: center;
+  }
+
+  .aera-public-footer__inner,
+  .aera-public-footer[data-footer-layout="two_columns"] .aera-public-footer__inner,
+  .aera-public-footer[data-footer-layout="three_columns"] .aera-public-footer__inner {
+    grid-template-columns: 1fr;
+    padding: 48px 20px 24px;
+  }
+
+  .aera-public-footer__brand,
+  .aera-public-footer__bottom {
+    grid-column: auto;
+  }
+
+  .aera-public-footer__bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

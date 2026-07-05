@@ -207,11 +207,11 @@ export async function getPublishedMobileMenu() {
 export async function getPublishedFooterMenus() {
   const [settings, companyMenu, servicesMenu, exploreMenu, legalMenu, socialMenu] = await Promise.all([
     getNavigationSettings(),
-    getPublishedMenu("footer-company"),
-    getPublishedMenu("footer-services"),
-    getPublishedMenu("footer-explore"),
-    getPublishedMenu("footer-legal"),
-    getPublishedMenu("footer-social"),
+    getPublishedFooterCompanyMenu(),
+    getPublishedFooterServicesMenu(),
+    getPublishedFooterExploreMenu(),
+    getPublishedFooterLegalMenu(),
+    getPublishedFooterSocialMenu(),
   ]);
   return {
     settings,
@@ -221,6 +221,26 @@ export async function getPublishedFooterMenus() {
     legalMenu: settings.footerShowLegal ? legalMenu : [],
     socialMenu: settings.footerShowSocial ? socialMenu : [],
   };
+}
+
+export async function getPublishedFooterCompanyMenu() {
+  return getPublishedMenu("footer-company");
+}
+
+export async function getPublishedFooterServicesMenu() {
+  return getPublishedMenu("footer-services");
+}
+
+export async function getPublishedFooterExploreMenu() {
+  return getPublishedMenu("footer-explore");
+}
+
+export async function getPublishedFooterLegalMenu() {
+  return getPublishedMenu("footer-legal");
+}
+
+export async function getPublishedFooterSocialMenu() {
+  return getPublishedMenu("footer-social");
 }
 
 async function getPublishedMenu(key: string) {

@@ -59,11 +59,19 @@ async function main() {
     });
   }
 
-  const publicHeader = fs.readFileSync(path.join(process.cwd(), "components/shared/PublicHeader.tsx"), "utf8");
-  const publicFooter = fs.readFileSync(path.join(process.cwd(), "components/shared/PublicFooter.tsx"), "utf8");
-  assert(publicHeader.includes("getPublishedPrimaryMenu"), "Current public Header does not use Menu Manager service.");
-  assert(publicHeader.includes("getPublishedMobileMenu"), "Current public mobile menu does not use Menu Manager service.");
-  assert(publicFooter.includes("getPublishedFooterMenus"), "Current public Footer does not use Menu Manager service.");
+  const shellService = fs.readFileSync(path.join(process.cwd(), "lib/site-shell/public-shell.service.ts"), "utf8");
+  const publicHeader = fs.readFileSync(path.join(process.cwd(), "components/public/shell/PublicHeader.tsx"), "utf8");
+  const publicFooter = fs.readFileSync(path.join(process.cwd(), "components/public/shell/PublicFooter.tsx"), "utf8");
+  assert(shellService.includes("getPublishedPrimaryMenu"), "Public shell service does not use Header Primary Menu Manager data.");
+  assert(shellService.includes("getPublishedMobileMenu"), "Public shell service does not use Header Mobile Menu Manager data.");
+  assert(shellService.includes("getPublishedFooterCompanyMenu"), "Public shell service does not use Footer Company Menu Manager data.");
+  assert(shellService.includes("getPublishedFooterServicesMenu"), "Public shell service does not use Footer Services Menu Manager data.");
+  assert(shellService.includes("getPublishedFooterExploreMenu"), "Public shell service does not use Footer Explore Menu Manager data.");
+  assert(shellService.includes("getPublishedFooterLegalMenu"), "Public shell service does not use Footer Legal Menu Manager data.");
+  assert(shellService.includes("getPublishedFooterSocialMenu"), "Public shell service does not use Footer Social Menu Manager data.");
+  assert(publicHeader.includes("data.header.primaryMenu"), "Current public Header does not render shell primary menu data.");
+  assert(publicHeader.includes("data.header.mobileMenu"), "Current public Header does not render shell mobile menu data.");
+  assert(publicFooter.includes("footer.companyMenu"), "Current public Footer does not render shell footer menu data.");
   assert(!publicFooter.includes("quickLinks ="), "Static Footer navigation array remains in PublicFooter.");
 
   console.log("Navigation menu verification passed.");

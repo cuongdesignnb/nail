@@ -1,8 +1,5 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { fetchAboutPageContent } from "@/services/about.service";
 import { fetchBlogPageContent } from "@/services/blog-page.service";
 import { prisma } from "@/lib/db";
 import { LatestArticles } from "@/components/blog/LatestArticles";
@@ -45,7 +42,6 @@ export default async function BlogCategoryPage({ params, searchParams }: Categor
     notFound();
   }
 
-  const aboutData = await fetchAboutPageContent();
   const pageNum = Number(searchParams.page) || 1;
 
   // 2. Fetch content for that specific category slug
@@ -57,9 +53,6 @@ export default async function BlogCategoryPage({ params, searchParams }: Categor
 
   return (
     <div className="bg-aera-cream/10 min-h-screen text-aera-ink flex flex-col justify-between">
-      {/* Header */}
-      <Header data={aboutData.header} activePath="/blog" />
-
       {/* Category Hero */}
       <section className="bg-aera-cream/35 py-12 md:py-16 border-b border-aera-champagne/40 text-left">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,13 +101,6 @@ export default async function BlogCategoryPage({ params, searchParams }: Categor
 
         </div>
       </div>
-
-      {/* Footer */}
-      <Footer
-        data={aboutData.footer}
-        logo={aboutData.header.logo}
-        brandName={aboutData.header.brandName}
-      />
     </div>
   );
 }

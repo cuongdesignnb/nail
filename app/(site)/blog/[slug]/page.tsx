@@ -1,7 +1,4 @@
 import React from "react";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { fetchAboutPageContent } from "@/services/about.service";
 import { fetchBlogPostBySlug } from "@/services/blog-post.service";
 
 import { BlogArticleHero } from "@/components/blog/detail/BlogArticleHero";
@@ -43,17 +40,10 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
 }
 
 export default async function BlogPostDetailPage({ params }: BlogPostPageProps) {
-  // 1. Fetch shared layout header/footer data
-  const aboutData = await fetchAboutPageContent();
-
-  // 2. Fetch the aggregate blog details payload
   const data = await fetchBlogPostBySlug(params.slug);
 
   return (
     <div className="bg-aera-bg min-h-screen text-aera-ink flex flex-col justify-between">
-      {/* Header with active blog tab */}
-      <Header data={aboutData.header} activePath="/blog" />
-
       {/* Hero Header */}
       <BlogArticleHero post={data.post} />
 
@@ -86,13 +76,6 @@ export default async function BlogPostDetailPage({ params }: BlogPostPageProps) 
 
       {/* CTA final section */}
       <BlogDetailCTA data={data.cta} />
-
-      {/* Footer */}
-      <Footer
-        data={aboutData.footer}
-        logo={aboutData.header.logo}
-        brandName={aboutData.header.brandName}
-      />
     </div>
   );
 }

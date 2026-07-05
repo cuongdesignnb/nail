@@ -1,34 +1,26 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   ArrowRight,
   Award,
-  Book,
   CalendarCheck,
   Check,
   Clock3,
   Gem,
   HeartHandshake,
-  Home as HomeIcon,
   Instagram,
-  Mail,
-  Map,
   MapPin,
-  Menu,
   MessageCircle,
   Phone,
   Scissors,
   ShieldCheck,
   Sparkles,
   Star,
-  WandSparkles,
-  X
+  WandSparkles
 } from "lucide-react";
 import { business, gallery as galleryItems, packages as packageItems, services as serviceItems, technicians } from "@/lib/data";
-
-const navItems = ["Home", "About", "Services", "Gallery", "Packages", "Promotions", "Blog", "Contact"];
 
 const serviceIconMap = [HeartHandshake, Sparkles, WandSparkles, Gem, Award, Scissors];
 const services = serviceItems.slice(0, 6).map((service, index) => ({
@@ -117,82 +109,14 @@ function RevealDiv({ children, className = "", delay = 0 }: { children: React.Re
   );
 }
 
-function Logo() {
-  return (
-    <a className="logo" href="#home" aria-label="Aera Nail Lounge home">
-      <Image src="/aera-mark.svg" alt="" width={58} height={58} priority />
-      <span>{business.name}</span>
-    </a>
-  );
-}
-
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  /* Lock body scroll when mobile menu is open */
-  useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
-
   return (
     <main id="home">
       {/* ── Header ── */}
-      <header className="site-header">
-        <button
-          className="menu-button"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-        <Logo />
-        <nav aria-label="Primary navigation">
-          {navItems.map((item) => (
-            <a key={item} className={item === "Home" ? "active" : ""} href={`#${item.toLowerCase()}`}>
-              {item}
-            </a>
-          ))}
-        </nav>
-        <a className="book-top" href="#contact">
-          <CalendarCheck size={17} />
-          Book Now
-          <ArrowRight size={15} />
-        </a>
-      </header>
+
 
       {/* ── Mobile Drawer Menu (Left) ── */}
-      <div className={`drawer-overlay ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(false)} />
-      <aside className={`drawer-menu ${menuOpen ? "open" : ""}`}>
-        <div className="drawer-header">
-          <Logo />
-          <button className="drawer-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
-            <X size={22} />
-          </button>
-        </div>
-        <nav className="drawer-nav">
-          {navItems.map((item, i) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              onClick={() => setMenuOpen(false)}
-              style={{ animationDelay: `${80 + i * 60}ms` }}
-              className={menuOpen ? "slide-in" : ""}
-            >
-              {item}
-            </a>
-          ))}
-        </nav>
-        <a className="primary-btn drawer-book" href="#contact" onClick={() => setMenuOpen(false)}>
-          <CalendarCheck size={17} />
-          Book Now
-          <ArrowRight size={15} />
-        </a>
-      </aside>
+
 
       {/* ── Hero ── */}
       <section className="hero">
@@ -441,32 +365,7 @@ export default function Home() {
       </Reveal>
 
       {/* ── Footer ── */}
-      <footer>
-        <div className="footer-brand">
-          <Logo />
-          <p>Luxury nail care in an elegant lounge created for quiet beauty, expert detail and a little everyday glow.</p>
-        </div>
-        <div>
-          <h3>Quick Links</h3>
-          <a href="#about">About Us</a>
-          <a href="#services">Services</a>
-          <a href="#packages">Packages</a>
-          <a href="#gallery">Gallery</a>
-        </div>
-        <div>
-          <h3>Services</h3>
-          <a href="#services">Manicure</a>
-          <a href="#services">Pedicure</a>
-          <a href="#services">Gel Polish</a>
-          <a href="#services">Nail Art</a>
-        </div>
-        <div>
-          <h3>Contact</h3>
-          <a href={`tel:+${business.rawPhone}`}><Phone size={14} /> {business.phone}</a>
-          <a href={`mailto:${business.email}`}><Mail size={14} /> {business.email}</a>
-          <a href="#contact"><MapPin size={14} /> {business.address}</a>
-        </div>
-      </footer>
+
 
       {/* ── PC Right Sidebar (Shake icons) ── */}
       <div className="pc-sidebar">
@@ -485,24 +384,7 @@ export default function Home() {
       </div>
 
       {/* ── Mobile Footer Bar ── */}
-      <nav className="mobile-footer-bar" aria-label="Mobile navigation">
-        <a href="#home" className="mobile-bar-item">
-          <HomeIcon size={22} />
-          <span>Home</span>
-        </a>
-        <a href="/booking" className="mobile-bar-item">
-          <Book size={22} />
-          <span>Book</span>
-        </a>
-        <a href={`https://wa.me/${business.rawPhone}`} target="_blank" rel="noopener noreferrer" className="mobile-bar-item whatsapp-mobile">
-          <MessageCircle size={22} />
-          <span>WhatsApp</span>
-        </a>
-        <a href={`https://maps.google.com/?q=${encodeURIComponent(business.address)}`} target="_blank" rel="noopener noreferrer" className="mobile-bar-item">
-          <Map size={22} />
-          <span>Map</span>
-        </a>
-      </nav>
+
     </main>
   );
 }

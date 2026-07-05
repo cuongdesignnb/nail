@@ -1,8 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
 import { fetchGalleryPageContent } from "@/services/gallery-page.service";
-import { fetchAboutPageContent } from "@/services/about.service";
-import { Header } from "@/components/layout/Header";
 import { GalleryHero } from "@/components/gallery/GalleryHero";
 import { GalleryFilters } from "@/components/gallery/GalleryFilters";
 import { FeaturedCollections } from "@/components/gallery/FeaturedCollections";
@@ -12,7 +10,6 @@ import { TrendingInspirations } from "@/components/gallery/TrendingInspirations"
 import { GalleryProcess } from "@/components/gallery/GalleryProcess";
 import { GalleryTestimonials } from "@/components/gallery/GalleryTestimonials";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
-import { Footer } from "@/components/layout/Footer";
 
 export async function generateMetadata(): Promise<Metadata> {
   const content = await fetchGalleryPageContent();
@@ -23,13 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function GalleryPage() {
-  const aboutContent = await fetchAboutPageContent();
   const content = await fetchGalleryPageContent();
 
   return (
     <main className="bg-aera-bg min-h-screen">
-      <Header data={aboutContent.header} activePath="/gallery" />
-
       {/* Hero section */}
       <GalleryHero data={content.hero} />
 
@@ -56,12 +50,6 @@ export default async function GalleryPage() {
 
       {/* CTA final button */}
       <GalleryCTA data={content.cta} />
-
-      <Footer
-        data={aboutContent.footer}
-        logo={aboutContent.header.logo}
-        brandName={aboutContent.header.brandName}
-      />
     </main>
   );
 }
