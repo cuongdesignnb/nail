@@ -55,6 +55,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         excerpt: body.excerpt || null,
         content: body.content || null,
         coverImage: body.coverImage || null,
+        coverMediaId: body.coverMediaId || null,
         coverImageAlt: body.coverImageAlt || null,
         authorName: body.authorName || "Aera Team",
         authorAvatar: body.authorAvatar || null,
@@ -75,6 +76,15 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         sortOrder: body.sortOrder,
       },
     });
+
+    await prisma.mediaUsage.deleteMany({
+      where: { entityType: "BlogPost", entityId: params.id, fieldKey: "coverImage" },
+    }).catch(() => undefined);
+    if (body.coverMediaId) {
+      await prisma.mediaUsage.create({
+        data: { mediaId: body.coverMediaId, entityType: "BlogPost", entityId: params.id, fieldKey: "coverImage" },
+      }).catch(() => undefined);
+    }
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {

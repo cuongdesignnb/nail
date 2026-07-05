@@ -767,6 +767,7 @@ model BlogPost {
 
   coverImage    String?
   coverImageAlt String?
+  coverMediaId  String?
 
   authorName   String?
   authorAvatar String?
@@ -790,9 +791,127 @@ model BlogPost {
   faqs     Json?
   products Json?
 
+  aiGenerated       Boolean @default(false)
+  aiContentJobId    String? @unique
+  aiImagePrompt     String?
+  generatedLanguage String?
+  generationVersion String?
+
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AiProviderSetting {
+  id                    String    @id @default(cuid())
+  provider              String    @unique @default("openai")
+  isEnabled             Boolean   @default(false)
+  encryptedApiKey       String?
+  apiKeyLastFour        String?
+  apiKeyConfiguredAt    DateTime?
+  textModel             String    @default("gpt-5.4-mini")
+  imageModel            String    @default("gpt-image-2")
+  defaultOutputLanguage String    @default("en")
+  defaultArticleTone    String    @default("luxury_editorial")
+  defaultArticleLength  Int       @default(1200)
+  defaultGenerateImage  Boolean   @default(true)
+  defaultImageSize      String    @default("1536x1024")
+  defaultImageQuality   String    @default("medium")
+  maxKeywordsPerBatch   Int       @default(30)
+  maxConcurrentJobs     Int       @default(1)
+  maxRetriesPerJob      Int       @default(2)
+  monthlyBudgetLimit    Decimal?
+  monthlyBudgetUsed     Decimal   @default(0)
+  humanReviewRequired   Boolean   @default(true)
+  autoScheduleEnabled   Boolean   @default(true)
+  lastTestStatus        String?
+  lastTestedAt          DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model AiContentBatch {
+  id                    String         @id @default(cuid())
+  name                  String?
+  rawKeywordInput       String
+  normalizedKeywords    Json
+  outputLanguage        String         @default("en")
+  categoryId            String?
+  status                String         @default("queued")
+  generationMode        String         @default("draft")
+  scheduleStartAt       DateTime?
+  scheduleIntervalHours Int?
+  timezone              String?
+  generateImages        Boolean        @default(true)
+  textModel             String
+  imageModel            String?
+  requestedBy           String?
+  completedAt           DateTime?
+  cancelledAt           DateTime?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  jobs                  AiContentJob[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AiContentJob {
+  id                  String              @id @default(cuid())
+  batchId             String
+  batch               AiContentBatch      @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  keyword             String
+  normalizedKeyword   String
+  sortOrder           Int
+  categoryId          String?
+  status              String              @default("queued")
+  attemptCount        Int                 @default(0)
+  maxAttempts         Int                 @default(2)
+  scheduledPublishAt  DateTime?
+  lockedAt            DateTime?
+  lockedBy            String?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  failedAt            DateTime?
+  cancelledAt         DateTime?
+  textModel           String
+  imageModel          String?
+  generateImage       Boolean             @default(true)
+  requestSnapshot     Json?
+  articleSnapshot     Json?
+  imagePrompt         String?
+  imageGenerationMeta Json?
+  blogPostId          String?             @unique
+  coverMediaId        String?
+  providerResponseId  String?
+  inputTokens         Int?
+  outputTokens        Int?
+  imageCount          Int                 @default(0)
+  estimatedCost       Decimal?
+  errorCode           String?
+  errorMessage        String?
+  retryAfter          DateTime?
+  idempotencyKey      String              @unique
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  events              AiContentJobEvent[]
+
+  @@unique([batchId, normalizedKeyword])
+  @@index([status, scheduledPublishAt])
+  @@index([keyword])
+  @@index([blogPostId])
+}
+
+model AiContentJobEvent {
+  id        String       @id @default(cuid())
+  jobId     String
+  eventType String
+  message   String?
+  metadata  Json?
+  createdAt DateTime     @default(now())
+  job       AiContentJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, createdAt])
 }
 
 model MediaFolder {

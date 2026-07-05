@@ -103,6 +103,7 @@ export async function POST(req: Request) {
         excerpt: body.excerpt || null,
         content: body.content || null,
         coverImage: body.coverImage || null,
+        coverMediaId: body.coverMediaId || null,
         coverImageAlt: body.coverImageAlt || null,
         authorName: body.authorName || "Aera Team",
         authorAvatar: body.authorAvatar || null,
@@ -123,6 +124,12 @@ export async function POST(req: Request) {
         sortOrder: body.sortOrder,
       },
     });
+
+    if (body.coverMediaId) {
+      await prisma.mediaUsage.create({
+        data: { mediaId: body.coverMediaId, entityType: "BlogPost", entityId: item.id, fieldKey: "coverImage" },
+      }).catch(() => undefined);
+    }
 
     return NextResponse.json({ success: true, data: item });
   } catch (error: any) {

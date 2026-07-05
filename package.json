@@ -15,6 +15,9 @@
     "audit:image-library": "tsx scripts/audit-image-library-usage.ts",
     "verify:content-hub": "tsx scripts/verify-content-hub-completeness.ts",
     "payments:reconcile-paypal": "tsx scripts/reconcile-paypal-payments.ts",
+    "jobs:ai-content": "tsx scripts/run-ai-content-jobs.ts",
+    "jobs:publish-blog": "tsx scripts/publish-scheduled-blog-posts.ts",
+    "verify:ai-encoding": "tsx scripts/verify-ai-content-encoding.ts",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down"
   },

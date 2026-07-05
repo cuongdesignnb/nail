@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, FileText, Layers, Settings, Image as ImageIcon } from "lucide-react";
+import { LayoutGrid, FileText, Layers, Settings, Image as ImageIcon, Sparkles } from "lucide-react";
 import clsx from "clsx";
 
 export function AdminBlogNavTabs() {
@@ -11,6 +11,7 @@ export function AdminBlogNavTabs() {
   const tabs = [
     { href: "/admin/blog", label: "Dashboard", icon: LayoutGrid },
     { href: "/admin/blog/posts", label: "Articles List", icon: FileText },
+    { href: "/admin/blog/ai", label: "AI Content Studio", icon: Sparkles },
     { href: "/admin/blog/categories", label: "Category Tabs", icon: Layers },
     { href: "/admin/blog/settings", label: "Page Settings", icon: Settings },
     { href: "/admin/media-library", label: "Media Explorer", icon: ImageIcon },

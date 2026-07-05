@@ -54,6 +54,7 @@ export const blogPostSchema = z.object({
   excerpt: z.string().optional().nullable(),
   content: z.string().optional().nullable(),
   coverImage: z.string().optional().nullable(),
+  coverMediaId: z.string().optional().nullable(),
   coverImageAlt: z.string().optional().nullable(),
   authorName: z.string().optional().nullable(),
   authorAvatar: z.string().optional().nullable(),
