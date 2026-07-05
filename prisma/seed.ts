@@ -5,6 +5,125 @@ import * as path from "path";
 
 const prisma = new PrismaClient();
 
+const navigationMenus = [
+  {
+    key: "header-primary",
+    name: "Primary Header Navigation",
+    description: "Main desktop Header navigation.",
+    location: "header_primary",
+    items: [
+      { id: "nav-home", label: "Home", href: "/", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "nav-about", label: "About", href: "/about", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "nav-services", label: "Services", href: "/services", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "nav-gallery", label: "Gallery", href: "/gallery", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "nav-packages", label: "Packages", href: "/packages", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "nav-promotions", label: "Promotions", href: "/promotions", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "nav-blog", label: "Beauty Journal", href: "/blog", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "nav-contact", label: "Contact", href: "/contact", type: "internal", target: "_self", isEnabled: true, children: [] },
+    ],
+  },
+  {
+    key: "header-mobile",
+    name: "Mobile Navigation",
+    description: "Optional custom mobile drawer navigation.",
+    location: "header_mobile",
+    items: [],
+  },
+  {
+    key: "footer-company",
+    name: "Footer Company",
+    description: "Company and quick footer links.",
+    location: "footer_company",
+    items: [
+      { id: "footer-company-home", label: "Home", href: "/", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-company-about", label: "About Aera", href: "/about", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-company-contact", label: "Contact", href: "/contact", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-company-booking", label: "Book Your Appointment", href: "/booking", type: "internal", target: "_self", isEnabled: true, children: [] },
+    ],
+  },
+  {
+    key: "footer-services",
+    name: "Footer Services",
+    description: "Services and packages footer links.",
+    location: "footer_services",
+    items: [
+      { id: "footer-services-all", label: "All Services", href: "/services", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-services-manicure", label: "Manicure", href: "/services", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-services-pedicure", label: "Pedicure", href: "/services", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-services-gel", label: "Gel Polish", href: "/services", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-services-art", label: "Nail Art", href: "/services", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-services-spa", label: "Spa Treatment", href: "/services", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-services-packages", label: "Nail Packages", href: "/packages", type: "internal", target: "_self", isEnabled: true, children: [] },
+    ],
+  },
+  {
+    key: "footer-explore",
+    name: "Footer Explore",
+    description: "Explore links for gallery, promotions, journal and booking.",
+    location: "footer_explore",
+    items: [
+      { id: "footer-explore-gallery", label: "Gallery", href: "/gallery", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-explore-promotions", label: "Promotions", href: "/promotions", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-explore-blog", label: "Beauty Journal", href: "/blog", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-explore-booking", label: "Book Now", href: "/booking", type: "internal", target: "_self", isEnabled: true, children: [] },
+    ],
+  },
+  {
+    key: "footer-legal",
+    name: "Footer Legal",
+    description: "Footer legal and policy links.",
+    location: "footer_legal",
+    items: [
+      { id: "footer-legal-privacy", label: "Privacy Policy", href: "/privacy-policy", type: "internal", target: "_self", isEnabled: false, children: [] },
+      { id: "footer-legal-terms", label: "Terms & Conditions", href: "/terms", type: "internal", target: "_self", isEnabled: false, children: [] },
+      { id: "footer-legal-booking", label: "Booking Policy", href: "/booking-policy", type: "internal", target: "_self", isEnabled: false, children: [] },
+      { id: "footer-legal-accessibility", label: "Accessibility", href: "/accessibility", type: "internal", target: "_self", isEnabled: false, children: [] },
+    ],
+  },
+  {
+    key: "footer-social",
+    name: "Footer Social",
+    description: "Footer social profile links.",
+    location: "footer_social",
+    items: [
+      { id: "footer-social-instagram", label: "Instagram", href: "https://www.instagram.com/", type: "external", target: "_blank", isEnabled: true, icon: "Instagram", children: [] },
+      { id: "footer-social-facebook", label: "Facebook", href: "https://www.facebook.com/", type: "external", target: "_blank", isEnabled: true, icon: "Facebook", children: [] },
+      { id: "footer-social-tiktok", label: "TikTok", href: "https://www.tiktok.com/", type: "external", target: "_blank", isEnabled: true, icon: "TikTok", children: [] },
+    ],
+  },
+];
+
+async function seedNavigationMenus() {
+  console.log("Seeding navigation menus...");
+  for (const menu of navigationMenus) {
+    const publishedItems = menu.items.filter((item) => item.isEnabled !== false);
+    await prisma.navigationMenu.upsert({
+      where: { key: menu.key },
+      update: {},
+      create: {
+        key: menu.key,
+        name: menu.name,
+        description: menu.description,
+        location: menu.location,
+        draftItems: menu.items,
+        publishedItems,
+      },
+    });
+  }
+  await prisma.navigationMenuSetting.upsert({
+    where: { key: "default" },
+    update: {},
+    create: {
+      key: "default",
+      headerMobileMode: "inherit_header_primary",
+      headerMobileMenuKey: "header-mobile",
+      footerLayout: "four_columns",
+      footerShowSocial: true,
+      footerShowLegal: true,
+    },
+  });
+}
+
 async function main() {
   // 1. Admin user
   const password = await bcrypt.hash("AeraAdmin123!", 10);
@@ -1918,6 +2037,8 @@ async function main() {
       create: seo,
     });
   }
+
+  await seedNavigationMenus();
 
   // Seed Business Settings
   console.log("Seeding business settings...");

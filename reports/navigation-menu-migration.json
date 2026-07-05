@@ -1,0 +1,91 @@
+[
+  {
+    "location": "header_primary",
+    "menuKey": "header-primary",
+    "importedItemCount": 8,
+    "nestedItemCount": 0,
+    "socialItemCount": 0,
+    "disabledInvalidLinks": 0,
+    "missingRouteWarnings": [],
+    "migrationSource": "default seed and existing menu manager data",
+    "publishedDataCreated": true,
+    "draftDataCreated": true
+  },
+  {
+    "location": "header_mobile",
+    "menuKey": "header-mobile",
+    "importedItemCount": 0,
+    "nestedItemCount": 0,
+    "socialItemCount": 0,
+    "disabledInvalidLinks": 0,
+    "missingRouteWarnings": [],
+    "migrationSource": "default seed and existing menu manager data",
+    "publishedDataCreated": false,
+    "draftDataCreated": false
+  },
+  {
+    "location": "footer_company",
+    "menuKey": "footer-company",
+    "importedItemCount": 4,
+    "nestedItemCount": 0,
+    "socialItemCount": 0,
+    "disabledInvalidLinks": 0,
+    "missingRouteWarnings": [],
+    "migrationSource": "default seed and existing menu manager data",
+    "publishedDataCreated": true,
+    "draftDataCreated": true
+  },
+  {
+    "location": "footer_services",
+    "menuKey": "footer-services",
+    "importedItemCount": 7,
+    "nestedItemCount": 0,
+    "socialItemCount": 0,
+    "disabledInvalidLinks": 0,
+    "missingRouteWarnings": [],
+    "migrationSource": "default seed and existing menu manager data",
+    "publishedDataCreated": true,
+    "draftDataCreated": true
+  },
+  {
+    "location": "footer_explore",
+    "menuKey": "footer-explore",
+    "importedItemCount": 4,
+    "nestedItemCount": 0,
+    "socialItemCount": 0,
+    "disabledInvalidLinks": 0,
+    "missingRouteWarnings": [],
+    "migrationSource": "default seed and existing menu manager data",
+    "publishedDataCreated": true,
+    "draftDataCreated": true
+  },
+  {
+    "location": "footer_legal",
+    "menuKey": "footer-legal",
+    "importedItemCount": 4,
+    "nestedItemCount": 0,
+    "socialItemCount": 0,
+    "disabledInvalidLinks": 4,
+    "missingRouteWarnings": [
+      "Privacy Policy is disabled until route exists",
+      "Terms & Conditions is disabled until route exists",
+      "Booking Policy is disabled until route exists",
+      "Accessibility is disabled until route exists"
+    ],
+    "migrationSource": "default seed and existing menu manager data",
+    "publishedDataCreated": false,
+    "draftDataCreated": true
+  },
+  {
+    "location": "footer_social",
+    "menuKey": "footer-social",
+    "importedItemCount": 3,
+    "nestedItemCount": 0,
+    "socialItemCount": 3,
+    "disabledInvalidLinks": 0,
+    "missingRouteWarnings": [],
+    "migrationSource": "default seed and existing menu manager data",
+    "publishedDataCreated": true,
+    "draftDataCreated": true
+  }
+]

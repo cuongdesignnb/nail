@@ -1,6 +1,7 @@
 'use client';
 
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import Link from 'next/link';
+import { Menu } from 'lucide-react';
 
 type NavItem = { id: string; label: string; href: string };
 type HeaderNavData = {
@@ -15,67 +16,19 @@ export function GlobalHeaderNavSectionEditor({ data, onChange }: Props) {
     onChange({ ...data, ...patch });
   }
 
-  function updateItem(index: number, patch: Partial<NavItem>) {
-    const items = [...data.items];
-    items[index] = { ...items[index], ...patch };
-    update({ items });
-  }
-
-  function addItem() {
-    update({ items: [...data.items, { id: crypto.randomUUID(), label: '', href: '' }] });
-  }
-
-  function removeItem(index: number) {
-    update({ items: data.items.filter((_, i) => i !== index) });
-  }
-
   return (
     <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-[#23212a] mb-1">Navigation Items</label>
-        <div className="space-y-2">
-          {data.items.map((item, i) => (
-            <div key={item.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-[#23212a]">
-                  <GripVertical size={14} className="text-gray-400" />
-                  Item {i + 1}
-                </div>
-                <button onClick={() => removeItem(i)} className="text-red-500 hover:text-red-700 p-1">
-                  <Trash2 size={14} />
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-[#23212a] mb-1">Label</label>
-                  <input
-                    type="text"
-                    value={item.label}
-                    onChange={(e) => updateItem(i, { label: e.target.value })}
-                    placeholder="Services"
-                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#23212a] mb-1">Link (href)</label>
-                  <input
-                    type="text"
-                    value={item.href}
-                    onChange={(e) => updateItem(i, { href: e.target.value })}
-                    placeholder="/services"
-                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
+      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <p className="text-sm font-semibold text-[#23212a]">Primary Menu: Header Primary Navigation</p>
+        <p className="mt-1 text-sm text-gray-600">Mobile Menu Mode is configured in Menu Location Settings. Navigation tree editing now happens only in Menu Manager.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link href="/admin/menus/header-primary" className="inline-flex items-center gap-2 rounded-full bg-[#23212a] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white">
+            <Menu size={14} /> Manage Menu Items
+          </Link>
+          <Link href="/admin/menus/settings" className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#23212a]">
+            Mobile Menu Settings
+          </Link>
         </div>
-        <button
-          onClick={addItem}
-          className="flex items-center gap-2 text-sm font-medium text-[#B87D5B] hover:text-[#a06b4a] transition mt-2"
-        >
-          <Plus size={16} /> Add Nav Item
-        </button>
       </div>
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-3">

@@ -328,6 +328,36 @@ model SitePageContent {
   @@index([slug])
 }
 
+model NavigationMenu {
+  id             String    @id @default(cuid())
+  key            String    @unique
+  name           String
+  description    String?
+  location       String    @unique
+  draftItems     Json
+  publishedItems Json?
+  version        Int       @default(1)
+  updatedBy      String?
+  publishedBy    String?
+  publishedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([location])
+}
+
+model NavigationMenuSetting {
+  id                  String   @id @default(cuid())
+  key                 String   @unique
+  headerMobileMode    String   @default("inherit_header_primary")
+  headerMobileMenuKey String?
+  footerLayout        String   @default("four_columns")
+  footerShowSocial    Boolean  @default(true)
+  footerShowLegal     Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
 model ServiceAddon {
   id          String   @id @default(cuid())
   name        String
