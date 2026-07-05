@@ -6,12 +6,12 @@ import type { NavigationLinkType, NavigationMenuItem } from "@/lib/navigation/na
 import { MenuRoutePicker } from "./MenuRoutePicker";
 import { setItemLinkType } from "./menu-tree.utils";
 
-const linkTypes: Array<{ type: NavigationLinkType; label: string; icon: typeof Link2; helper: string }> = [
-  { type: "internal", label: "Internal Page", icon: Link2, helper: "Pick a site page" },
-  { type: "external", label: "External Link", icon: ExternalLink, helper: "Full URL" },
-  { type: "tel", label: "Phone Link", icon: Phone, helper: "Tap to call" },
-  { type: "mailto", label: "Email Link", icon: Mail, helper: "Tap to email" },
-  { type: "none", label: "Dropdown Label Only", icon: MousePointer2, helper: "Open submenu only" },
+const linkTypes: Array<{ type: NavigationLinkType; label: string; icon: typeof Link2 }> = [
+  { type: "internal", label: "Internal Page", icon: Link2 },
+  { type: "external", label: "External URL", icon: ExternalLink },
+  { type: "tel", label: "Phone", icon: Phone },
+  { type: "mailto", label: "Email", icon: Mail },
+  { type: "none", label: "Dropdown Only", icon: MousePointer2 },
 ];
 
 export function MenuItemLinkEditor({ item, onChange }: { item: NavigationMenuItem; onChange: (patch: Partial<NavigationMenuItem>) => void }) {
@@ -25,20 +25,17 @@ export function MenuItemLinkEditor({ item, onChange }: { item: NavigationMenuIte
   return (
     <div className="space-y-4">
       <div>
-        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-aera-muted">Link Type</p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {linkTypes.map(({ type, label, icon: Icon, helper }) => (
+        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-aera-muted">Destination Type</p>
+        <div className="flex flex-wrap gap-1.5 rounded-2xl border border-aera-champagne/50 bg-aera-ivory p-1.5">
+          {linkTypes.map(({ type, label, icon: Icon }) => (
             <button
               type="button"
               key={type}
               onClick={() => updateType(type)}
-              className={`rounded-2xl border p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 ${selectedType === type ? "border-aera-accent bg-aera-accent/10" : "border-aera-champagne/50 bg-white hover:bg-aera-champagne/20"}`}
+              className={`inline-flex min-h-10 flex-1 basis-[150px] items-center justify-center gap-2 rounded-xl px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 ${selectedType === type ? "bg-white text-aera-ink shadow-sm ring-1 ring-aera-accent/25" : "text-aera-muted hover:bg-white/70 hover:text-aera-ink"}`}
             >
-              <span className="flex items-center gap-2 text-sm font-bold text-aera-ink">
-                <Icon className="h-4 w-4 text-aera-accent" />
-                {label}
-              </span>
-              <span className="mt-1 block text-[11px] text-aera-muted">{helper}</span>
+              <Icon className="h-4 w-4 text-aera-accent" />
+              {label}
             </button>
           ))}
         </div>

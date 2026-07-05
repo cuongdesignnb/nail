@@ -55,7 +55,7 @@ export function createBlankMenuItem(location: NavigationLocation): NavigationMen
   const social = location === "footer_social";
   return {
     id: createMenuItemId(),
-    label: social ? "Instagram" : "New Link",
+    label: social ? "Instagram" : "Untitled Link",
     href: social ? "https://www.instagram.com/" : "",
     type: social ? "external" : "internal",
     target: social ? "_blank" : "_self",

@@ -1,6 +1,8 @@
 "use client";
 
-import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import type { NavigationLocation, NavigationMenuItem } from "@/lib/navigation/navigation.types";
 import { MenuItemLinkEditor } from "./MenuItemLinkEditor";
 import { MenuSocialLinkEditor } from "./MenuSocialLinkEditor";
@@ -16,16 +18,21 @@ type MenuItemInspectorProps = {
 };
 
 export function MenuItemInspector({ item, depth, location, onChange, onAddChild, onDelete }: MenuItemInspectorProps) {
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const labelRef = useRef<HTMLInputElement>(null);
   const noChildren = location === "footer_legal" || location === "footer_social";
   const canAddChild = Boolean(item) && !noChildren && depth < maxDepthByLocation[location];
 
+  useEffect(() => {
+    labelRef.current?.focus();
+  }, [item?.id]);
+
   if (!item) {
     return (
-      <section className="rounded-3xl border border-aera-champagne/40 bg-white/90 p-6 shadow-sm">
-        <h2 className="font-heading text-2xl text-aera-ink">Item Details</h2>
-        <div className="mt-6 rounded-2xl border border-dashed border-aera-champagne/70 bg-aera-ivory p-6 text-center">
-          <p className="text-sm font-bold text-aera-ink">Select a menu item to edit its details.</p>
-          <p className="mt-1 text-xs text-aera-muted">Choose a row from Menu Structure or add a new link.</p>
+      <section className="rounded-[22px] border border-aera-champagne/40 bg-white/95 p-6 shadow-sm">
+        <h2 className="font-heading text-2xl text-aera-ink">Edit Menu Item</h2>
+        <div className="mt-6 rounded-2xl border border-dashed border-aera-champagne/70 bg-aera-ivory p-8 text-center">
+          <p className="text-sm font-bold text-aera-ink">Select a menu item to edit its label, destination and visibility.</p>
         </div>
       </section>
     );
@@ -37,73 +44,101 @@ export function MenuItemInspector({ item, depth, location, onChange, onAddChild,
   }
 
   return (
-    <section className="rounded-3xl border border-aera-champagne/40 bg-white/90 p-5 shadow-sm">
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="font-heading text-2xl text-aera-ink">Item Details</h2>
-          <p className="text-xs text-aera-muted">{location === "footer_social" ? "Configure the social profile card." : "Edit the public label and destination."}</p>
+    <section className="rounded-[22px] border border-aera-champagne/40 bg-white/95 p-6 shadow-sm">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-wider text-aera-muted">Edit Menu Item</p>
+          <h2 className="mt-1 truncate font-heading text-3xl text-aera-ink">{item.label || "Untitled Link"}</h2>
         </div>
-        <span className="rounded-full bg-aera-champagne/40 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-aera-ink">Level {depth}</span>
+        <span className="rounded-full bg-aera-ivory px-3 py-1 text-xs font-semibold text-aera-muted">Level {depth}</span>
       </div>
 
-      <div className="space-y-5">
-        <label className="block">
-          <span className="text-xs font-bold uppercase tracking-wider text-aera-muted">Navigation Label</span>
-          <input
-            value={item.label || ""}
-            onChange={(event) => patch({ label: event.target.value })}
-            placeholder="Menu label"
-            className="mt-2 min-h-11 w-full rounded-xl border border-aera-champagne/60 bg-white px-3 text-sm font-semibold text-aera-ink outline-none focus:border-aera-accent focus:ring-2 focus:ring-aera-accent/15"
-          />
-        </label>
+      <div className="space-y-6">
+        <InspectorSection title="Navigation Label">
+          <label className="block">
+            <span className="text-sm font-bold text-aera-ink">Label</span>
+            <input
+              ref={labelRef}
+              value={item.label || ""}
+              onChange={(event) => patch({ label: event.target.value })}
+              placeholder="Untitled Link"
+              className="mt-2 min-h-12 w-full rounded-2xl border border-aera-champagne/60 bg-white px-4 text-base font-semibold text-aera-ink outline-none focus:border-aera-accent focus:ring-2 focus:ring-aera-accent/15"
+            />
+          </label>
+        </InspectorSection>
 
-        {location === "footer_social" ? <MenuSocialLinkEditor item={item} onChange={patch} /> : <MenuItemLinkEditor item={item} onChange={patch} />}
+        <InspectorSection title="Destination">
+          {location === "footer_social" ? <MenuSocialLinkEditor item={item} onChange={patch} /> : <MenuItemLinkEditor item={item} onChange={patch} />}
+        </InspectorSection>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => patch({ isEnabled: item.isEnabled === false })}
-            className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-aera-champagne/60 bg-white px-3 text-sm font-bold text-aera-ink hover:bg-aera-champagne/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40"
-          >
-            {item.isEnabled === false ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-            {item.isEnabled === false ? "Show in Public Menu" : "Hide from Public Menu"}
-          </button>
-
-          {item.type === "external" && (
-            <label className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-aera-champagne/60 bg-white px-3 text-sm font-bold text-aera-ink hover:bg-aera-champagne/20">
-              <input type="checkbox" checked={item.target === "_blank"} onChange={(event) => patch({ target: event.target.checked ? "_blank" : "_self" })} />
-              Open in New Tab
-            </label>
-          )}
-        </div>
+        <InspectorSection title="Visibility">
+          <label className="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-aera-champagne/50 bg-aera-ivory px-4">
+            <span>
+              <span className="block text-sm font-bold text-aera-ink">Visible in public menu</span>
+              <span className="block text-xs text-aera-muted">Hidden items stay in draft but do not show publicly.</span>
+            </span>
+            <input type="checkbox" checked={item.isEnabled !== false} onChange={(event) => patch({ isEnabled: event.target.checked })} className="h-5 w-5 accent-aera-accent" />
+          </label>
+        </InspectorSection>
 
         {item.children?.length ? (
-          <div className="rounded-2xl border border-aera-champagne/50 bg-aera-ivory p-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-aera-muted">Parent Link Behavior</p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <button type="button" onClick={() => patch({ type: item.href ? item.type : "internal" })} className="rounded-xl border border-aera-champagne/50 bg-white px-3 py-2 text-sm font-bold text-aera-ink hover:bg-aera-champagne/20">
-                Navigate to selected page
+          <InspectorSection title="Parent / Submenu Settings">
+            <p className="mb-3 text-sm font-semibold text-aera-ink">When visitors click this parent item:</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button type="button" onClick={() => patch({ type: item.href ? item.type : "internal" })} className={`rounded-2xl border px-4 py-3 text-left text-sm font-bold ${item.type !== "none" ? "border-aera-accent bg-aera-accent/10 text-aera-ink" : "border-aera-champagne/50 bg-white text-aera-muted hover:bg-aera-champagne/20"}`}>
+                Open its destination page
               </button>
-              <button type="button" onClick={() => patch({ type: "none", href: "", target: "_self" })} className={`rounded-xl border px-3 py-2 text-sm font-bold ${item.type === "none" ? "border-aera-accent bg-aera-accent/10 text-aera-ink" : "border-aera-champagne/50 bg-white text-aera-ink hover:bg-aera-champagne/20"}`}>
+              <button type="button" onClick={() => patch({ type: "none", href: "", target: "_self" })} className={`rounded-2xl border px-4 py-3 text-left text-sm font-bold ${item.type === "none" ? "border-aera-accent bg-aera-accent/10 text-aera-ink" : "border-aera-champagne/50 bg-white text-aera-muted hover:bg-aera-champagne/20"}`}>
                 Open submenu only
               </button>
             </div>
-          </div>
-        ) : null}
-
-        <div className="flex flex-wrap gap-3 border-t border-aera-champagne/40 pt-4">
-          {canAddChild && (
-            <button type="button" onClick={onAddChild} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-aera-ink px-4 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-aera-brown">
+            {canAddChild && (
+              <button type="button" onClick={onAddChild} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full border border-aera-champagne/60 bg-white px-4 text-xs font-bold uppercase tracking-wider text-aera-ink hover:bg-aera-champagne/20">
+                <Plus className="h-4 w-4" />
+                Add Submenu Item
+              </button>
+            )}
+          </InspectorSection>
+        ) : canAddChild ? (
+          <InspectorSection title="Parent / Submenu Settings">
+            <button type="button" onClick={onAddChild} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-aera-champagne/60 bg-white px-4 text-xs font-bold uppercase tracking-wider text-aera-ink hover:bg-aera-champagne/20">
               <Plus className="h-4 w-4" />
               Add Submenu Item
             </button>
-          )}
-          <button type="button" onClick={onDelete} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-red-600 hover:bg-red-100">
-            <Trash2 className="h-4 w-4" />
-            Delete Item
+          </InspectorSection>
+        ) : null}
+
+        <div className="rounded-2xl border border-aera-champagne/45 bg-white">
+          <button type="button" onClick={() => setAdvancedOpen((value) => !value)} className="flex min-h-12 w-full items-center justify-between px-4 text-left text-sm font-bold text-aera-ink">
+            Advanced Options
+            <ChevronDown className={`h-4 w-4 transition ${advancedOpen ? "rotate-180" : ""}`} />
           </button>
+          {advancedOpen && (
+            <div className="border-t border-aera-champagne/40 p-4">
+              <label className="flex min-h-11 items-center justify-between gap-4">
+                <span className="text-sm font-semibold text-aera-ink">Open in new tab</span>
+                <input type="checkbox" checked={item.target === "_blank"} onChange={(event) => patch({ target: event.target.checked ? "_blank" : "_self" })} className="h-5 w-5 accent-aera-accent" />
+              </label>
+            </div>
+          )}
         </div>
+
+        <InspectorSection title="Danger Zone">
+          <button type="button" onClick={onDelete} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 text-xs font-bold uppercase tracking-wider text-red-600 hover:bg-red-100">
+            <Trash2 className="h-4 w-4" />
+            Delete menu item
+          </button>
+        </InspectorSection>
       </div>
+    </section>
+  );
+}
+
+function InspectorSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="border-t border-aera-champagne/35 pt-5 first:border-t-0 first:pt-0">
+      <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-aera-muted">{title}</h3>
+      {children}
     </section>
   );
 }

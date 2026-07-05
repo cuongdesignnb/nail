@@ -6,6 +6,7 @@ import type { NavigationLocation, NavigationMenuDTO, NavigationMenuItem } from "
 import { MenuEditorToolbar } from "./MenuEditorToolbar";
 import { MenuItemInspector } from "./MenuItemInspector";
 import { MenuMobileActionBar } from "./MenuMobileActionBar";
+import { MenuPreviewDialog } from "./MenuPreviewDialog";
 import { MenuPreviewPanel } from "./MenuPreviewPanel";
 import { MenuTree } from "./MenuTree";
 import { MenuValidationPanel } from "./MenuValidationPanel";
@@ -25,6 +26,7 @@ export function MenuEditorPage({ menuKey }: { menuKey: string }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     fetch(`/api/admin/navigation/menus/${menuKey}`, { cache: "no-store" })
@@ -132,7 +134,7 @@ export function MenuEditorPage({ menuKey }: { menuKey: string }) {
   }
 
   return (
-    <div className="space-y-6 pb-24 lg:pb-6">
+    <div className="mx-auto max-w-[1440px] space-y-6 px-3 pb-24 sm:px-4 lg:px-6 lg:pb-6">
       {loading && <AdminLoadingState variant="form" />}
       {error && <AdminErrorState title="Menu editor error" description={error} />}
 
@@ -144,6 +146,8 @@ export function MenuEditorPage({ menuKey }: { menuKey: string }) {
             saving={saving}
             hasLocalChanges={hasLocalChanges}
             hasDraftChanges={hasDraftChanges}
+            description={menu.description}
+            onPreview={() => setPreviewOpen(true)}
             onSave={() => saveDraft()}
             onPublish={publish}
             onDiscard={() => runMenuAction("discard")}
@@ -153,8 +157,8 @@ export function MenuEditorPage({ menuKey }: { menuKey: string }) {
           {message && <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{message}</div>}
           <MenuValidationPanel issues={validationIssues} />
 
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
-            <div className="xl:col-span-4">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(340px,0.85fr)_minmax(560px,1.6fr)]">
+            <div className="min-w-0">
               <MenuTree
                 items={items}
                 location={location}
@@ -164,7 +168,7 @@ export function MenuEditorPage({ menuKey }: { menuKey: string }) {
                 onRequestDelete={setDeleteId}
               />
             </div>
-            <div className="xl:col-span-5">
+            <div className="min-w-0">
               <MenuItemInspector
                 item={selectedItem}
                 depth={selectedDepth}
@@ -174,12 +178,12 @@ export function MenuEditorPage({ menuKey }: { menuKey: string }) {
                 onDelete={() => selectedId && setDeleteId(selectedId)}
               />
             </div>
-            <div className="xl:col-span-3">
-              <MenuPreviewPanel location={location} items={items} />
-            </div>
           </div>
 
-          <MenuMobileActionBar saving={saving} canSave={hasLocalChanges} canPublish={hasDraftChanges || hasLocalChanges} onSave={() => saveDraft()} onPublish={publish} />
+          <MenuPreviewPanel location={location} items={items} />
+
+          <MenuPreviewDialog open={previewOpen} location={location} items={items} onClose={() => setPreviewOpen(false)} />
+          <MenuMobileActionBar saving={saving} canSave={hasLocalChanges} canPublish={hasDraftChanges || hasLocalChanges} onPreview={() => setPreviewOpen(true)} onSave={() => saveDraft()} onPublish={publish} />
         </>
       )}
 

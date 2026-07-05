@@ -79,11 +79,11 @@ export function MenuTree({ items, location, selectedId, onChange, onSelect, onRe
   }
 
   return (
-    <section className="rounded-3xl border border-aera-champagne/40 bg-white/90 p-4 shadow-sm">
+    <section className="rounded-[22px] border border-aera-champagne/40 bg-white/95 p-4 shadow-sm">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-heading text-2xl text-aera-ink">Menu Structure</h2>
-          <p className="text-xs text-aera-muted">Drag links to reorder. Use arrow controls for keyboard-friendly movement.</p>
+          <h2 className="font-heading text-2xl text-aera-ink">Menu Items</h2>
+          <p className="text-xs text-aera-muted">Drag to reorder. Select an item to edit its destination.</p>
         </div>
         <button
           type="button"
@@ -91,7 +91,7 @@ export function MenuTree({ items, location, selectedId, onChange, onSelect, onRe
           className="inline-flex min-h-11 items-center gap-2 rounded-full bg-aera-accent px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-aera-accentHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40"
         >
           <Plus className="h-4 w-4" />
-          Add Item
+          Add Menu Item
         </button>
       </div>
 
@@ -114,6 +114,8 @@ export function MenuTree({ items, location, selectedId, onChange, onSelect, onRe
                   selected={item.id === selectedId}
                   expanded={expanded.has(item.id)}
                   canAddChild={!noChildren && item.depth < maxDepthByLocation[location]}
+                  canIndent={!noChildren && item.depth < maxDepthByLocation[location] && item.index > 0}
+                  canOutdent={item.depth > 1}
                   onSelect={onSelect}
                   onToggleExpanded={toggleExpanded}
                   onAddChild={addChild}
