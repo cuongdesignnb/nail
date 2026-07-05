@@ -30,6 +30,8 @@ export function RichTextEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3] },
+        link: false,
+        underline: false,
       }),
       Link.configure({
         openOnClick: false,

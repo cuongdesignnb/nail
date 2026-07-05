@@ -11,13 +11,21 @@ import { prisma } from "@/lib/db";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+const optionalTrimmedString = z.preprocess(
+  (value) => (value === null ? undefined : value),
+  z.string().trim().optional()
+);
+
 const schema = z.object({
   isEnabled: z.boolean().optional(),
   environment: z.enum(["sandbox", "live"]).optional(),
-  clientId: z.string().optional(),
-  clientSecret: z.string().optional(),
-  webhookId: z.string().optional(),
-  currency: z.string().min(3).max(3).optional(),
+  clientId: optionalTrimmedString,
+  clientSecret: optionalTrimmedString,
+  webhookId: optionalTrimmedString,
+  currency: z.preprocess(
+    (value) => (value === null ? undefined : value),
+    z.string().trim().toUpperCase().min(3).max(3).optional()
+  ),
   chargeMode: z.enum(["deposit", "full"]).optional(),
   depositPercentage: z.coerce.number().min(1).max(100).optional(),
   bookingHoldMinutes: z.coerce.number().int().min(5).max(120).optional(),
