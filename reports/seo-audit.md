@@ -1,0 +1,30 @@
+# SEO Audit
+
+- Static Page http://localhost:3000: title=OK, description=OK, canonical=OK, og=OK, schema=Eligible, sitemap=Included
+- Static Page http://localhost:3000/about: title=OK, description=OK, canonical=OK, og=OK, schema=Breadcrumb, sitemap=Included
+- Static Page http://localhost:3000/services: title=OK, description=OK, canonical=OK, og=OK, schema=Breadcrumb, sitemap=Included
+- Static Page http://localhost:3000/gallery: title=OK, description=OK, canonical=OK, og=OK, schema=Breadcrumb, sitemap=Included
+- Static Page http://localhost:3000/packages: title=OK, description=OK, canonical=OK, og=OK, schema=Breadcrumb, sitemap=Included
+- Static Page http://localhost:3000/promotions: title=OK, description=OK, canonical=OK, og=OK, schema=Breadcrumb, sitemap=Included
+- Static Page http://localhost:3000/contact: title=OK, description=OK, canonical=OK, og=OK, schema=Eligible, sitemap=Included
+- Static Page http://localhost:3000/blog: title=OK, description=OK, canonical=OK, og=OK, schema=Breadcrumb, sitemap=Included
+- Blog Article http://localhost:3000/blog/spring-nail-trends-love-2024: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/luxury-nail-art-ideas-special-occasions: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/ultimate-guide-long-lasting-manicures: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/how-your-nails-reflect-overall-health: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/perfect-nail-care-gifts-every-occasion: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/bridal-nail-care-timeline-prep-guide: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/nail-salon-etiquette-dos-donts: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/nail-care-routine-stronger-healthier-nails: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/everything-you-need-to-know-about-gel-polish: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/minimal-nude-nails-timeless-luxury-look: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/5-signs-nails-need-wellness-reset: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/best-seasonal-shades-autumn-glam: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/top-bridal-nail-trends-elegant-weddings: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Blog Article http://localhost:3000/blog/how-to-keep-gel-manicure-looking-fresh-longer: title=OK, description=OK, canonical=OK, og=OK, schema=BlogPosting, sitemap=Included
+- Service http://localhost:3000/services/classic-manicure: title=OK, description=Entity fallback, canonical=OK, og=OK, schema=Service, sitemap=Included
+- Service http://localhost:3000/services/luxury-pedicure: title=OK, description=Entity fallback, canonical=OK, og=OK, schema=Service, sitemap=Included
+- Service http://localhost:3000/services/gel-polish: title=OK, description=Entity fallback, canonical=OK, og=OK, schema=Service, sitemap=Included
+- Service http://localhost:3000/services/signature-nail-art: title=OK, description=Entity fallback, canonical=OK, og=OK, schema=Service, sitemap=Included
+- Service http://localhost:3000/services/spa-hand-foot-ritual: title=OK, description=Entity fallback, canonical=OK, og=OK, schema=Service, sitemap=Included
+- Service http://localhost:3000/services/gel-x-extensions: title=OK, description=Entity fallback, canonical=OK, og=OK, schema=Service, sitemap=Included

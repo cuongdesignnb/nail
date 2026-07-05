@@ -1,271 +1,102 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { motion } from "framer-motion";
-import { Code, AlertTriangle, Check, Copy, FileJson } from "lucide-react";
+import React from "react";
+import { AlertTriangle, BriefcaseBusiness, ChevronDown, Code2, HelpCircle, ListTree, Newspaper, Search, Sparkles } from "lucide-react";
 
 interface Props {
   value: string;
   onChange: (json: string) => void;
-  pageType?: "NailSalon" | "Service" | "Article" | "FAQPage" | "BreadcrumbList";
 }
 
-const TEMPLATES: Record<string, object> = {
-  NailSalon: {
-    "@context": "https://schema.org",
-    "@type": "NailSalon",
-    name: "Aera Nail Lounge",
-    description: "",
-    url: "",
-    telephone: "",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "",
-      addressLocality: "",
-      addressRegion: "",
-      postalCode: "",
-      addressCountry: "US",
-    },
-    openingHoursSpecification: [],
-    priceRange: "$$",
-    image: "",
-  },
-  Service: {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name: "",
-    description: "",
-    provider: { "@type": "NailSalon", name: "Aera Nail Lounge" },
-    areaServed: "",
-    offers: {
-      "@type": "Offer",
-      price: "",
-      priceCurrency: "USD",
-    },
-  },
-  Article: {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: "",
-    description: "",
-    author: { "@type": "Organization", name: "Aera Nail Lounge" },
-    datePublished: "",
-    dateModified: "",
-    image: "",
-  },
-  FAQPage: {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "",
-        acceptedAnswer: { "@type": "Answer", text: "" },
-      },
-    ],
-  },
-  BreadcrumbList: {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "/" },
-      { "@type": "ListItem", position: 2, name: "", item: "" },
-    ],
-  },
-};
+const tabs = [
+  ["local", "Local Business Schema", BriefcaseBusiness],
+  ["website", "Website Schema", Search],
+  ["breadcrumbs", "Breadcrumb Schema", ListTree],
+  ["faq", "FAQ Schema", HelpCircle],
+  ["article", "Blog Article Schema", Newspaper],
+  ["service", "Service Schema", Sparkles],
+  ["advanced", "Advanced Legacy Schema", Code2],
+] as const;
 
-export default function SeoSchemaEditor({ value, onChange, pageType }: Props) {
-  const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+export default function SeoSchemaEditor({ value, onChange }: Props) {
+  const [active, setActive] = React.useState<(typeof tabs)[number][0]>("local");
+  const [expanded, setExpanded] = React.useState(false);
+  const [error, setError] = React.useState("");
 
-  const validate = useCallback(
-    (json: string) => {
-      if (!json.trim()) {
-        setError(null);
-        return;
-      }
-      try {
-        JSON.parse(json);
-        setError(null);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Invalid JSON");
-      }
-    },
-    []
-  );
-
-  const applyTemplate = (type: string) => {
-    const tmpl = TEMPLATES[type];
-    if (tmpl) {
-      const json = JSON.stringify(tmpl, null, 2);
-      onChange(json);
-      setError(null);
+  function validate(json: string) {
+    if (!json.trim()) {
+      setError("");
+      return;
     }
-  };
-
-  const formatJson = () => {
     try {
-      const parsed = JSON.parse(value);
-      onChange(JSON.stringify(parsed, null, 2));
-      setError(null);
-    } catch {
-      // keep as is
+      const parsed = JSON.parse(json);
+      const serialized = JSON.stringify(parsed);
+      if (/<script|javascript:|data:|vbscript:/i.test(serialized)) {
+        setError("Unsafe script or URL content is not allowed.");
+      } else {
+        setError("");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid JSON");
     }
-  };
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {}
-  };
+  }
 
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 10,
-        }}
-      >
-        <label
-          style={{
-            fontSize: 13,
-            fontWeight: 700,
-            color: "#2f1c11",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          <FileJson size={15} />
-          Structured Data (JSON-LD)
-        </label>
-        <div style={{ display: "flex", gap: 6 }}>
-          {Object.keys(TEMPLATES).map((key) => (
-            <button
-              key={key}
-              onClick={() => applyTemplate(key)}
-              style={{
-                padding: "4px 10px",
-                fontSize: 11,
-                fontWeight: 600,
-                background:
-                  pageType === key
-                    ? "rgba(168, 93, 30, 0.1)"
-                    : "rgba(116, 55, 15, 0.04)",
-                border: "1px solid rgba(116, 55, 15, 0.1)",
-                borderRadius: 6,
-                color: pageType === key ? "#a85d1e" : "#7f6d61",
-                cursor: "pointer",
-              }}
-            >
-              {key}
-            </button>
-          ))}
-        </div>
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-sm font-bold text-aera-ink">Structured Data Builder</h3>
+        <p className="mt-1 text-xs text-aera-muted">Schema is generated from approved settings and public content. Use Global Content for business identity, contact, logo, social links, and default share image.</p>
       </div>
-
-      <div style={{ position: "relative" }}>
-        <textarea
-          value={value}
-          onChange={(e) => {
-            onChange(e.target.value);
-            validate(e.target.value);
-          }}
-          onBlur={() => validate(value)}
-          placeholder='{\n  "@context": "https://schema.org",\n  "@type": "NailSalon"\n}'
-          style={{
-            width: "100%",
-            minHeight: 200,
-            padding: 14,
-            fontFamily: "monospace",
-            fontSize: 12,
-            lineHeight: 1.6,
-            background: "#faf7f3",
-            border: `1px solid ${error ? "rgba(220, 38, 38, 0.3)" : "rgba(116, 55, 15, 0.12)"}`,
-            borderRadius: 12,
-            color: "#2f1c11",
-            resize: "vertical",
-            outline: "none",
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            display: "flex",
-            gap: 4,
-          }}
-        >
+      <div className="flex flex-wrap gap-2">
+        {tabs.map(([key, label, Icon]) => (
           <button
-            onClick={formatJson}
-            style={miniBtn}
-            title="Format JSON"
+            key={key}
+            type="button"
+            onClick={() => setActive(key)}
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
+              active === key ? "border-aera-accent bg-aera-accent text-white" : "border-aera-champagne text-aera-ink"
+            }`}
           >
-            <Code size={13} />
+            <Icon size={13} /> {label}
           </button>
-          <button
-            onClick={copyToClipboard}
-            style={miniBtn}
-            title="Copy"
-          >
-            {copied ? <Check size={13} color="#16a34a" /> : <Copy size={13} />}
-          </button>
-        </div>
+        ))}
       </div>
-
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            marginTop: 6,
-            fontSize: 12,
-            color: "#dc2626",
-          }}
-        >
-          <AlertTriangle size={13} />
-          {error}
-        </motion.div>
-      )}
-
-      {!error && value.trim() && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            marginTop: 6,
-            fontSize: 12,
-            color: "#16a34a",
-          }}
-        >
-          <Check size={13} />
-          Valid JSON-LD
+      {active !== "advanced" ? (
+        <div className="rounded-xl border border-aera-champagne/40 bg-aera-champagne/10 p-4 text-xs text-aera-muted">
+          <div className="font-bold text-aera-ink">Source Mapping</div>
+          <div className="mt-2 grid gap-1 md:grid-cols-2">
+            <span>Business Name: Global Content - Brand Identity</span>
+            <span>Phone: Global Content - Default Contact</span>
+            <span>Address: Global Content - Default Contact</span>
+            <span>Logo: Global Content - Brand Logo</span>
+            <span>Social Profiles: Global Content - Social Links</span>
+            <span>Default Image: Global Content - Default Share Image</span>
+          </div>
+          <a className="mt-3 inline-flex font-bold text-aera-accent hover:underline" href="/admin/content/global">Open Global Content Settings</a>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <button type="button" onClick={() => setExpanded((next) => !next)} className="flex w-full items-center justify-between text-left text-sm font-bold text-aera-ink">
+            Advanced schema is intended for technical use only.
+            <ChevronDown size={16} />
+          </button>
+          {expanded && (
+            <div className="mt-3">
+              <textarea
+                value={value}
+                onChange={(e) => {
+                  onChange(e.target.value);
+                  validate(e.target.value);
+                }}
+                className="min-h-48 w-full rounded-lg border border-amber-200 bg-white p-3 font-mono text-xs text-aera-ink outline-none"
+                placeholder='{"@context":"https://schema.org","@type":"Service"}'
+              />
+              {error && <p className="mt-2 flex items-center gap-2 text-xs text-red-600"><AlertTriangle size={13} /> {error}</p>}
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-const miniBtn: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 28,
-  height: 28,
-  borderRadius: 6,
-  background: "rgba(255, 253, 249, 0.9)",
-  border: "1px solid rgba(116, 55, 15, 0.1)",
-  color: "#7f6d61",
-  cursor: "pointer",
-};

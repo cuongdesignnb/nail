@@ -66,6 +66,9 @@ function checkImageField(obj: Record<string, unknown>, path: string): boolean {
 const commonFields: RequiredField[] = [
   { path: "seo.title", label: "SEO title", check: "string" },
   { path: "seo.description", label: "SEO description", check: "string" },
+  { path: "seo.canonicalUrl", label: "Canonical route valid", check: "string" },
+  { path: "seo.robotsDirective", label: "Robots directive", check: "string" },
+  { path: "seo.ogImage", label: "Open Graph image", check: "image" },
   { path: "hero.image", label: "Hero image", check: "image" },
 ];
 

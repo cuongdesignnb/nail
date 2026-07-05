@@ -1041,6 +1041,33 @@ model SeoMetadata {
   @@index([pageKey])
 }
 
+model SeoSiteSetting {
+  id                       String   @id @default(cuid())
+  key                      String   @unique @default("default")
+  titleTemplate            String   @default("%s | Aera Nail Lounge")
+  defaultRobots            String   @default("index,follow")
+  locale                   String   @default("en_US")
+  twitterCard              String   @default("summary_large_image")
+  twitterHandle            String?
+  enableWebSiteSchema      Boolean  @default(true)
+  enableNailSalonSchema    Boolean  @default(true)
+  enableBreadcrumbSchema   Boolean  @default(true)
+  enableFaqSchema          Boolean  @default(true)
+  enableArticleSchema      Boolean  @default(true)
+  enableServiceSchema      Boolean  @default(true)
+  businessType             String   @default("NailSalon")
+  priceRange               String?  @default("$$")
+  latitude                 Decimal?
+  longitude                Decimal?
+  googleBusinessProfileUrl String?
+  googleMapsUrl            String?
+  sameAs                   Json?
+  googleSiteVerification   String?
+  bingSiteVerification     String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
 model BusinessSetting {
   id        String   @id @default(cuid())
   key       String   @unique @default("default")

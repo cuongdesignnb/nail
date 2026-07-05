@@ -1,10 +1,21 @@
+import type { Metadata } from "next";
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { PageShell } from "@/components/shared/PageShell";
+import { PageStructuredData } from "@/components/seo/PageStructuredData";
 import { business } from "@/lib/data";
+import { buildStaticPageMetadata, resolveStaticPageSeo } from "@/lib/seo/seo.service";
 
-export default function ContactPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const { metadata } = await buildStaticPageMetadata("contact");
+  return metadata;
+}
+
+export default async function ContactPage() {
+  const seo = await resolveStaticPageSeo("contact");
+
   return (
     <PageShell eyebrow="Contact" title="Plan Your Visit" copy="Call, message or send a note to our reception team.">
+      <PageStructuredData pathname="/contact" title={seo.title} includeGlobal />
       <section className="detail-layout">
         <div className="lux-card contact-form">
           <h3>Send a Message</h3>

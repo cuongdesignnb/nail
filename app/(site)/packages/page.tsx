@@ -12,20 +12,27 @@ import { PackageProcess } from "@/components/packages/PackageProcess";
 import { PackageTestimonials } from "@/components/packages/PackageTestimonials";
 import { PackageFAQ } from "@/components/packages/PackageFAQ";
 import { PackagesCTA } from "@/components/packages/PackagesCTA";
+import { PageStructuredData } from "@/components/seo/PageStructuredData";
+import { buildStaticPageMetadata, resolveStaticPageSeo } from "@/lib/seo/seo.service";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const content = await fetchPackagesPageContent();
-  return {
-    title: content.seo.title,
-    description: content.seo.description,
-  };
+  const { metadata } = await buildStaticPageMetadata("packages");
+  return metadata;
 }
 
 export default async function PackagesPage() {
-  const content = await fetchPackagesPageContent();
+  const [content, seo] = await Promise.all([
+    fetchPackagesPageContent(),
+    resolveStaticPageSeo("packages"),
+  ]);
 
   return (
     <main className="bg-aera-bg min-h-screen">
+      <PageStructuredData
+        pathname="/packages"
+        title={seo.title}
+        faqs={content.faqs?.items?.map((faq) => ({ question: faq.question, answer: faq.answer }))}
+      />
       {/* Hero */}
       <PackagesHero data={content.hero} />
 

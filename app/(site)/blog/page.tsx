@@ -10,6 +10,8 @@ import { EditorsPicks } from "@/components/blog/EditorsPicks";
 import { BlogTestimonials } from "@/components/blog/BlogTestimonials";
 import { BlogPagination } from "@/components/blog/BlogPagination";
 import { BlogCTA } from "@/components/blog/BlogCTA";
+import { PageStructuredData } from "@/components/seo/PageStructuredData";
+import { buildStaticPageMetadata, resolveStaticPageSeo } from "@/lib/seo/seo.service";
 
 export const dynamic = "force-dynamic";
 
@@ -22,11 +24,8 @@ interface BlogPageProps {
 }
 
 export async function generateMetadata() {
-  const content = await fetchBlogPageContent();
-  return {
-    title: content.seo.title,
-    description: content.seo.description,
-  };
+  const { metadata } = await buildStaticPageMetadata("blog");
+  return metadata;
 }
 
 export default async function BlogListingPage({ searchParams }: BlogPageProps) {
@@ -34,15 +33,19 @@ export default async function BlogListingPage({ searchParams }: BlogPageProps) {
   const categoryParam = searchParams.category || undefined;
   const keywordParam = searchParams.keyword || undefined;
 
-  const content = await fetchBlogPageContent({
-    page: pageNum,
-    limit: 8,
-    category: categoryParam,
-    keyword: keywordParam,
-  });
+  const [content, seo] = await Promise.all([
+    fetchBlogPageContent({
+      page: pageNum,
+      limit: 8,
+      category: categoryParam,
+      keyword: keywordParam,
+    }),
+    resolveStaticPageSeo("blog"),
+  ]);
 
   return (
     <div className="bg-aera-cream/10 min-h-screen text-aera-ink flex flex-col justify-between">
+      <PageStructuredData pathname="/blog" title={seo.title} />
       {/* Hero Banner */}
       <BlogHero data={content.hero} />
 

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import {
-  Bot, Building2, Clock, CreditCard, FileText, Palette, Settings,
+  Bot, Building2, Clock, CreditCard, FileText, Palette, Search, Settings,
 } from "lucide-react";
 import { AdminPageHeader, AdminTabs } from "@/components/admin/ui";
 import SalonInfoSettings from "./SalonInfoSettings";
@@ -11,6 +11,7 @@ import BookingPolicySettings from "./BookingPolicySettings";
 import BrandingSettings from "./BrandingSettings";
 import PaymentSettings from "./PaymentSettings";
 import AiContentSettings from "./AiContentSettings";
+import SeoSiteSettings from "./SeoSiteSettings";
 
 const SETTINGS_TABS = [
   { key: "salon", label: "Salon Info", icon: Building2 },
@@ -19,6 +20,7 @@ const SETTINGS_TABS = [
   { key: "payments", label: "Payments", icon: CreditCard },
   { key: "ai-content", label: "AI Content", icon: Bot },
   { key: "branding", label: "Branding", icon: Palette },
+  { key: "seo", label: "SEO & Search Visibility", icon: Search },
   { key: "general", label: "General", icon: Settings },
 ];
 
@@ -43,6 +45,7 @@ export default function SettingsDashboard() {
         {activeTab === "payments" && <PaymentSettings />}
         {activeTab === "ai-content" && <AiContentSettings />}
         {activeTab === "branding" && <BrandingSettings />}
+        {activeTab === "seo" && <SeoSiteSettings />}
         {activeTab === "general" && <GeneralSettings />}
       </AdminTabs>
     </div>

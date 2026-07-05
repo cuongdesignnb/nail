@@ -10,20 +10,28 @@ import { DesignInspiration } from "@/components/services/DesignInspiration";
 import { ServicePackages } from "@/components/services/ServicePackages";
 import { ServicesFAQ } from "@/components/services/ServicesFAQ";
 import { ServicesCTA } from "@/components/services/ServicesCTA";
+import { PageStructuredData } from "@/components/seo/PageStructuredData";
+import { buildStaticPageMetadata, resolveStaticPageSeo } from "@/lib/seo/seo.service";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const content = await fetchServicesPageContent();
-  return {
-    title: content.seo.title,
-    description: content.seo.description,
-  };
+  const { metadata } = await buildStaticPageMetadata("services");
+  return metadata;
 }
 
 export default async function ServicesPage() {
-  const servicesContent = await fetchServicesPageContent();
+  const [servicesContent, seo] = await Promise.all([
+    fetchServicesPageContent(),
+    resolveStaticPageSeo("services"),
+  ]);
 
   return (
     <main className="min-h-screen bg-aera-bg pb-0">
+      <PageStructuredData
+        pathname="/services"
+        title={seo.title}
+        includeGlobal
+        faqs={servicesContent.faqs?.map((faq) => ({ question: faq.question, answer: faq.answer }))}
+      />
       <ServicesHero data={servicesContent.hero} />
       <QuickServiceCategories items={servicesContent.categories} />
       <SignatureServices items={servicesContent.signatureServices} />

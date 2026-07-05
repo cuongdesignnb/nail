@@ -10,20 +10,23 @@ import { TrendingInspirations } from "@/components/gallery/TrendingInspirations"
 import { GalleryProcess } from "@/components/gallery/GalleryProcess";
 import { GalleryTestimonials } from "@/components/gallery/GalleryTestimonials";
 import { GalleryCTA } from "@/components/gallery/GalleryCTA";
+import { PageStructuredData } from "@/components/seo/PageStructuredData";
+import { buildStaticPageMetadata, resolveStaticPageSeo } from "@/lib/seo/seo.service";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const content = await fetchGalleryPageContent();
-  return {
-    title: content.seo.title,
-    description: content.seo.description,
-  };
+  const { metadata } = await buildStaticPageMetadata("gallery");
+  return metadata;
 }
 
 export default async function GalleryPage() {
-  const content = await fetchGalleryPageContent();
+  const [content, seo] = await Promise.all([
+    fetchGalleryPageContent(),
+    resolveStaticPageSeo("gallery"),
+  ]);
 
   return (
     <main className="bg-aera-bg min-h-screen">
+      <PageStructuredData pathname="/gallery" title={seo.title} />
       {/* Hero section */}
       <GalleryHero data={content.hero} />
 

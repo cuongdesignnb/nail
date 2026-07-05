@@ -1,10 +1,21 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { PageShell } from "@/components/shared/PageShell";
+import { PageStructuredData } from "@/components/seo/PageStructuredData";
 import { promotions } from "@/lib/data";
+import { buildStaticPageMetadata, resolveStaticPageSeo } from "@/lib/seo/seo.service";
 
-export default function PromotionsPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const { metadata } = await buildStaticPageMetadata("promotions");
+  return metadata;
+}
+
+export default async function PromotionsPage() {
+  const seo = await resolveStaticPageSeo("promotions");
+
   return (
     <PageShell eyebrow="Promotions" title="Current Offers" copy="Active promotions and first-visit rewards for eligible bookings.">
+      <PageStructuredData pathname="/promotions" title={seo.title} />
       <section className="content-grid two">
         {promotions.filter((promo) => promo.active).map((promo) => (
           <article className="lux-card offer-card" key={promo.id}>

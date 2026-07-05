@@ -1,152 +1,121 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { Search as SearchIcon } from 'lucide-react';
-import { SeoPageList } from '@/components/admin/seo/SeoPageList';
-import { SeoEditorPanel } from '@/components/admin/seo/SeoEditorPanel';
+import { useEffect, useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import { SeoAuditTable } from "@/components/admin/seo/SeoAuditTable";
+import { SeoEntityEditor } from "@/components/admin/seo/SeoEntityEditor";
+import { SeoEntityList, type SeoEntityListItem } from "@/components/admin/seo/SeoEntityList";
+import { SeoHealthDashboard } from "@/components/admin/seo/SeoHealthDashboard";
+import { SeoSitemapPanel } from "@/components/admin/seo/SeoSitemapPanel";
+import type { SeoAuditRow } from "@/lib/seo/seo.types";
 
-const SEO_PAGES = [
-  { scopeKey: 'home', pageKey: 'home', label: 'Home', path: '/' },
-  { scopeKey: 'about', pageKey: 'about', label: 'About', path: '/about' },
-  { scopeKey: 'services', pageKey: 'services', label: 'Services', path: '/services' },
-  { scopeKey: 'gallery', pageKey: 'gallery', label: 'Gallery', path: '/gallery' },
-  { scopeKey: 'packages', pageKey: 'packages', label: 'Packages', path: '/packages' },
-  { scopeKey: 'blog', pageKey: 'blog', label: 'Blog', path: '/blog' },
-  { scopeKey: 'promotions', pageKey: 'promotions', label: 'Promotions', path: '/promotions' },
-  { scopeKey: 'contact', pageKey: 'contact', label: 'Contact', path: '/contact' },
-];
-
-interface SeoData {
-  title?: string;
-  description?: string;
-  keywords?: string;
-  canonicalPath?: string;
-  robots?: string;
-  ogTitle?: string;
-  ogDescription?: string;
-  ogImage?: string;
-  ogImageAlt?: string;
-  twitterCard?: string;
-  schemaJson?: string;
-}
+const STATIC_PAGES = [
+  ["Home", "home", "/"],
+  ["About", "about", "/about"],
+  ["Services", "services", "/services"],
+  ["Gallery", "gallery", "/gallery"],
+  ["Packages", "packages", "/packages"],
+  ["Promotions", "promotions", "/promotions"],
+  ["Contact", "contact", "/contact"],
+  ["Blog", "blog", "/blog"],
+] as const;
 
 export default function SeoManagerPage() {
-  const [selectedKey, setSelectedKey] = useState('home');
-  const [seoData, setSeoData] = useState<SeoData | null>(null);
-  const [configuredKeys, setConfiguredKeys] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(false);
+  const [rows, setRows] = useState<SeoAuditRow[]>([]);
+  const [entities, setEntities] = useState<SeoEntityListItem[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [selectedData, setSelectedData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch all SEO records on mount to determine configured keys
   useEffect(() => {
-    async function fetchAll() {
-      try {
-        const res = await fetch('/api/admin/seo');
-        const json = await res.json();
-        if (json.success && json.data) {
-          const keys = new Set<string>(
-            json.data.map((r: { scopeKey: string }) => r.scopeKey)
-          );
-          setConfiguredKeys(keys);
-        }
-      } catch (err) {
-        console.error('Failed to fetch SEO records:', err);
+    async function load() {
+      setLoading(true);
+      const [auditRes, entitiesRes] = await Promise.all([
+        fetch("/api/admin/seo/audit"),
+        fetch("/api/admin/seo/entities"),
+      ]);
+      const [auditJson, entitiesJson] = await Promise.all([auditRes.json(), entitiesRes.json()]);
+      if (auditJson.success) setRows(auditJson.data);
+      if (entitiesJson.success) {
+        setEntities(entitiesJson.data.entities);
+        const first = entitiesJson.data.entities[0]?.scopeKey || null;
+        setSelected((current) => current || first);
       }
-    }
-    fetchAll();
-  }, []);
-
-  // Fetch SEO data for selected page
-  const fetchSeoData = useCallback(async (scopeKey: string) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/admin/seo/${scopeKey}`);
-      const json = await res.json();
-      if (json.success) {
-        setSeoData(json.data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch SEO data:', err);
-      setSeoData(null);
-    } finally {
       setLoading(false);
     }
+    load().catch(() => setLoading(false));
   }, []);
 
   useEffect(() => {
-    fetchSeoData(selectedKey);
-  }, [selectedKey, fetchSeoData]);
+    if (!selected) return;
+    fetch(`/api/admin/seo/entities/${encodeURIComponent(selected)}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success) setSelectedData(json.data);
+      })
+      .catch(() => setSelectedData(null));
+  }, [selected]);
 
-  const handleSelect = (scopeKey: string) => {
-    setSelectedKey(scopeKey);
-  };
-
-  const handleSave = async (data: SeoData) => {
-    const currentPage = SEO_PAGES.find((p) => p.scopeKey === selectedKey);
-    const res = await fetch(`/api/admin/seo/${selectedKey}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...data, pageKey: currentPage?.pageKey || selectedKey }),
-    });
-
-    const json = await res.json();
-    if (!json.success) {
-      throw new Error(json.message || 'Failed to save');
-    }
-
-    // Mark as configured
-    setConfiguredKeys((prev) => {
-      const arr = Array.from(prev);
-      arr.push(selectedKey);
-      return new Set(arr);
-    });
-    setSeoData(json.data);
-  };
-
-  const currentPage = SEO_PAGES.find((p) => p.scopeKey === selectedKey);
+  const selectedEntity = useMemo(
+    () => entities.find((entity) => entity.scopeKey === selected),
+    [entities, selected],
+  );
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-6">
+    <div className="space-y-6 p-6">
+      <div>
         <h1 className="font-heading text-2xl font-bold text-aera-ink">SEO Manager</h1>
-        <p className="text-sm text-aera-muted">
-          Manage search engine optimization settings for each page
-        </p>
+        <p className="text-sm text-aera-muted">Static page SEO is managed in Content Hub. Entity-level overrides live here.</p>
       </div>
 
-      {/* Two-column layout */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-        {/* Left panel - Page list */}
-        <div>
-          <SeoPageList
-            pages={SEO_PAGES}
-            selectedKey={selectedKey}
-            onSelect={handleSelect}
-            configuredKeys={configuredKeys}
-          />
-        </div>
+      {loading ? (
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-sm text-aera-muted">Loading SEO audit...</div>
+      ) : (
+        <>
+          <SeoHealthDashboard rows={rows} />
 
-        {/* Right panel - Editor */}
-        <div>
-          {loading ? (
-            <div className="flex items-center justify-center rounded-xl border border-gray-200 bg-white p-12">
-              <div className="text-sm text-aera-muted">Loading SEO data...</div>
+          <section className="rounded-xl border border-gray-200 bg-white p-5">
+            <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-aera-muted">
+              <Search size={15} /> Static Pages
+            </h2>
+            <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+              {STATIC_PAGES.map(([label, pageKey, path]) => (
+                <a key={pageKey} href={`/admin/content/${pageKey}?tab=seo`} className="rounded-lg border border-gray-100 p-4 transition hover:border-aera-accent/40 hover:bg-aera-champagne/20">
+                  <div className="text-sm font-semibold text-aera-ink">{label}</div>
+                  <div className="mt-1 text-xs text-aera-muted">{path}</div>
+                  <div className="mt-3 text-xs font-bold text-aera-accent">Managed in Content Hub</div>
+                </a>
+              ))}
             </div>
-          ) : currentPage ? (
-            <SeoEditorPanel
-              key={selectedKey}
-              scopeKey={selectedKey}
-              pageKey={currentPage.pageKey}
-              initialData={seoData}
-              onSave={handleSave}
-            />
-          ) : (
-            <div className="flex items-center justify-center rounded-xl border border-gray-200 bg-white p-12">
-              <div className="text-sm text-aera-muted">Select a page to configure SEO</div>
+          </section>
+
+          <section className="grid gap-6 lg:grid-cols-[340px_1fr]">
+            <div>
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-aera-muted">Dynamic Content</h2>
+              <SeoEntityList entities={entities} selected={selected} onSelect={setSelected} />
             </div>
-          )}
-        </div>
-      </div>
+            <div>
+              {selected && selectedData ? (
+                <div>
+                  {selectedEntity && (
+                    <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+                      <div className="text-sm font-bold text-aera-ink">{selectedEntity.label}</div>
+                      <div className="text-xs text-aera-muted">{selectedEntity.type} · {selectedEntity.path}</div>
+                    </div>
+                  )}
+                  <SeoEntityEditor scopeKey={selected} initialData={selectedData} onSaved={setSelectedData} />
+                </div>
+              ) : (
+                <div className="rounded-xl border border-gray-200 bg-white p-8 text-sm text-aera-muted">Select a public entity to edit SEO overrides.</div>
+              )}
+            </div>
+          </section>
+
+          <SeoSitemapPanel />
+          <SeoAuditTable rows={rows} />
+        </>
+      )}
     </div>
   );
 }
+

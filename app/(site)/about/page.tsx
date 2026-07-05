@@ -9,20 +9,23 @@ import { SalonExperience } from "@/components/about/SalonExperience";
 import { ProcessSection } from "@/components/about/ProcessSection";
 import { AboutTestimonials } from "@/components/about/AboutTestimonials";
 import { AboutCTA } from "@/components/about/AboutCTA";
+import { PageStructuredData } from "@/components/seo/PageStructuredData";
+import { buildStaticPageMetadata, resolveStaticPageSeo } from "@/lib/seo/seo.service";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const content = await fetchAboutPageContent();
-  return {
-    title: content.seo.title,
-    description: content.seo.description,
-  };
+  const { metadata } = await buildStaticPageMetadata("about");
+  return metadata;
 }
 
 export default async function AboutPage() {
-  const content = await fetchAboutPageContent();
+  const [content, seo] = await Promise.all([
+    fetchAboutPageContent(),
+    resolveStaticPageSeo("about"),
+  ]);
 
   return (
     <main className="min-h-screen bg-aera-bg pb-0">
+      <PageStructuredData pathname="/about" title={seo.title} includeGlobal />
       <AboutHero data={content.hero} />
       <OurStory data={content.story} />
       <MissionVisionValues items={content.missionVisionValues} />

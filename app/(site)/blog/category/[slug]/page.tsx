@@ -7,6 +7,8 @@ import { BlogSidebar } from "@/components/blog/BlogSidebar";
 import { BlogPagination } from "@/components/blog/BlogPagination";
 import { ArrowLeft, Compass } from "lucide-react";
 import Link from "next/link";
+import { buildEntityPageMetadata } from "@/lib/seo/seo.service";
+import { PageStructuredData } from "@/components/seo/PageStructuredData";
 
 export const dynamic = "force-dynamic";
 
@@ -23,13 +25,18 @@ export async function generateMetadata({ params }: CategoryPageProps) {
   const category = await prisma.blogCategory.findUnique({
     where: { slug: params.slug },
   });
-  if (!category) {
-    return { title: "Category Not Found | Aera Nail Lounge" };
+  if (!category || !category.isActive) {
+    return { title: "Category Not Found | Aera Nail Lounge", robots: "noindex,nofollow" };
   }
-  return {
-    title: `${category.name} Journal | Aera Nail Lounge`,
-    description: category.description || `Read guides and trends about ${category.name}.`,
-  };
+  return buildEntityPageMetadata({
+    scopeKey: `blog-category:${category.id}`,
+    pageKey: "blog-category",
+    pathname: `/blog/category/${category.slug}`,
+    fallbackTitle: `${category.name} Journal`,
+    fallbackDescription: category.description || `Read guides and trends about ${category.name}.`,
+    fallbackImage: category.image,
+    fallbackImageAlt: category.imageAlt || category.name,
+  });
 }
 
 export default async function BlogCategoryPage({ params, searchParams }: CategoryPageProps) {
@@ -53,6 +60,7 @@ export default async function BlogCategoryPage({ params, searchParams }: Categor
 
   return (
     <div className="bg-aera-cream/10 min-h-screen text-aera-ink flex flex-col justify-between">
+      <PageStructuredData pathname={`/blog/category/${category.slug}`} title={category.name} />
       {/* Category Hero */}
       <section className="bg-aera-cream/35 py-12 md:py-16 border-b border-aera-champagne/40 text-left">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
