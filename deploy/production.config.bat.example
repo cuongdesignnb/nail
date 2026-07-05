@@ -1,0 +1,13 @@
+@echo off
+
+set DEPLOY_HOST=YOUR_SERVER_IP
+set DEPLOY_PORT=22
+set DEPLOY_USER=root
+
+set APP_DIR=/www/wwwroot/aeranails.com
+set APP_DOMAIN=aeranails.com
+set APP_PORT=31847
+set APP_BRANCH=main
+
+set GIT_REPO=https://github.com/cuongdesignnb/nail.git
+set BOOTSTRAP_OWNER_EMAIL=owner@example.com

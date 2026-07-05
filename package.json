@@ -30,7 +30,11 @@
     "jobs:publish-blog": "tsx scripts/publish-scheduled-blog-posts.ts",
     "verify:ai-encoding": "tsx scripts/verify-ai-content-encoding.ts",
     "docker:up": "docker compose up --build -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "docker:production:build": "docker compose -p aera_nail -f docker-compose.production.yml --env-file .env.production build",
+    "docker:production:up": "docker compose -p aera_nail -f docker-compose.production.yml --env-file .env.production up -d",
+    "docker:production:down": "docker compose -p aera_nail -f docker-compose.production.yml --env-file .env.production down",
+    "production:bootstrap": "tsx scripts/bootstrap-production-owner.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1078.0",

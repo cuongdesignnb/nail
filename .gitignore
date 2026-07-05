@@ -3,7 +3,15 @@ node_modules
 out
 .vercel
 *.log
-.env*
+.env
+.env.*
+!.env.example
+!.env.production.example
 .data
+backups/
+reports/
+deploy/production.config.bat
+.deploy/
+initial-owner-credentials.txt
 
 .vercel

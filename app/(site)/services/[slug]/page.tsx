@@ -11,6 +11,8 @@ import { buildAbsoluteUrl } from "@/lib/seo/site-url";
 import { buildServiceSchema } from "@/lib/seo/schema/service.schema";
 import { buildOfferSchema } from "@/lib/seo/schema/offer.schema";
 
+export const dynamic = "force-dynamic";
+
 export function generateStaticParams() {
   return services.map((service) => ({ slug: service.slug }));
 }

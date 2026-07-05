@@ -1,0 +1,124 @@
+name: aera_nail
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aera-postgres
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - aera_postgres_production:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  init-volumes:
+    image: alpine:3.20
+    container_name: aera-init-volumes
+    command: >
+      sh -c "mkdir -p /app/.data /app/public/uploads &&
+      chown -R 1001:1001 /app/.data /app/public/uploads"
+    user: "0:0"
+    volumes:
+      - aera_runtime_production:/app/.data
+      - aera_uploads_production:/app/public/uploads
+
+  web:
+    image: ${WEB_IMAGE:-aera-nail-web:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXTAUTH_URL: ${NEXTAUTH_URL}
+        DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    container_name: aera-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init-volumes:
+        condition: service_completed_successfully
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    ports:
+      - "127.0.0.1:${APP_PORT}:3000"
+    volumes:
+      - aera_runtime_production:/app/.data
+      - aera_uploads_production:/app/public/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  migrate:
+    image: ${MIGRATOR_IMAGE:-aera-nail-migrator:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrator
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXTAUTH_URL: ${NEXTAUTH_URL}
+        DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    container_name: aera-migrate
+    profiles:
+      - maintenance
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    command: ["npx", "prisma", "migrate", "deploy"]
+
+  jobs:
+    image: ${JOBS_IMAGE:-aera-nail-jobs:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: jobs
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXTAUTH_URL: ${NEXTAUTH_URL}
+        DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    container_name: aera-jobs
+    profiles:
+      - maintenance
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init-volumes:
+        condition: service_completed_successfully
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    command: ["node", "-e", "console.log('Run one-shot jobs with docker compose run --rm jobs npm run <script>')"]
+    volumes:
+      - aera_runtime_production:/app/.data
+      - aera_uploads_production:/app/public/uploads
+
+volumes:
+  aera_postgres_production:
+  aera_runtime_production:
+  aera_uploads_production:

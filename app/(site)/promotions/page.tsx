@@ -5,6 +5,8 @@ import { PageStructuredData } from "@/components/seo/PageStructuredData";
 import { promotions } from "@/lib/data";
 import { buildStaticPageMetadata, resolveStaticPageSeo } from "@/lib/seo/seo.service";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const { metadata } = await buildStaticPageMetadata("promotions");
   return metadata;

@@ -44,6 +44,24 @@ docker compose logs -f web
 docker compose down
 ```
 
+## aaPanel Production Deploy
+
+Production uses a separate Docker Compose file and binds Next.js only to localhost:
+
+```txt
+127.0.0.1:31847
+```
+
+On Windows, copy `deploy\production.config.bat.example` to `deploy\production.config.bat`, set the SSH host and owner email, then run:
+
+```bat
+deploy\deploy-production.bat
+```
+
+The server root is `/www/wwwroot/aeranails.com`; the deploy script initializes or updates Git in that existing aaPanel root and preserves untracked aaPanel files such as `.well-known`, `.htaccess`, `.user.ini`, `404.html`, `502.html`, and `index.html`. See `docs/DEPLOY_AAPANEL_DOCKER.md` for reverse proxy, backup, rollback, restore, cron, and healthcheck instructions.
+
+Never run `docker compose down -v` in production.
+
 ## Prisma
 
 The Prisma schema targets PostgreSQL. The current app also includes a file-backed booking store so Docker can run immediately without blocking on migrations.
