@@ -15,6 +15,7 @@ function safeItems(value: unknown): NavigationMenuItem[] {
 
 function safeLogo(logo: ImageField | null | undefined): ImageField | null {
   if (!logo?.src || !logo.alt) return null;
+  if (logo.src.endsWith("/images/logo-aera.png")) return null;
   return logo;
 }
 

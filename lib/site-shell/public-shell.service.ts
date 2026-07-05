@@ -76,3 +76,18 @@ export async function getPublishedPublicShellData(mode: PublicShellMode = "publi
   }
   return cachedPublishedPublicShellData();
 }
+
+export async function getPublishedPublicFooterData() {
+  const shell = await getPublishedPublicShellData();
+  return {
+    brand: shell.brand,
+    footer: shell.footer,
+    menus: {
+      company: shell.footer.companyMenu,
+      services: shell.footer.servicesMenu,
+      explore: shell.footer.exploreMenu,
+      legal: shell.footer.legalMenu,
+      social: shell.footer.socialMenu,
+    },
+  };
+}

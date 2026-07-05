@@ -18,15 +18,17 @@ const logoSizes = {
 
 export function BrandLogo({ brandName, logo, size = "header", priority = false, className = "" }: BrandLogoProps) {
   const dimension = logoSizes[size];
+  const logoSrc = logo?.src || null;
   return (
     <Link className={`aera-brand-logo aera-brand-logo--${size} ${className}`.trim()} href="/" aria-label={`${brandName} home`}>
-      {logo?.src && (
+      {logoSrc && (
         <Image
-          src={logo.src}
-          alt={logo.alt || brandName}
+          src={logoSrc}
+          alt={logo?.alt || brandName}
           width={dimension}
           height={dimension}
           priority={priority}
+          unoptimized={logoSrc.endsWith(".svg")}
           className="aera-brand-logo__image"
         />
       )}

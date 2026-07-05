@@ -1,10 +1,11 @@
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { BrandLogo } from "./BrandLogo";
-import { PublicFooterMenu, PublicFooterLink } from "./PublicFooterMenu";
+import { PublicFooterLink, PublicFooterMenu } from "./PublicFooterMenu";
 import { PublicFooterSocialLinks } from "./PublicFooterSocialLinks";
 import type { PublicShellData } from "@/lib/site-shell/public-shell.types";
+import styles from "./PublicFooter.module.css";
 
-function phoneHref(phone?: string) {
+function phoneHref(phone?: string | null) {
   const raw = (phone || "").replace(/\D/g, "");
   return raw ? `tel:+${raw}` : undefined;
 }
@@ -14,42 +15,69 @@ export function PublicFooter({ data }: { data: PublicShellData }) {
   const contact = footer.contact;
   const legal = footer.legalMenu.filter((item) => item.isEnabled !== false);
   const copyright = footer.copyright || `© ${new Date().getFullYear()} ${data.brand.name}. All rights reserved.`;
+  const phoneUrl = phoneHref(contact?.phone);
 
   return (
-    <footer className="aera-public-footer" data-footer-layout={footer.layout}>
-      <div className="aera-public-footer__inner">
-        <div className="aera-public-footer__brand">
-          <BrandLogo brandName={data.brand.name} logo={data.brand.logo} size="footer" />
-          {footer.brandText && <p>{footer.brandText}</p>}
-          {footer.showSocial && <PublicFooterSocialLinks items={footer.socialMenu} />}
-        </div>
-        <PublicFooterMenu title="Company" items={footer.companyMenu} />
-        <PublicFooterMenu title="Services" items={footer.servicesMenu} />
-        <PublicFooterMenu title="Explore" items={footer.exploreMenu} />
-        <div className="aera-public-footer__column">
-          <h3>Contact</h3>
-          <div className="aera-public-footer__contact">
-            {contact?.phone && phoneHref(contact.phone) && <a href={phoneHref(contact.phone)}><Phone size={14} /> {contact.phone}</a>}
-            {contact?.email && <a href={`mailto:${contact.email}`}><Mail size={14} /> {contact.email}</a>}
-            {contact?.address && <span><MapPin size={14} /> {contact.address}</span>}
-            {contact?.hours && <span>{contact.hours}</span>}
-          </div>
-          {footer.newsletter?.title && (
-            <div className="aera-public-footer__newsletter">
-              <h3>{footer.newsletter.title}</h3>
-              {footer.newsletter.description && <p>{footer.newsletter.description}</p>}
+    <footer className={styles.footer} data-footer-layout={footer.layout} aria-label="Site footer">
+      <div className={styles.inner}>
+        <div className={styles.top}>
+          <section className={styles.brandColumn} aria-label="Footer brand">
+            <BrandLogo brandName={data.brand.name} logo={data.brand.logo} size="footer" />
+            {footer.brandText && <p className={styles.brandText}>{footer.brandText}</p>}
+            {footer.showSocial && <PublicFooterSocialLinks items={footer.socialMenu} />}
+          </section>
+
+          <PublicFooterMenu title="Company" items={footer.companyMenu} />
+          <PublicFooterMenu title="Services" items={footer.servicesMenu} />
+          <PublicFooterMenu title="Explore" items={footer.exploreMenu} />
+
+          <section className={styles.contactColumn} aria-labelledby="footer-contact-heading">
+            <h2 className={styles.heading} id="footer-contact-heading">Contact</h2>
+            <div className={styles.contactList}>
+              {contact?.phone && phoneUrl && (
+                <a className={styles.contactItem} href={phoneUrl}>
+                  <Phone size={16} />
+                  <span>{contact.phone}</span>
+                </a>
+              )}
+              {contact?.email && (
+                <a className={styles.contactItem} href={`mailto:${contact.email}`}>
+                  <Mail size={16} />
+                  <span>{contact.email}</span>
+                </a>
+              )}
+              {contact?.address && (
+                <span className={styles.contactItem}>
+                  <MapPin size={16} />
+                  <span>{contact.address}</span>
+                </span>
+              )}
+              {contact?.hours && (
+                <span className={styles.contactItem}>
+                  <Clock size={16} />
+                  <span>{contact.hours}</span>
+                </span>
+              )}
             </div>
-          )}
+
+            {footer.newsletter?.title && (
+              <div className={styles.newsletter}>
+                <h2 className={styles.heading}>{footer.newsletter.title}</h2>
+                {footer.newsletter.description && <p className={styles.newsletterText}>{footer.newsletter.description}</p>}
+              </div>
+            )}
+          </section>
         </div>
-        <div className="aera-public-footer__bottom">
+
+        <div className={styles.bottom}>
+          <span className={styles.copyright}>{copyright}</span>
           {legal.length > 0 && (
-            <nav className="aera-public-footer__legal" aria-label="Legal links">
+            <nav className={styles.legalLinks} aria-label="Legal links">
               {legal.map((item) => (
                 <PublicFooterLink key={item.id} item={item} />
               ))}
             </nav>
           )}
-          <span>{copyright}</span>
         </div>
       </div>
     </footer>

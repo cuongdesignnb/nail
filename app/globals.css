@@ -483,8 +483,7 @@ h2 {
 .gallery,
 .packages,
 .social-proof,
-.contact-band,
-footer {
+.contact-band {
   margin: 0 auto;
   max-width: 1250px;
   padding-left: 22px;
@@ -1178,97 +1177,6 @@ address b {
 }
 
 /* ═════════════════════ FOOTER ═════════════════════ */
-footer {
-  border-top: 1px solid var(--line);
-  display: grid;
-  gap: 50px;
-  grid-template-columns: 1.5fr repeat(4, 1fr);
-  padding-bottom: 55px;
-  padding-top: 48px;
-}
-
-footer[data-footer-layout="two_columns"] {
-  grid-template-columns: 1.4fr repeat(2, minmax(0, 1fr));
-}
-
-footer[data-footer-layout="three_columns"] {
-  grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
-}
-
-footer[data-footer-layout="four_columns"] {
-  grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr));
-}
-
-footer p {
-  color: var(--muted);
-  line-height: 1.7;
-  max-width: 360px;
-}
-
-footer h3 {
-  font-size: 15px;
-  margin: 0 0 18px;
-}
-
-footer a {
-  align-items: center;
-  color: var(--muted);
-  display: flex;
-  font-size: 13px;
-  gap: 8px;
-  line-height: 1.9;
-  transition: color 0.3s ease, padding-left 0.3s ease;
-}
-
-footer a:hover {
-  color: var(--bronze);
-  padding-left: 4px;
-}
-
-.footer-social-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.footer-social-row a {
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  display: inline-flex;
-  height: 44px;
-  justify-content: center;
-  min-width: 44px;
-  padding: 0;
-}
-
-.footer-social-row a:hover {
-  padding-left: 0;
-}
-
-.footer-bottom {
-  align-items: center;
-  border-top: 1px solid var(--line);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  grid-column: 1 / -1;
-  justify-content: space-between;
-  padding-top: 22px;
-}
-
-.footer-legal-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-.footer-bottom span {
-  color: var(--muted);
-  font-size: 12px;
-}
-
 /* ═══════════════════════════════════════════════════════
    PC RIGHT SIDEBAR (shake effect)
    ═══════════════════════════════════════════════════════ */
@@ -1466,8 +1374,7 @@ footer a:hover {
   .package-grid,
   .expert-grid,
   .feature-strip,
-  address,
-  footer {
+  address {
     grid-template-columns: 1fr;
   }
 
@@ -1517,8 +1424,7 @@ footer a:hover {
   .services,
   .gallery,
   .packages,
-  .social-proof,
-  footer {
+  .social-proof {
     padding-left: 18px;
     padding-right: 18px;
   }
@@ -1534,10 +1440,6 @@ footer a:hover {
     grid-template-columns: repeat(4, 1fr);
   }
 
-  /* Add bottom padding so footer content doesn't hide behind bar */
-  footer {
-    padding-bottom: 90px;
-  }
 }
 
 /* On desktop, hide mobile footer bar (already display:none by default) */

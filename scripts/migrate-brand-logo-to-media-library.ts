@@ -3,10 +3,7 @@ import path from "node:path";
 import { prisma } from "@/lib/db";
 
 const root = process.cwd();
-const candidates = [
-  "public/aera-mark.svg",
-  "public/images/logo-aera.png",
-].filter((file) => fs.existsSync(path.join(root, file)));
+const candidates = ["public/aera-mark.svg"].filter((file) => fs.existsSync(path.join(root, file)));
 
 async function main() {
   const chosen = candidates[0];
