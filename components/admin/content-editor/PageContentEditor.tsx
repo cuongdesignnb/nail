@@ -492,13 +492,15 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
                 display: section.id === activeSection ? "block" : "none",
               }}
             >
-              <ContentEditorSection
-                id={section.id}
-                title={section.label}
-                description={section.description}
-              >
-                {renderSectionEditor(section.id, section.label)}
-              </ContentEditorSection>
+              {section.id === activeSection && (
+                <ContentEditorSection
+                  id={section.id}
+                  title={section.label}
+                  description={section.description}
+                >
+                  {renderSectionEditor(section.id, section.label)}
+                </ContentEditorSection>
+              )}
             </div>
           ))}
         </div>

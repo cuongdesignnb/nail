@@ -45,6 +45,7 @@ import { AboutBenefitsSectionEditor } from "./sections/AboutBenefitsSectionEdito
 import { AboutExpertsSectionEditor } from "./sections/AboutExpertsSectionEditor";
 import { AboutSalonExperienceSectionEditor } from "./sections/AboutSalonExperienceSectionEditor";
 import { ServicesQuickCategoriesSectionEditor } from "./sections/ServicesQuickCategoriesSectionEditor";
+import { ServicesSignatureServicesSectionEditor } from "./sections/ServicesSignatureServicesSectionEditor";
 import { ServicesWhyChooseSectionEditor } from "./sections/ServicesWhyChooseSectionEditor";
 import { ServicesPricingMatrixSectionEditor } from "./sections/ServicesPricingMatrixSectionEditor";
 import { ServicesDesignInspirationSectionEditor } from "./sections/ServicesDesignInspirationSectionEditor";
@@ -96,7 +97,7 @@ const editorMap: Record<string, React.ComponentType<any>> = {
 
   // Services specific
   "services:categories": ServicesQuickCategoriesSectionEditor,
-  "services:signatureServices": HomeSignatureServicesSectionEditor,
+  "services:signatureServices": ServicesSignatureServicesSectionEditor,
   "services:whyChoose": ServicesWhyChooseSectionEditor,
   "services:pricing": ServicesPricingMatrixSectionEditor,
   "services:gallery": ServicesDesignInspirationSectionEditor,

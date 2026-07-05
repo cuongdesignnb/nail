@@ -1,57 +1,79 @@
 'use client';
 
 import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { asArray, isRecord } from '@/lib/utils/array';
 
 type StepItem = { id: string; step: string; icon: string; title: string; description: string };
 type StepsData = { eyebrow: string; title: string; steps: StepItem[] };
 type Props = { data: StepsData; onChange: (data: StepsData) => void };
 
 export function ProcessStepsSectionEditor({ data, onChange }: Props) {
+  const isArrayMode = Array.isArray(data);
+  const safeData: StepsData = {
+    eyebrow: isRecord(data) && typeof data.eyebrow === 'string' ? data.eyebrow : '',
+    title: isRecord(data) && typeof data.title === 'string' ? data.title : '',
+    steps: asArray<StepItem>(isArrayMode ? data : isRecord(data) ? data.steps : []).map((step, index) => ({
+      id: typeof step.id === 'string' ? step.id : crypto.randomUUID(),
+      step: typeof step.step === 'string' ? step.step : String(index + 1).padStart(2, '0'),
+      icon: typeof step.icon === 'string' ? step.icon : '',
+      title: typeof step.title === 'string' ? step.title : '',
+      description: typeof step.description === 'string' ? step.description : '',
+    })),
+  };
+
+  function emit(next: StepsData) {
+    onChange((isArrayMode ? next.steps : next) as StepsData);
+  }
+
   function update(patch: Partial<StepsData>) {
-    onChange({ ...data, ...patch });
+    emit({ ...safeData, ...patch });
   }
 
   function updateStep(index: number, patch: Partial<StepItem>) {
-    const steps = [...data.steps];
+    const steps = [...safeData.steps];
     steps[index] = { ...steps[index], ...patch };
     update({ steps });
   }
 
   function addStep() {
     update({
-      steps: [...data.steps, { id: crypto.randomUUID(), step: '', icon: '', title: '', description: '' }],
+      steps: [...safeData.steps, { id: crypto.randomUUID(), step: '', icon: '', title: '', description: '' }],
     });
   }
 
   function removeStep(index: number) {
-    update({ steps: data.steps.filter((_, i) => i !== index) });
+    update({ steps: safeData.steps.filter((_, i) => i !== index) });
   }
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-[#23212a] mb-1">Eyebrow</label>
-          <input
-            type="text"
-            value={data.eyebrow}
-            onChange={(e) => update({ eyebrow: e.target.value })}
-            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-[#23212a] mb-1">Title</label>
-          <input
-            type="text"
-            value={data.title}
-            onChange={(e) => update({ title: e.target.value })}
-            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
-          />
-        </div>
+        {!isArrayMode && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-[#23212a] mb-1">Eyebrow</label>
+              <input
+                type="text"
+                value={safeData.eyebrow}
+                onChange={(e) => update({ eyebrow: e.target.value })}
+                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#23212a] mb-1">Title</label>
+              <input
+                type="text"
+                value={safeData.title}
+                onChange={(e) => update({ title: e.target.value })}
+                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#23212a] outline-none focus:ring-2 focus:ring-[#B87D5B]/30 focus:border-[#B87D5B] transition"
+              />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="space-y-3">
-        {data.steps.map((step, i) => (
+        {safeData.steps.map((step, i) => (
           <div key={step.id} className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-medium text-[#23212a]">
