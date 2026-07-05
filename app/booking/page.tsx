@@ -63,7 +63,7 @@ export default function BookingPage() {
   const [quote, setQuote] = useState<Quote | null>(null);
   const [checkout, setCheckout] = useState<{ publicToken: string; expiresAt: string } | null>(null);
   const checkoutRef = useRef<{ publicToken: string; expiresAt: string } | null>(null);
-  const [result, setResult] = useState<{ bookingCode: string; id: string } | null>(null);
+  const [result, setResult] = useState<{ bookingCode: string; id: string; status?: string } | null>(null);
   const [error, setError] = useState("");
   const [processing, setProcessing] = useState(false);
 
@@ -202,12 +202,50 @@ export default function BookingPage() {
       return;
     }
     const booking = json.data.booking;
-    setResult({ id: booking.id, bookingCode: booking.bookingCode });
+    setResult({ id: booking.id, bookingCode: booking.bookingCode, status: "Confirmed" });
+  }
+
+  async function submitManualBookingRequest() {
+    setProcessing(true);
+    setError("");
+    try {
+      const res = await fetch("/api/public/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serviceIds,
+          addonIds,
+          technicianId,
+          date,
+          time,
+          promotionCode: promoCode,
+          customer,
+          notes,
+          policyAccepted,
+          policyVersion: "current-policy-version",
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Unable to create booking request.");
+      }
+      const booking = json.data.booking;
+      setResult({ id: booking.id, bookingCode: booking.bookingCode, status: booking.status });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to create booking request.");
+    } finally {
+      setProcessing(false);
+    }
   }
 
   if (result) {
+    const confirmed = result.status === "Confirmed";
     return (
-      <PageShell eyebrow="Booking Confirmed" title="Your Appointment Is Confirmed" copy="Your PayPal payment was verified and your appointment is confirmed.">
+      <PageShell
+        eyebrow={confirmed ? "Booking Confirmed" : "Booking Request Received"}
+        title={confirmed ? "Your Appointment Is Confirmed" : "We Received Your Booking Request"}
+        copy={confirmed ? "Your PayPal payment was verified and your appointment is confirmed." : "Our reception team will review and confirm payment details shortly."}
+      >
         <section className="lux-card booking-success">
           <h2>{result.bookingCode}</h2>
           <p>Please save your booking code. We look forward to seeing you.</p>
@@ -319,9 +357,18 @@ export default function BookingPage() {
               )}
               {checkout && <p>Your selected time is temporarily reserved until {new Date(checkout.expiresAt).toLocaleTimeString()}.</p>}
               <label className="check-label"><input type="checkbox" checked={policyAccepted} onChange={(e) => setPolicyAccepted(e.target.checked)} /> I agree to the booking and cancellation policy.</label>
-              {!paypalConfig.enabled && <p className="form-error">Online payment is not configured yet. Please call the salon to book.</p>}
+              {!paypalConfig.enabled && <p className="form-error">Online payment is not configured yet. Submit a booking request and our reception team will confirm it.</p>}
               {error && <p className="form-error">{error}</p>}
               {processing && <p>Processing secure payment...</p>}
+              {!paypalConfig.enabled && (
+                <button
+                  className="primary-btn"
+                  disabled={processing || serviceIds.length === 0 || !time || !quote || !validDetails || !policyAccepted}
+                  onClick={submitManualBookingRequest}
+                >
+                  Submit Booking Request
+                </button>
+              )}
               {readyToPay && paypalConfig.clientId && (
                 <PayPalScriptProvider options={{ clientId: paypalConfig.clientId, currency: quote?.currency || paypalConfig.currency, intent: "capture" }}>
                   <PayPalButtons

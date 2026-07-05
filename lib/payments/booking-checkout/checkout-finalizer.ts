@@ -15,6 +15,8 @@ async function generateBookingCode(tx: Prisma.TransactionClient) {
   return `AERA-${Date.now().toString(36).toUpperCase()}`;
 }
 
+export { generateBookingCode };
+
 export async function finalizePaidCheckout(input: {
   checkoutSessionId?: string;
   publicToken?: string;

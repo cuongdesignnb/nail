@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { createPayPalOrder } from "@/lib/payments/paypal/paypal.orders";
 import { getOrCreatePayPalConfig } from "@/lib/payments/paypal/paypal.config";
 import type { BookingCustomerPayload, BookingPayload, QuoteSnapshot } from "./checkout.types";
+import { generateBookingCode } from "./checkout-finalizer";
 
 const TAX_RATE = 0.095;
 const BUFFER_MINUTES = 15;
@@ -345,4 +346,111 @@ export async function createBookingCheckout(input: BookingPayload & { customer: 
     currency: quote.currency,
     chargeMode: quote.chargeMode,
   };
+}
+
+export async function createManualBookingRequest(input: BookingPayload & { customer: BookingCustomerPayload }) {
+  const quote = await calculateBookingQuote({
+    serviceIds: input.serviceIds,
+    addonIds: input.addonIds,
+    promotionCode: input.promotionCode,
+    customerEmail: input.customer.email,
+  });
+  const { start, end } = await resolveSchedule({
+    date: input.date,
+    time: input.time,
+    durationMinutes: quote.durationMinutes,
+  });
+  const technician = await chooseTechnician({ technicianId: input.technicianId, start, end });
+
+  return prisma.$transaction(async (tx) => {
+    const conflict = await tx.booking.count({
+      where: {
+        technicianId: technician.id,
+        status: { in: BLOCKING_BOOKING_STATUSES },
+        scheduledStartAt: { lt: end },
+        scheduledEndAt: { gt: start },
+      },
+    });
+    if (conflict > 0) throw new Error("This time slot was just taken. Please choose another time.");
+
+    const bookingCode = await generateBookingCode(tx);
+    const customer = await tx.customer.upsert({
+      where: { email: input.customer.email },
+      create: {
+        firstName: input.customer.firstName,
+        lastName: input.customer.lastName,
+        email: input.customer.email,
+        phone: input.customer.phone,
+        reminderConsent: input.customer.reminderConsent,
+        marketingConsent: input.customer.marketingConsent,
+        totalBookings: 1,
+      },
+      update: {
+        firstName: input.customer.firstName,
+        lastName: input.customer.lastName,
+        phone: input.customer.phone,
+        reminderConsent: input.customer.reminderConsent,
+        marketingConsent: input.customer.marketingConsent,
+        totalBookings: { increment: 1 },
+      },
+    });
+
+    const booking = await tx.booking.create({
+      data: {
+        bookingCode,
+        customerId: customer.id,
+        technicianId: technician.id,
+        status: "Pending",
+        paymentStatus: "Unpaid",
+        scheduledStartAt: start,
+        scheduledEndAt: end,
+        subtotal: quote.subtotal,
+        discountAmount: quote.discountAmount,
+        taxAmount: quote.taxAmount,
+        depositAmount: 0,
+        totalAmount: quote.totalAmount,
+        notes: input.notes,
+      },
+    });
+
+    if (quote.services.length) {
+      await tx.bookingItem.createMany({
+        data: quote.services.map((service) => ({
+          bookingId: booking.id,
+          serviceId: service.id,
+          serviceNameSnapshot: service.name,
+          price: service.price,
+          duration: service.duration,
+        })),
+      });
+    }
+
+    if (quote.addons.length) {
+      await tx.bookingAddonItem.createMany({
+        data: quote.addons.map((addon) => ({
+          bookingId: booking.id,
+          addonId: addon.id,
+          addonNameSnapshot: addon.name,
+          price: addon.price,
+          duration: addon.duration,
+        })),
+      });
+    }
+
+    await tx.auditLog.create({
+      data: {
+        actor: "public",
+        action: "MANUAL_BOOKING_REQUEST_CREATED",
+        entity: `Booking:${booking.id}`,
+        entityType: "Booking",
+        entityId: booking.id,
+        details: { bookingCode, paymentStatus: "Unpaid" },
+      },
+    });
+
+    return {
+      booking: { id: booking.id, bookingCode, status: booking.status },
+      quote,
+    };
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 }
