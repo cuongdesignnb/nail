@@ -10,7 +10,16 @@ import { generateBookingCode } from "./checkout-finalizer";
 
 const TAX_RATE = 0.095;
 const BUFFER_MINUTES = 15;
-const BLOCKING_BOOKING_STATUSES = ["Confirmed", "Pending", "Checked In", "In Service"];
+const BLOCKING_BOOKING_STATUSES = [
+  "CONFIRMED",
+  "PENDING",
+  "CHECKED_IN",
+  "IN_PROGRESS",
+  "Confirmed",
+  "Pending",
+  "Checked In",
+  "In Service",
+];
 const HOLD_STATUSES = ["created", "approved"];
 
 function round(value: number) {
@@ -400,8 +409,8 @@ export async function createManualBookingRequest(input: BookingPayload & { custo
         bookingCode,
         customerId: customer.id,
         technicianId: technician.id,
-        status: "Pending",
-        paymentStatus: "Unpaid",
+        status: "PENDING",
+        paymentStatus: "UNPAID",
         scheduledStartAt: start,
         scheduledEndAt: end,
         subtotal: quote.subtotal,
@@ -444,7 +453,7 @@ export async function createManualBookingRequest(input: BookingPayload & { custo
         entity: `Booking:${booking.id}`,
         entityType: "Booking",
         entityId: booking.id,
-        details: { bookingCode, paymentStatus: "Unpaid" },
+        details: { bookingCode, paymentStatus: "UNPAID" },
       },
     });
 

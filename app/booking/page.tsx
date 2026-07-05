@@ -202,7 +202,7 @@ export default function BookingPage() {
       return;
     }
     const booking = json.data.booking;
-    setResult({ id: booking.id, bookingCode: booking.bookingCode, status: "Confirmed" });
+    setResult({ id: booking.id, bookingCode: booking.bookingCode, status: "CONFIRMED" });
   }
 
   async function submitManualBookingRequest() {
@@ -239,7 +239,7 @@ export default function BookingPage() {
   }
 
   if (result) {
-    const confirmed = result.status === "Confirmed";
+    const confirmed = result.status === "CONFIRMED" || result.status === "Confirmed";
     return (
       <PageShell
         eyebrow={confirmed ? "Booking Confirmed" : "Booking Request Received"}
@@ -283,7 +283,7 @@ export default function BookingPage() {
                   <button className={serviceIds.includes(service.id) ? "selected" : ""} key={service.id} onClick={() => toggle(serviceIds, service.id, setServiceIds)}>
                     <Sparkles size={18} />
                     <b>{service.name}</b>
-                    <span>{service.durationMinutes} min · {money(service.price, quote?.currency || catalog.payment.currency)}</span>
+                    <span>{service.durationMinutes} min - {money(service.price, quote?.currency || catalog.payment.currency)}</span>
                   </button>
                 ))}
               </div>
@@ -312,7 +312,7 @@ export default function BookingPage() {
                   <button className={technicianId === tech.id ? "selected" : ""} key={tech.id} onClick={() => setTechnicianId(tech.id)}>
                     <UserRound size={18} />
                     <b>{tech.name}</b>
-                    <span>{tech.specialty} · {tech.rating} rating</span>
+                    <span>{tech.specialty} - {tech.rating} rating</span>
                   </button>
                 ))}
               </div>
@@ -349,7 +349,7 @@ export default function BookingPage() {
           {step === 5 && (
             <div className="booking-panel">
               <h3>Review & Pay</h3>
-              <p>Secure Payment · PayPal Checkout</p>
+              <p>Secure Payment - PayPal Checkout</p>
               {quote?.chargeMode === "deposit" ? (
                 <p>Deposit due today: <b>{money(quote.paymentAmount, quote.currency)}</b>. Remaining balance at appointment: <b>{money(quote.remainingAmount, quote.currency)}</b>.</p>
               ) : (

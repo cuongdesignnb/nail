@@ -42,7 +42,12 @@ function formatDt(dt: string | null | undefined): string {
   });
 }
 
+function normalizeStatus(status?: string | null) {
+  return String(status || "PENDING").trim().replace(/[\s-]+/g, "_").toUpperCase();
+}
+
 export const BookingTimeline: React.FC<BookingTimelineProps> = ({ booking }) => {
+  const bookingStatus = normalizeStatus(booking.status);
   const events: TimelineEvent[] = [
     {
       label: "Booking Created",
@@ -100,7 +105,7 @@ export const BookingTimeline: React.FC<BookingTimelineProps> = ({ booking }) => 
       CONFIRMED: { label: "Confirmed", color: "bg-blue-500", icon: <CheckCircle2 className="h-4 w-4" /> },
       IN_PROGRESS: { label: "In Progress", color: "bg-amber-500", icon: <PlayCircle className="h-4 w-4" /> },
     };
-    const current = statusMap[booking.status];
+    const current = statusMap[bookingStatus];
     if (current) {
       events.push({
         label: current.label,

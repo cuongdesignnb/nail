@@ -35,7 +35,9 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> =
 
 const PAYMENT_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
   PENDING: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
+  UNPAID: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
   PAID: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
+  DEPOSIT_PAID: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500" },
   paid: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
   pending: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500" },
   failed: { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
@@ -43,12 +45,17 @@ const PAYMENT_COLORS: Record<string, { bg: string; text: string; dot: string }> 
   PARTIAL: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500" },
 };
 
-function StatusBadge({ status, colorMap }: { status: string; colorMap: Record<string, { bg: string; text: string; dot: string }> }) {
-  const c = colorMap[status] || { bg: "bg-gray-50", text: "text-gray-700", dot: "bg-gray-400" };
+function normalizeStatus(status?: string | null) {
+  return String(status || "PENDING").trim().replace(/[\s-]+/g, "_").toUpperCase();
+}
+
+function StatusBadge({ status, colorMap }: { status?: string | null; colorMap: Record<string, { bg: string; text: string; dot: string }> }) {
+  const normalized = normalizeStatus(status);
+  const c = colorMap[normalized] || colorMap[String(status || "")] || { bg: "bg-gray-50", text: "text-gray-700", dot: "bg-gray-400" };
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${c.bg} ${c.text}`}>
       <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${c.dot}`} />
-      {status.replace(/_/g, " ")}
+      {normalized.replace(/_/g, " ")}
     </span>
   );
 }
@@ -60,6 +67,8 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
 }) => {
   const [notes, setNotes] = useState(booking.internalNotes || "");
   const [savingNotes, setSavingNotes] = useState(false);
+  const bookingStatus = normalizeStatus(booking.status);
+  const paymentStatus = normalizeStatus(booking.paymentStatus);
 
   const handleSaveNotes = async () => {
     setSavingNotes(true);
@@ -84,11 +93,11 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
             <span className="text-xs font-semibold text-aera-muted uppercase tracking-wider">
               Status
             </span>
-            <StatusBadge status={booking.status} colorMap={STATUS_COLORS} />
-            <StatusBadge status={booking.paymentStatus} colorMap={PAYMENT_COLORS} />
+            <StatusBadge status={bookingStatus} colorMap={STATUS_COLORS} />
+            <StatusBadge status={paymentStatus} colorMap={PAYMENT_COLORS} />
           </div>
           <BookingStatusActions
-            currentStatus={booking.status}
+            currentStatus={bookingStatus}
             onStatusChange={onStatusChange}
           />
         </div>
@@ -113,7 +122,7 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                   Scheduled
                 </p>
                 <p className="mt-1 text-sm font-semibold text-aera-ink">
-                  {format(new Date(booking.scheduledStartAt), "MMM d, yyyy · h:mm a")}
+                  {format(new Date(booking.scheduledStartAt), "MMM d, yyyy, h:mm a")}
                 </p>
               </div>
               <div>
@@ -122,7 +131,7 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                 </p>
                 <p className="mt-1 text-sm text-aera-ink flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5 text-aera-muted" />
-                  {format(new Date(booking.scheduledStartAt), "h:mm a")} –{" "}
+                  {format(new Date(booking.scheduledStartAt), "h:mm a")} -{" "}
                   {format(new Date(booking.scheduledEndAt), "h:mm a")}
                 </p>
               </div>
@@ -226,7 +235,7 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                           ${Number(payment.amount).toFixed(2)}
                         </p>
                         <p className="text-[11px] text-aera-muted">
-                          {payment.provider} · {payment.currency}
+                          {payment.provider} - {payment.currency}
                         </p>
                       </div>
                     </div>
@@ -262,7 +271,7 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
               <AdminTextArea
                 value={notes}
                 onChange={setNotes}
-                placeholder="Add internal notes about this booking…"
+                placeholder="Add internal notes about this booking..."
                 rows={3}
               />
               <button
@@ -272,7 +281,7 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                 className="inline-flex items-center gap-2 rounded-full bg-aera-accent px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
               >
                 <Save className="h-3.5 w-3.5" />
-                {savingNotes ? "Saving…" : "Save Notes"}
+                {savingNotes ? "Saving..." : "Save Notes"}
               </button>
             </div>
           </AdminSectionCard>
@@ -298,14 +307,14 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                 href={`/admin/customers/${booking.customer?.id}`}
                 className="inline-flex items-center text-[11px] font-bold uppercase tracking-wider text-aera-accent hover:text-aera-accentHover transition-colors"
               >
-                View Profile →
+                View Profile {">"}
               </a>
             </div>
           </AdminSectionCard>
 
           {/* Timeline */}
           <AdminSectionCard title="Timeline" icon={Clock}>
-            <BookingTimeline booking={booking} />
+            <BookingTimeline booking={{ ...booking, status: bookingStatus }} />
           </AdminSectionCard>
 
           {/* Customer Notes */}

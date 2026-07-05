@@ -53,10 +53,20 @@ export async function finalizePaidCheckout(input: {
     if (round(Number(session.paymentAmount)) !== round(input.amount)) throw new Error("PayPal capture amount mismatch.");
     if (session.currency !== input.currency) throw new Error("PayPal capture currency mismatch.");
 
+    const blockingStatuses = [
+      "CONFIRMED",
+      "PENDING",
+      "CHECKED_IN",
+      "IN_PROGRESS",
+      "Confirmed",
+      "Pending",
+      "Checked In",
+      "In Service",
+    ];
     const conflict = await tx.booking.count({
       where: {
         technicianId: session.technicianId,
-        status: { in: ["Confirmed", "Pending", "Checked In", "In Service"] },
+        status: { in: blockingStatuses },
         scheduledStartAt: { lt: session.scheduledEndAt },
         scheduledEndAt: { gt: session.scheduledStartAt },
       },
@@ -107,8 +117,8 @@ export async function finalizePaidCheckout(input: {
         bookingCode,
         customerId: customer.id,
         technicianId: session.technicianId,
-        status: "Confirmed",
-        paymentStatus: session.chargeMode === "full" ? "Paid" : "Deposit Paid",
+        status: "CONFIRMED",
+        paymentStatus: session.chargeMode === "full" ? "PAID" : "PARTIAL",
         scheduledStartAt: session.scheduledStartAt,
         scheduledEndAt: session.scheduledEndAt,
         subtotal: quote.subtotal,

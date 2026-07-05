@@ -82,7 +82,7 @@ export function SignatureServices({ items }: { items: ServiceDTO[] }) {
                 {/* Call To Action */}
                 <AnimatedButton
                   label="Book Now"
-                  href="/booking"
+                  href={`/booking?service=${encodeURIComponent(service.id)}`}
                   variant="secondary"
                   className="w-full text-xs py-2.5 border-aera-accent/20 group-hover:bg-aera-accent group-hover:text-aera-bg group-hover:border-aera-accent transition-all duration-300"
                 />
