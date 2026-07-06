@@ -1,34 +1,32 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
-import Link from "next/link";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  Gift,
-  Search,
-  Plus,
-  MoreHorizontal,
-  Eye,
+  BadgeDollarSign,
   Copy,
-  Mail,
   CreditCard,
   DollarSign,
-  XCircle,
-  BadgeDollarSign,
+  Eye,
+  Gift,
+  Mail,
   MailWarning,
+  MoreHorizontal,
+  Plus,
   RotateCcw,
-  Download,
+  XCircle,
 } from "lucide-react";
 import {
-  AdminPageHeader,
-  AdminKpiCard,
-  AdminEmptyState,
   AdminButton,
+  AdminKpiCard,
+  AdminPageHeader,
   AdminPagination,
 } from "@/components/admin/ui";
+import { adminRoutes } from "@/lib/admin/admin-routes";
+import GiftCardEmptyState from "./GiftCardEmptyState";
+import GiftCardFilters, { emptyGiftCardFilters, type GiftCardFilterState } from "./GiftCardFilters";
 
-/* ────────────────────────────── Types ────────────────────────────── */
 interface GiftCardRow {
   id: string;
   code: string;
@@ -50,7 +48,6 @@ interface GiftCardKpis {
   pendingEmail: number;
 }
 
-/* ────────────────────────────── Helpers ────────────────────────────── */
 function money(value: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value || 0);
 }
@@ -82,10 +79,8 @@ function StatusChip({ value }: { value: string }) {
   );
 }
 
-/* ────────────────────────────── Action Menu ────────────────────────────── */
 function RowActionMenu({ card, onAction }: { card: GiftCardRow; onAction: (action: string, card: GiftCardRow) => void }) {
   const [open, setOpen] = useState(false);
-
   const actions = [
     { key: "view", label: "View Details", icon: Eye },
     { key: "copy", label: "Copy Code", icon: Copy },
@@ -113,18 +108,18 @@ function RowActionMenu({ card, onAction }: { card: GiftCardRow; onAction: (actio
             transition={{ duration: 0.12 }}
             className="absolute right-0 top-full z-40 mt-1 min-w-[180px] overflow-hidden rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-1.5 shadow-[var(--admin-shadow-lg)]"
           >
-            {actions.map((a) => (
+            {actions.map((action) => (
               <button
-                key={a.key}
-                onClick={() => { setOpen(false); onAction(a.key, card); }}
+                key={action.key}
+                onClick={() => { setOpen(false); onAction(action.key, card); }}
                 className={`flex w-full items-center gap-2.5 rounded-[var(--admin-radius-sm)] px-3 py-2 text-[13px] transition-colors ${
-                  "danger" in a && a.danger
+                  "danger" in action && action.danger
                     ? "text-[var(--admin-danger)] hover:bg-[var(--admin-danger-soft)]"
                     : "text-[var(--admin-ink-secondary)] hover:bg-[var(--admin-surface-hover)] hover:text-[var(--admin-ink)]"
                 }`}
               >
-                <a.icon size={14} />
-                {a.label}
+                <action.icon size={14} />
+                {action.label}
               </button>
             ))}
           </motion.div>
@@ -134,29 +129,59 @@ function RowActionMenu({ card, onAction }: { card: GiftCardRow; onAction: (actio
   );
 }
 
-/* ────────────────────────────── Main Component ────────────────────────────── */
+function buildParams(filters: GiftCardFilterState) {
+  const params = new URLSearchParams();
+  if (filters.query.trim()) params.set("search", filters.query.trim());
+  if (filters.type !== "ALL") params.set("type", filters.type);
+  if (filters.status !== "ALL") params.set("status", filters.status);
+  if (filters.emailStatus !== "ALL") params.set("emailStatus", filters.emailStatus);
+  if (filters.from) params.set("from", filters.from);
+  if (filters.to) params.set("to", filters.to);
+  return params;
+}
+
+function exportCsv(cards: GiftCardRow[]) {
+  const headers = ["Code", "Recipient", "Purchaser", "Type", "Value", "Remaining", "Status", "Email", "Created", "Order"];
+  const rows = cards.map((card) => [
+    card.code,
+    card.recipient,
+    card.purchaser,
+    card.type,
+    card.value,
+    card.remainingBalance,
+    card.status,
+    card.emailStatus,
+    new Date(card.createdAt).toLocaleDateString(),
+    card.orderNumber,
+  ]);
+  const csv = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `gift-cards-${new Date().toISOString().slice(0, 10)}.csv`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function AdminGiftCardsClient() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [cards, setCards] = useState<GiftCardRow[]>([]);
   const [kpis, setKpis] = useState<GiftCardKpis>({ salesToday: 0, activeBalance: 0, redeemedThisMonth: 0, pendingEmail: 0 });
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [emailStatusFilter, setEmailStatusFilter] = useState("");
+  const [filters, setFilters] = useState<GiftCardFilterState>(emptyGiftCardFilters);
   const [page, setPage] = useState(1);
   const pageSize = 20;
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
-      if (search) params.set("search", search);
-      if (typeFilter) params.set("type", typeFilter);
-      if (statusFilter) params.set("status", statusFilter);
-      if (emailStatusFilter) params.set("emailStatus", emailStatusFilter);
+      const params = buildParams(filters);
       const res = await fetch(`/api/admin/gift-cards?${params}`);
-      if (res.status === 401) { window.location.href = "/login?next=/admin/gift-cards"; return; }
+      if (res.status === 401) {
+        window.location.href = "/login?next=/admin/gift-cards";
+        return;
+      }
       const json = await res.json();
       if (json.data) {
         setCards(json.data.cards || []);
@@ -167,18 +192,16 @@ export default function AdminGiftCardsClient() {
     } finally {
       setLoading(false);
     }
-  }, [search, typeFilter, statusFilter, emailStatusFilter]);
+  }, [filters]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  /* ── Pagination ── */
   const totalCards = cards.length;
   const pagedCards = cards.slice((page - 1) * pageSize, page * pageSize);
 
-  /* ── Actions ── */
   const handleAction = async (action: string, card: GiftCardRow) => {
     if (action === "view") {
-      router.push(`/admin/gift-cards/${card.id}`);
+      router.push(adminRoutes.giftCardDetail(card.id));
       return;
     }
     if (action === "copy") {
@@ -197,26 +220,21 @@ export default function AdminGiftCardsClient() {
       }
       return;
     }
-    // redeem, adjust — navigate to detail page
-    router.push(`/admin/gift-cards/${card.id}`);
+    router.push(adminRoutes.giftCardDetail(card.id));
   };
 
-  const hasFilters = search || typeFilter || statusFilter || emailStatusFilter;
-
-  const clearFilters = () => {
-    setSearch("");
-    setTypeFilter("");
-    setStatusFilter("");
-    setEmailStatusFilter("");
+  function updateFilters(next: GiftCardFilterState) {
+    setFilters(next);
     setPage(1);
-  };
+  }
 
-  /* ── Select styles ── */
-  const selectClass = "appearance-none rounded-[var(--admin-radius-md)] border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-2.5 text-[13px] text-[var(--admin-ink)] transition-colors focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
+  function clearFilters() {
+    setFilters(emptyGiftCardFilters);
+    setPage(1);
+  }
 
   return (
     <div className="admin-page-container">
-      {/* ── Page Header ────────────────────────────────────────── */}
       <AdminPageHeader
         eyebrow="Commerce"
         title="Gift Cards"
@@ -226,124 +244,59 @@ export default function AdminGiftCardsClient() {
             variant="primary"
             size="lg"
             icon={<Plus size={16} />}
-            onClick={() => router.push("/admin/gift-cards/new")}
+            onClick={() => router.push(adminRoutes.newGiftCard)}
           >
             Issue Gift Card
           </AdminButton>
         }
       />
 
-      {/* ── KPI Row ────────────────────────────────────────────── */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <AdminKpiCard
-          icon={<BadgeDollarSign size={20} />}
-          label="Sales Today"
-          value={money(kpis.salesToday)}
-          loading={loading}
-        />
-        <AdminKpiCard
-          icon={<Gift size={20} />}
-          label="Active Balance"
-          value={money(kpis.activeBalance)}
-          loading={loading}
-        />
-        <AdminKpiCard
-          icon={<RotateCcw size={20} />}
-          label="Redeemed This Month"
-          value={money(kpis.redeemedThisMonth)}
-          loading={loading}
-        />
-        <AdminKpiCard
-          icon={<MailWarning size={20} />}
-          label="Pending Email"
-          value={String(kpis.pendingEmail)}
-          loading={loading}
-        />
+      <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <AdminKpiCard icon={<BadgeDollarSign size={20} />} label="Sales Today" value={money(kpis.salesToday)} loading={loading} />
+        <AdminKpiCard icon={<Gift size={20} />} label="Active Balance" value={money(kpis.activeBalance)} loading={loading} />
+        <AdminKpiCard icon={<RotateCcw size={20} />} label="Redeemed This Month" value={money(kpis.redeemedThisMonth)} loading={loading} />
+        <AdminKpiCard icon={<MailWarning size={20} />} label="Pending Email" value={String(kpis.pendingEmail)} loading={loading} />
       </div>
 
-      {/* ── Filter Bar ────────────────────────────────────────── */}
-      <div className="mb-5 flex flex-col gap-3 rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4 sm:flex-row sm:items-center sm:flex-wrap">
-        <div className="relative flex-1 sm:max-w-xs">
-          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--admin-muted)]" />
-          <input
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            placeholder="Search recipient, purchaser, code…"
-            className="w-full rounded-[var(--admin-radius-md)] border border-[var(--admin-border)] bg-[var(--admin-surface)] py-2.5 pl-9 pr-3 text-[13px] text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)] transition-colors focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20"
-          />
-        </div>
-        <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }} className={selectClass}>
-          <option value="">All Types</option>
-          <option value="AMOUNT">Amount</option>
-          <option value="SERVICE">Service</option>
-        </select>
-        <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className={selectClass}>
-          <option value="">All Statuses</option>
-          <option value="ISSUED">Issued</option>
-          <option value="PARTIALLY_REDEEMED">Partially Redeemed</option>
-          <option value="REDEEMED">Redeemed</option>
-          <option value="CANCELLED">Cancelled</option>
-          <option value="REFUNDED">Refunded</option>
-        </select>
-        <select value={emailStatusFilter} onChange={(e) => { setEmailStatusFilter(e.target.value); setPage(1); }} className={selectClass}>
-          <option value="">All Email</option>
-          <option value="SENT">Sent</option>
-          <option value="PENDING">Pending</option>
-          <option value="FAILED">Failed</option>
-        </select>
-        {hasFilters && (
-          <button onClick={clearFilters} className="inline-flex items-center gap-1.5 rounded-[var(--admin-radius-md)] px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-[var(--admin-muted)] transition-colors hover:bg-[var(--admin-surface-hover)] hover:text-[var(--admin-ink)]">
-            <RotateCcw size={12} />
-            Clear
-          </button>
-        )}
-        <div className="sm:ml-auto">
-          <button className="inline-flex items-center gap-1.5 rounded-[var(--admin-radius-md)] border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3.5 py-2 text-[13px] font-semibold text-[var(--admin-ink)] transition-colors hover:bg-[var(--admin-surface-hover)]">
-            <Download size={14} />
-            Export
-          </button>
-        </div>
-      </div>
+      <GiftCardFilters
+        value={filters}
+        onChange={updateFilters}
+        onClear={clearFilters}
+        onExport={() => exportCsv(cards)}
+        isLoading={loading}
+      />
 
-      {/* ── Table ────────────────────────────────────────────── */}
       <div className="overflow-hidden rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-[var(--admin-shadow-sm)]">
         {loading ? (
-          <div className="p-8">
+          <div className="p-6">
             <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-12 animate-pulse rounded-[var(--admin-radius-sm)] bg-[var(--admin-surface-muted)]" />
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="h-12 animate-pulse rounded-[var(--admin-radius-sm)] bg-[var(--admin-surface-muted)]" />
               ))}
             </div>
           </div>
         ) : pagedCards.length === 0 ? (
-          <AdminEmptyState
-            icon={Gift}
-            title="No Gift Cards Yet"
-            description="Gift cards will appear here once purchased or issued."
-            actionLabel="Issue a Gift Card"
-            onAction={() => router.push("/admin/gift-cards/new")}
-          />
+          <GiftCardEmptyState onIssue={() => router.push(adminRoutes.newGiftCard)} />
         ) : (
           <>
-            {/* Desktop Table */}
-            <div className="hidden lg:block overflow-x-auto">
+            <div className="hidden overflow-x-auto lg:block">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-[var(--admin-border)] bg-[var(--admin-surface-muted)]">
-                    {["Code", "Recipient", "Purchaser", "Type", "Value", "Remaining", "Status", "Delivery", "Created", ""].map((h) => (
-                      <th key={h} className="sticky top-0 z-10 bg-[var(--admin-surface-muted)] px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-wider text-[var(--admin-muted)]">
-                        {h}
+                    {["Code", "Recipient", "Purchaser", "Type", "Value", "Remaining", "Status", "Delivery", "Created", ""].map((heading) => (
+                      <th key={heading} className="sticky top-0 z-10 bg-[var(--admin-surface-muted)] px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-wider text-[var(--admin-muted)]">
+                        {heading}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {pagedCards.map((card, i) => (
+                  {pagedCards.map((card, index) => (
                     <motion.tr
                       key={card.id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ delay: i * 0.02 }}
+                      transition={{ delay: index * 0.02 }}
                       className="border-b border-[var(--admin-border-muted)] transition-colors hover:bg-[var(--admin-surface-hover)]"
                     >
                       <td className="px-4 py-3.5 font-mono text-[13px] font-semibold text-[var(--admin-ink)]">{card.code}</td>
@@ -362,17 +315,10 @@ export default function AdminGiftCardsClient() {
               </table>
             </div>
 
-            {/* Mobile Cards */}
             <div className="flex flex-col divide-y divide-[var(--admin-border-muted)] lg:hidden">
-              {pagedCards.map((card, i) => (
-                <motion.div
-                  key={card.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.02 }}
-                  className="p-4"
-                >
-                  <div className="mb-2 flex items-start justify-between">
+              {pagedCards.map((card, index) => (
+                <motion.div key={card.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: index * 0.02 }} className="p-4">
+                  <div className="mb-2 flex items-start justify-between gap-3">
                     <div>
                       <span className="font-mono text-[13px] font-semibold text-[var(--admin-ink)]">{card.code}</span>
                       <div className="mt-0.5 text-[12px] text-[var(--admin-muted)]">{card.recipient}</div>
@@ -383,36 +329,18 @@ export default function AdminGiftCardsClient() {
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-y-1.5 text-[12px]">
-                    <div>
-                      <span className="text-[var(--admin-muted)]">Type: </span>
-                      <span className="text-[var(--admin-ink-secondary)]">{card.type}</span>
-                    </div>
-                    <div>
-                      <span className="text-[var(--admin-muted)]">Value: </span>
-                      <span className="font-bold text-[var(--admin-ink)]">{card.value}</span>
-                    </div>
-                    <div>
-                      <span className="text-[var(--admin-muted)]">Remaining: </span>
-                      <span className="font-bold text-[var(--admin-accent)]">{card.remainingBalance}</span>
-                    </div>
-                    <div>
-                      <span className="text-[var(--admin-muted)]">Email: </span>
-                      <StatusChip value={card.emailStatus} />
-                    </div>
+                    <div><span className="text-[var(--admin-muted)]">Type: </span><span className="text-[var(--admin-ink-secondary)]">{card.type}</span></div>
+                    <div><span className="text-[var(--admin-muted)]">Value: </span><span className="font-bold text-[var(--admin-ink)]">{card.value}</span></div>
+                    <div><span className="text-[var(--admin-muted)]">Remaining: </span><span className="font-bold text-[var(--admin-accent)]">{card.remainingBalance}</span></div>
+                    <div><span className="text-[var(--admin-muted)]">Email: </span><StatusChip value={card.emailStatus} /></div>
                   </div>
                 </motion.div>
               ))}
             </div>
 
-            {/* Pagination */}
             {totalCards > pageSize && (
               <div className="border-t border-[var(--admin-border)] px-4">
-                <AdminPagination
-                  page={page}
-                  pageSize={pageSize}
-                  total={totalCards}
-                  onPageChange={setPage}
-                />
+                <AdminPagination page={page} pageSize={pageSize} total={totalCards} onPageChange={setPage} />
               </div>
             )}
           </>

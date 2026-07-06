@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { GiftCardStatus, GiftCardTransactionType, GiftCardType, Prisma } from "@prisma/client";
+import { GiftCardEmailStatus, GiftCardStatus, GiftCardTransactionType, GiftCardType, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getPublicPayPalConfig } from "@/lib/payments/paypal/paypal.config";
 import { createPayPalOrder, capturePayPalOrder } from "@/lib/payments/paypal/paypal.orders";
@@ -101,7 +101,7 @@ export async function createGiftCardPurchase(input: {
   if (!settings.giftCardsEnabled) throw new Error("Gift Cards are currently unavailable.");
 
   let amount = input.amount ?? 0;
-  let service: Awaited<ReturnType<typeof prisma.service.findUnique>> | null = null;
+  let service: Prisma.ServiceGetPayload<{ include: { category: true } }> | null = null;
   if (input.type === "SERVICE") {
     if (!input.serviceId) throw new Error("Please select a service.");
     service = await prisma.service.findUnique({ where: { id: input.serviceId }, include: { category: true } });
@@ -230,6 +230,120 @@ export async function issueGiftCardForPurchase(purchaseId: string, capture?: { c
   }
 }
 
+export async function createManualGiftCard(input: {
+  type: "AMOUNT" | "SERVICE";
+  amount?: number;
+  serviceId?: string;
+  recipientName: string;
+  recipientEmail: string;
+  senderName: string;
+  senderEmail: string;
+  message?: string;
+  internalNote?: string;
+  sendEmail: boolean;
+  performedByUserId?: string;
+}) {
+  const settings = await getGiftCardSettings();
+  if (!settings.giftCardsEnabled) throw new Error("Gift Cards are currently unavailable.");
+
+  let amount = input.amount ?? 0;
+  let service: Prisma.ServiceGetPayload<{ include: { category: true } }> | null = null;
+
+  if (input.type === "SERVICE") {
+    if (!input.serviceId) throw new Error("Please select a service.");
+    service = await prisma.service.findUnique({ where: { id: input.serviceId }, include: { category: true } });
+    if (!service || !service.isActive || service.category?.isActive === false) {
+      throw new Error("Selected service is unavailable.");
+    }
+    amount = asNumber(service.price);
+  }
+
+  if (input.type === "AMOUNT") {
+    if (!Number.isInteger(amount) || amount < settings.minCustomAmount || amount > settings.maxCustomAmount) {
+      throw new Error(`Gift Card amount must be between ${money(settings.minCustomAmount, settings.currency)} and ${money(settings.maxCustomAmount, settings.currency)}.`);
+    }
+  }
+
+  const cleanMessage = cleanGiftCardMessage(input.message || "");
+  const cleanInternalNote = cleanGiftCardMessage(input.internalNote || "", 500);
+
+  const card = await prisma.$transaction(async (tx) => {
+    const { code, codeHash } = await createUniqueGiftCardCode(tx);
+    const purchase = await tx.giftCardPurchase.create({
+      data: {
+        orderNumber: await orderNumber(),
+        type: input.type as GiftCardType,
+        amount,
+        currency: settings.currency,
+        purchaserName: input.senderName,
+        purchaserEmail: input.senderEmail,
+        recipientName: input.recipientName,
+        recipientEmail: input.recipientEmail,
+        senderName: input.senderName,
+        senderEmail: input.senderEmail,
+        message: cleanMessage,
+        serviceId: service?.id,
+        serviceNameSnapshot: service?.name,
+        servicePriceSnapshot: service ? service.price : null,
+        serviceDurationSnapshot: service ? service.durationMinutes ?? service.duration : null,
+        paypalOrderId: null,
+        paypalCaptureId: null,
+        paypalStatus: null,
+        status: GiftCardStatus.ISSUED,
+        paidAt: new Date(),
+      },
+    });
+
+    const giftCard = await tx.giftCard.create({
+      data: {
+        purchaseId: purchase.id,
+        type: purchase.type,
+        codeHash,
+        codeCiphertext: encryptGiftCardCode(code),
+        codeSuffix: codeSuffix(code),
+        initialAmount: purchase.amount,
+        remainingBalance: purchase.amount,
+        currency: purchase.currency,
+        serviceId: purchase.serviceId,
+        serviceNameSnapshot: purchase.serviceNameSnapshot,
+        servicePriceSnapshot: purchase.servicePriceSnapshot,
+        serviceDurationSnapshot: purchase.serviceDurationSnapshot,
+        recipientName: purchase.recipientName,
+        recipientEmail: purchase.recipientEmail,
+        senderName: purchase.senderName,
+        senderEmail: purchase.senderEmail,
+        message: purchase.message,
+        status: GiftCardStatus.ISSUED,
+        emailStatus: GiftCardEmailStatus.PENDING,
+        issuedAt: new Date(),
+      },
+    });
+
+    await tx.giftCardTransaction.create({
+      data: {
+        giftCardId: giftCard.id,
+        type: GiftCardTransactionType.ISSUE,
+        amount: purchase.amount,
+        note: cleanInternalNote || "Manually issued by admin",
+        performedByUserId: input.performedByUserId,
+      },
+    });
+
+    return giftCard;
+  });
+
+  if (!input.sendEmail) return card;
+
+  const withPurchase = await prisma.giftCard.findUniqueOrThrow({ where: { id: card.id }, include: { purchase: true } });
+  try {
+    await sendGiftCardEmails(withPurchase);
+    return prisma.giftCard.update({ where: { id: card.id }, data: { emailStatus: GiftCardEmailStatus.SENT, sentAt: new Date() } });
+  } catch (error) {
+    console.error("Manual Gift Card email failed:", error instanceof Error ? error.message : error);
+    return prisma.giftCard.update({ where: { id: card.id }, data: { emailStatus: GiftCardEmailStatus.FAILED } });
+  }
+}
+
 export async function captureGiftCardPayPalOrder(purchaseId: string, paypalOrderId: string) {
   const purchase = await prisma.giftCardPurchase.findUnique({ where: { id: purchaseId } });
   if (!purchase || purchase.paypalOrderId !== paypalOrderId) throw new Error("Gift Card PayPal order could not be verified.");
@@ -274,11 +388,16 @@ export async function checkGiftCardBalance(input: { code: string; recipientEmail
   };
 }
 
-export async function listAdminGiftCards(query: { search?: string; type?: string; status?: string; emailStatus?: string }) {
+export async function listAdminGiftCards(query: { search?: string; type?: string; status?: string; emailStatus?: string; from?: string; to?: string }) {
+  const createdAt: Prisma.DateTimeFilter | undefined = query.from || query.to ? {
+    gte: query.from ? new Date(query.from) : undefined,
+    lte: query.to ? new Date(`${query.to}T23:59:59.999Z`) : undefined,
+  } : undefined;
   const where: Prisma.GiftCardWhereInput = {
     type: query.type ? query.type as GiftCardType : undefined,
     status: query.status ? query.status as GiftCardStatus : undefined,
     emailStatus: query.emailStatus ? query.emailStatus as any : undefined,
+    createdAt,
     OR: query.search ? [
       { recipientName: { contains: query.search, mode: "insensitive" } },
       { recipientEmail: { contains: query.search, mode: "insensitive" } },
