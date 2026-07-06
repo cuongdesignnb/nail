@@ -12,7 +12,7 @@ export interface AdminLoadingStateProps {
 const SkeletonBlock: React.FC<{ className?: string }> = ({ className }) => (
   <div
     className={clsx(
-      "animate-pulse rounded-lg bg-aera-champagne/50",
+      "animate-pulse rounded-lg bg-[var(--admin-accent-soft)]",
       className
     )}
   />
@@ -23,7 +23,7 @@ const CardSkeleton: React.FC = () => (
     {Array.from({ length: 6 }).map((_, i) => (
       <div
         key={i}
-        className="rounded-2xl border border-aera-champagne/30 bg-white p-5 space-y-3"
+        className="rounded-2xl border border-[var(--admin-border)] bg-white p-5 space-y-3"
       >
         <SkeletonBlock className="h-4 w-2/3" />
         <SkeletonBlock className="h-3 w-full" />
@@ -38,9 +38,9 @@ const CardSkeleton: React.FC = () => (
 );
 
 const TableSkeleton: React.FC = () => (
-  <div className="rounded-2xl border border-aera-champagne/30 bg-white overflow-hidden">
+  <div className="rounded-2xl border border-[var(--admin-border)] bg-white overflow-hidden">
     {/* Header */}
-    <div className="flex gap-4 px-5 py-3 border-b border-aera-champagne/30 bg-aera-champagne/10">
+    <div className="flex gap-4 px-5 py-3 border-b border-[var(--admin-border)] bg-[var(--admin-surface-muted)]">
       <SkeletonBlock className="h-3 w-24" />
       <SkeletonBlock className="h-3 w-32" />
       <SkeletonBlock className="h-3 w-20" />
@@ -50,7 +50,7 @@ const TableSkeleton: React.FC = () => (
     {Array.from({ length: 5 }).map((_, i) => (
       <div
         key={i}
-        className="flex items-center gap-4 px-5 py-3.5 border-b border-aera-champagne/15 last:border-b-0"
+        className="flex items-center gap-4 px-5 py-3.5 border-b border-[var(--admin-surface-muted)] last:border-b-0"
       >
         <SkeletonBlock className="h-3 w-24" />
         <SkeletonBlock className="h-3 w-36" />

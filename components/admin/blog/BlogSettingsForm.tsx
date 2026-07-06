@@ -181,10 +181,10 @@ export function BlogSettingsForm() {
   ];
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury text-left font-sans">
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury text-left font-sans">
       
       {/* Sub tabs list */}
-      <div className="flex border-b border-aera-champagne/30 mb-6 overflow-x-auto pb-0.5 scrollbar-hide">
+      <div className="flex border-b border-[var(--admin-border)] mb-6 overflow-x-auto pb-0.5 scrollbar-hide">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -192,8 +192,8 @@ export function BlogSettingsForm() {
             onClick={() => setActiveTab(tab.id)}
             className={`px-5 py-3 border-b-2 font-sans text-xs font-semibold tracking-wider transition-all whitespace-nowrap bg-transparent border-none cursor-pointer ${
               activeTab === tab.id
-                ? "border-aera-accent text-aera-accent bg-aera-champagne/5"
-                : "border-transparent text-aera-muted hover:text-aera-accent"
+                ? "border-[var(--admin-accent)] text-[var(--admin-accent)] bg-[var(--admin-surface-hover)]"
+                : "border-transparent text-[var(--admin-muted)] hover:text-[var(--admin-accent)]"
             }`}
           >
             {tab.label}
@@ -202,7 +202,7 @@ export function BlogSettingsForm() {
       </div>
 
       {loading ? (
-        <p className="text-xs text-aera-muted italic py-10 text-center">Loading settings data...</p>
+        <p className="text-xs text-[var(--admin-muted)] italic py-10 text-center">Loading settings data...</p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
           {successMsg && (
@@ -246,7 +246,7 @@ export function BlogSettingsForm() {
                 placeholder="Intro summary about nail beauty stories..."
                 rows={3}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-aera-champagne/15 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[var(--admin-border)]/15 pt-4">
                 <FormField
                   label="Primary Button Label"
                   value={primaryButtonLabel}
@@ -276,20 +276,20 @@ export function BlogSettingsForm() {
               </div>
 
               {/* Image config */}
-              <div className="space-y-2 border-t border-aera-champagne/15 pt-4">
-                <label className="block text-xs font-semibold text-aera-ink uppercase tracking-wider">Hero Banner image</label>
+              <div className="space-y-2 border-t border-[var(--admin-border)]/15 pt-4">
+                <label className="block text-xs font-semibold text-[var(--admin-ink)] uppercase tracking-wider">Hero Banner image</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     readOnly
                     placeholder="No image chosen"
                     value={heroImage}
-                    className="flex-grow rounded-xl border border-aera-champagne/60 px-3 py-2 text-xs outline-none bg-gray-50"
+                    className="flex-grow rounded-xl border border-[var(--admin-border-strong)] px-3 py-2 text-xs outline-none bg-gray-50"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPicker(true)}
-                    className="bg-aera-cream hover:bg-aera-champagne/30 text-aera-accent border border-aera-champagne px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                    className="bg-[var(--admin-surface-muted)] hover:bg-[var(--admin-surface-hover)] text-[var(--admin-accent)] border border-[var(--admin-border)] px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                   >
                     <ImageIcon size={13} />
                     <span>Browse</span>
@@ -400,7 +400,7 @@ export function BlogSettingsForm() {
                 placeholder="Book your next appointment..."
                 rows={2}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-aera-champagne/15 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[var(--admin-border)]/15 pt-4">
                 <FormField
                   label="CTA Button Label"
                   value={ctaButtonLabel}
@@ -414,7 +414,7 @@ export function BlogSettingsForm() {
                   placeholder="/booking"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 border-t border-aera-champagne/15 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 border-t border-[var(--admin-border)]/15 pt-4">
                 <FormField label="Contact Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
                 <FormField label="Contact Email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 <FormField label="Location Address" value={address} onChange={(e) => setAddress(e.target.value)} />
@@ -444,11 +444,11 @@ export function BlogSettingsForm() {
           )}
 
           {/* Submit Action */}
-          <div className="flex justify-end pt-6 border-t border-aera-champagne/20">
+          <div className="flex justify-end pt-6 border-t border-[var(--admin-border)]/20">
             <button
               type="submit"
               disabled={saveLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-bold px-6 py-3 rounded-full cursor-pointer border-none shadow flex items-center gap-1.5"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs font-bold px-6 py-3 rounded-full cursor-pointer border-none shadow flex items-center gap-1.5"
             >
               <Save size={14} />
               <span>{saveLoading ? "Saving Settings..." : "Save Settings"}</span>

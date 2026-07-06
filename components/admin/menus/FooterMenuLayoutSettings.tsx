@@ -10,13 +10,13 @@ export function FooterMenuLayoutSettings({ settings, onChange }: { settings: Set
   return (
     <AdminSectionCard title="Footer Menu Layout">
       <div className="space-y-4">
-        <p className="text-sm text-aera-muted">
+        <p className="text-sm text-[var(--admin-muted)]">
           Layout only changes responsive column arrangement. It does not delete menu data, and empty menu columns are hidden automatically.
         </p>
         <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-aera-muted">Footer Navigation Layout</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-[var(--admin-muted)]">Footer Navigation Layout</label>
           <select
-            className="mt-1 w-full rounded-xl border border-aera-champagne/60 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-[var(--admin-border-strong)] px-3 py-2 text-sm"
             value={settings.footerLayout}
             onChange={(event) => onChange((prev: Settings) => ({ ...prev, footerLayout: event.target.value }))}
           >
@@ -26,7 +26,7 @@ export function FooterMenuLayoutSettings({ settings, onChange }: { settings: Set
           </select>
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <label className="flex items-center gap-2 rounded-xl border border-aera-champagne/40 p-4 text-sm font-semibold text-aera-ink">
+          <label className="flex items-center gap-2 rounded-xl border border-[var(--admin-border)]/40 p-4 text-sm font-semibold text-[var(--admin-ink)]">
             <input
               type="checkbox"
               checked={settings.footerShowSocial}
@@ -34,7 +34,7 @@ export function FooterMenuLayoutSettings({ settings, onChange }: { settings: Set
             />
             Show Footer Social Links
           </label>
-          <label className="flex items-center gap-2 rounded-xl border border-aera-champagne/40 p-4 text-sm font-semibold text-aera-ink">
+          <label className="flex items-center gap-2 rounded-xl border border-[var(--admin-border)]/40 p-4 text-sm font-semibold text-[var(--admin-ink)]">
             <input
               type="checkbox"
               checked={settings.footerShowLegal}

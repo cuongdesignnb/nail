@@ -28,8 +28,9 @@ export default function SettingsDashboard() {
   const [activeTab, setActiveTab] = useState("salon");
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <AdminPageHeader
+        eyebrow="System"
         title="Settings"
         description="Salon information, business hours, booking policies, branding and general configuration."
         breadcrumbs={[
@@ -93,15 +94,15 @@ function GeneralSettings() {
   };
 
   const inputClass =
-    "w-full rounded-xl border border-aera-champagne/60 bg-white px-3 py-2.5 text-xs text-aera-ink focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20";
+    "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2.5 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
 
   return (
     <div className="max-w-xl space-y-6">
-      <div className="rounded-2xl border border-aera-champagne/30 bg-white p-6 space-y-5">
-        <h3 className="text-sm font-bold text-aera-ink">General Settings</h3>
+      <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-6 space-y-5">
+        <h3 className="text-sm font-bold text-[var(--admin-ink)]">General Settings</h3>
 
         <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-aera-ink">Timezone</label>
+          <label className="block text-xs font-semibold text-[var(--admin-ink)]">Timezone</label>
           <select value={timezone} onChange={(e) => setTimezone(e.target.value)} className={inputClass}>
             <option value="America/Los_Angeles">Pacific Time (LA)</option>
             <option value="America/Denver">Mountain Time</option>
@@ -112,7 +113,7 @@ function GeneralSettings() {
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-aera-ink">Currency</label>
+          <label className="block text-xs font-semibold text-[var(--admin-ink)]">Currency</label>
           <select value={currency} onChange={(e) => setCurrency(e.target.value)} className={inputClass}>
             <option value="USD">USD ($)</option>
             <option value="EUR">EUR (€)</option>
@@ -125,7 +126,7 @@ function GeneralSettings() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="rounded-full bg-aera-accent px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover disabled:opacity-40"
+          className="rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-40"
         >
           {saving ? "Saving..." : saved ? "Saved!" : "Save Changes"}
         </button>

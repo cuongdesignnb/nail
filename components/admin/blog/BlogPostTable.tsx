@@ -5,6 +5,7 @@ import { Search, Edit2, Trash2, Copy, Send, Check, ExternalLink } from "lucide-r
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
+import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
 
 interface BlogPostTableProps {
   categories: any[];
@@ -13,6 +14,7 @@ interface BlogPostTableProps {
 }
 
 export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTableProps) {
+  const toast = useToast();
   const [list, setList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -21,6 +23,9 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
+
+  // Delete state
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPosts();
@@ -49,17 +54,23 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this article?")) return;
+  const handleDelete = async () => {
+    if (!deleteTargetId) return;
     try {
-      const res = await fetch(`/api/admin/blog-posts/${id}`, {
+      const res = await fetch(`/api/admin/blog-posts/${deleteTargetId}`, {
         method: "DELETE",
       });
       if (res.ok) {
         fetchPosts();
+        toast.success("Post deleted successfully.");
+      } else {
+        toast.error("Failed to delete post.");
       }
     } catch (err) {
       console.error(err);
+      toast.error("An error occurred while deleting.");
+    } finally {
+      setDeleteTargetId(null);
     }
   };
 
@@ -70,11 +81,13 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
       });
       if (res.ok) {
         fetchPosts();
+        toast.success("Post duplicated successfully.");
       } else {
-        alert("Failed to duplicate post.");
+        toast.error("Failed to duplicate post.");
       }
     } catch (err) {
       console.error(err);
+      toast.error("An error occurred while duplicating.");
     }
   };
 
@@ -116,9 +129,9 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury text-left font-sans">
+    <div className="bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury text-left font-sans">
       {/* Search & Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center mb-6 pb-6 border-b border-aera-champagne/20">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center mb-6 pb-6 border-b border-[var(--admin-border)]/20">
         <div className="md:col-span-6 relative">
           <input
             type="text"
@@ -128,7 +141,7 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full rounded-xl border border-aera-champagne/60 pl-9 pr-3 py-2 text-xs font-sans text-aera-ink outline-none focus:border-aera-accent bg-white shadow-sm"
+            className="w-full rounded-xl border border-[var(--admin-border-strong)] pl-9 pr-3 py-2 text-xs font-sans text-[var(--admin-ink)] outline-none focus:border-[var(--admin-accent)] bg-white shadow-sm"
           />
           <Search size={14} className="text-gray-400 absolute left-3 top-[10px]" />
         </div>
@@ -159,12 +172,12 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
       </div>
 
       {loading ? (
-        <p className="text-xs text-aera-muted italic py-10 text-center">Loading articles...</p>
+        <p className="text-xs text-[var(--admin-muted)] italic py-10 text-center">Loading articles...</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs min-w-[800px]">
             <thead>
-              <tr className="border-b border-aera-champagne/20 text-aera-muted">
+              <tr className="border-b border-[var(--admin-border)]/20 text-[var(--admin-muted)]">
                 <th className="py-3 text-left pl-2">Article</th>
                 <th className="py-3 text-left">Category</th>
                 <th className="py-3 text-center">Status</th>
@@ -175,25 +188,25 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
             </thead>
             <tbody>
               {list.map((post) => (
-                <tr key={post.id} className="border-b border-aera-champagne/10 hover:bg-aera-cream/10">
+                <tr key={post.id} className="border-b border-[var(--admin-border)]/10 hover:bg-[var(--admin-surface-hover)]">
                   <td className="py-3 pl-2">
                     <div className="flex items-center gap-3">
                       {post.coverImage && (
-                        <div className="relative w-10 h-10 rounded-lg overflow-hidden border bg-aera-champagne/10 shrink-0">
+                        <div className="relative w-10 h-10 rounded-lg overflow-hidden border bg-[var(--admin-surface-muted)] shrink-0">
                           <Image src={post.coverImage} alt={post.title} fill className="object-cover" />
                         </div>
                       )}
                       <div className="max-w-[250px]">
-                        <h4 className="font-semibold text-aera-ink truncate hover:text-aera-accent">
+                        <h4 className="font-semibold text-[var(--admin-ink)] truncate hover:text-[var(--admin-accent)]">
                           <Link href={`/blog/${post.slug}`} target="_blank" className="decoration-none text-inherit">
                             {post.title}
                           </Link>
                         </h4>
-                        <span className="text-[10px] text-aera-muted block mt-0.5">By {post.authorName || "Aera Team"}</span>
+                        <span className="text-[10px] text-[var(--admin-muted)] block mt-0.5">By {post.authorName || "Aera Team"}</span>
                       </div>
                     </div>
                   </td>
-                  <td className="py-3 font-medium text-aera-muted">{post.category?.name || "Uncategorized"}</td>
+                  <td className="py-3 font-medium text-[var(--admin-muted)]">{post.category?.name || "Uncategorized"}</td>
                   <td className="py-3 text-center">
                     <span className={clsx("px-2 py-0.5 rounded-full text-[9px] font-bold", {
                       "bg-amber-100 text-amber-700": post.status === "DRAFT",
@@ -207,7 +220,7 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
                   <td className="py-3 text-center">
                     <div className="flex justify-center gap-1">
                       {post.isFeatured && (
-                        <span className="bg-aera-accent/10 text-aera-accent border px-1.5 py-0.5 rounded text-[8px] font-bold">
+                        <span className="bg-[var(--admin-accent)]/10 text-[var(--admin-accent)] border px-1.5 py-0.5 rounded text-[8px] font-bold">
                           HERO
                         </span>
                       )}
@@ -223,7 +236,7 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
                       )}
                     </div>
                   </td>
-                  <td className="py-3 text-center text-aera-muted">
+                  <td className="py-3 text-center text-[var(--admin-muted)]">
                     {post.status === "SCHEDULED" ? (
                       <span className="text-indigo-600 font-medium">Sched: {formatDate(post.scheduledAt)}</span>
                     ) : (
@@ -245,14 +258,14 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
                         href={`/blog/${post.slug}`}
                         target="_blank"
                         title="View Live Post"
-                        className="p-1.5 text-gray-500 hover:text-aera-accent inline-flex items-center justify-center"
+                        className="p-1.5 text-gray-500 hover:text-[var(--admin-accent)] inline-flex items-center justify-center"
                       >
                         <ExternalLink size={13} />
                       </Link>
                       <button
                         onClick={() => onEdit(post)}
                         title="Edit Article"
-                        className="p-1.5 text-gray-500 hover:text-aera-accent bg-transparent border-none cursor-pointer"
+                        className="p-1.5 text-gray-500 hover:text-[var(--admin-accent)] bg-transparent border-none cursor-pointer"
                       >
                         <Edit2 size={13} />
                       </button>
@@ -264,7 +277,7 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
                         <Copy size={13} />
                       </button>
                       <button
-                        onClick={() => handleDelete(post.id)}
+                        onClick={() => setDeleteTargetId(post.id)}
                         title="Delete Article"
                         className="p-1.5 text-gray-500 hover:text-rose-600 bg-transparent border-none cursor-pointer"
                       >
@@ -276,7 +289,7 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
               ))}
               {list.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center text-aera-muted italic">
+                  <td colSpan={6} className="py-10 text-center text-[var(--admin-muted)] italic">
                     No articles found matching filters.
                   </td>
                 </tr>
@@ -288,7 +301,7 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex justify-between items-center pt-6 border-t border-aera-champagne/20 mt-6 text-xs text-aera-muted">
+        <div className="flex justify-between items-center pt-6 border-t border-[var(--admin-border)]/20 mt-6 text-xs text-[var(--admin-muted)]">
           <span>Page {page} of {totalPages}</span>
           <div className="flex gap-2">
             <button
@@ -308,6 +321,17 @@ export function BlogPostTable({ categories, refreshTrigger, onEdit }: BlogPostTa
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Dialog */}
+      <AdminConfirmDialog
+        open={deleteTargetId !== null}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={handleDelete}
+        title="Delete Article"
+        description="Are you sure you want to delete this blog post article? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

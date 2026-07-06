@@ -82,8 +82,9 @@ export default function AdminPromotionsPage() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="admin-page-container">
       <AdminPageHeader
+        eyebrow="Commerce"
         title="Promotions"
         description="Create promo codes, set validity windows and usage restrictions."
         breadcrumbs={[
@@ -94,7 +95,7 @@ export default function AdminPromotionsPage() {
           <button
             type="button"
             onClick={() => router.push("/admin/promotions/new")}
-            className="inline-flex items-center gap-2 rounded-full bg-aera-accent px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover"
+            className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent)]Hover"
           >
             <Plus className="h-3.5 w-3.5" />
             New Promotion
@@ -105,7 +106,7 @@ export default function AdminPromotionsPage() {
       {loading ? (
         <AdminLoadingState variant="table" />
       ) : promotions.length === 0 ? (
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white">
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white">
           <AdminEmptyState
             icon={Tag}
             title="No promotions yet"
@@ -122,15 +123,15 @@ export default function AdminPromotionsPage() {
         >
           <AdminTableShell columns={columns}>
             {promotions.map((promo) => (
-              <tr key={promo.id} className="hover:bg-aera-champagne/10 transition-colors">
+              <tr key={promo.id} className="hover:bg-[var(--admin-surface-muted)] transition-colors">
                 <td className="px-5 py-3">
-                  <span className="inline-flex items-center gap-1 rounded-lg bg-aera-champagne/20 px-2 py-1 text-[10px] font-bold font-mono text-aera-ink">
-                    <Tag className="h-2.5 w-2.5 text-aera-accent" />
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-[var(--admin-surface-hover)] px-2 py-1 text-[10px] font-bold font-mono text-[var(--admin-ink)]">
+                    <Tag className="h-2.5 w-2.5 text-[var(--admin-accent)]" />
                     {promo.code}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-xs font-semibold text-aera-ink">{promo.title}</td>
-                <td className="px-5 py-3 text-xs text-aera-muted capitalize">
+                <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">{promo.title}</td>
+                <td className="px-5 py-3 text-xs text-[var(--admin-muted)] capitalize">
                   <span className="flex items-center gap-1">
                     {promo.type === "percentage" ? (
                       <Percent className="h-3 w-3" />
@@ -140,13 +141,13 @@ export default function AdminPromotionsPage() {
                     {promo.type}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-xs font-semibold text-aera-ink">
+                <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">
                   {promo.type === "percentage" ? `${promo.amount}%` : `$${promo.amount}`}
                 </td>
-                <td className="px-5 py-3 text-xs text-aera-muted">
+                <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">
                   {promo.firstBookingOnly ? "Yes" : "No"}
                 </td>
-                <td className="px-5 py-3 text-xs text-aera-muted">
+                <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">
                   {promo.validUntil
                     ? new Date(promo.validUntil).toLocaleDateString()
                     : "No expiry"}
@@ -174,7 +175,7 @@ export default function AdminPromotionsPage() {
                     <button
                       type="button"
                       onClick={() => router.push(`/admin/promotions/${promo.id}/edit`)}
-                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold text-aera-ink hover:bg-aera-champagne/30 transition-colors"
+                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold text-[var(--admin-ink)] hover:bg-[var(--admin-surface-muted)] transition-colors"
                     >
                       <Pencil className="h-3 w-3" />
                       Edit

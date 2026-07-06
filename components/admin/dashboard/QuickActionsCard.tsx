@@ -27,73 +27,25 @@ const actions = [
 export default function QuickActionsCard() {
   return (
     <DashboardCard title="Quick Actions" icon={Zap}>
-      <div className="quick-actions-grid">
+      <div className="grid grid-cols-2 gap-1 md:grid-cols-3">
         {actions.map((action) => {
           const ActionIcon = action.icon;
           return (
             <Link
               key={action.label}
               href={action.href}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 8,
-                padding: '16px 8px',
-                borderRadius: 14,
-                textDecoration: 'none',
-                transition: 'background 0.2s, transform 0.15s',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(155, 89, 29, 0.06)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+              className="group flex flex-col items-center gap-2 rounded-[14px] px-2 py-4 no-underline transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--admin-accent-soft)]/50 focus-visible:outline-2 focus-visible:outline-[var(--admin-accent)]"
+              aria-label={action.label}
             >
-              <div
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: 12,
-                  background: 'rgba(155, 89, 29, 0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <ActionIcon size={20} color="#9b591d" strokeWidth={1.8} />
+              <div className="flex h-[42px] w-[42px] items-center justify-center rounded-[var(--admin-radius-md)] bg-[var(--admin-accent-soft)]">
+                <ActionIcon size={20} className="text-[var(--admin-accent)]" strokeWidth={1.8} />
               </div>
-              <span
-                style={{
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: '#2f1c11',
-                  textAlign: 'center',
-                  lineHeight: 1.3,
-                }}
-              >
+              <span className="text-center text-xs font-medium leading-tight text-[var(--admin-ink)]">
                 {action.label}
               </span>
             </Link>
           );
         })}
-
-        <style jsx>{`
-          .quick-actions-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-          }
-          @media (max-width: 768px) {
-            .quick-actions-grid {
-              grid-template-columns: repeat(2, 1fr);
-            }
-          }
-        `}</style>
       </div>
     </DashboardCard>
   );

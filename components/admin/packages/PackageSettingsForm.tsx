@@ -169,7 +169,7 @@ export function PackageSettingsForm() {
   };
 
   if (loading) {
-    return <p className="text-xs text-aera-muted italic py-10 text-center">Loading page settings...</p>;
+    return <p className="text-xs text-[var(--admin-muted)] italic py-10 text-center">Loading page settings...</p>;
   }
 
   return (
@@ -187,8 +187,8 @@ export function PackageSettingsForm() {
       )}
 
       {/* SEO Section */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           SEO Configurations
         </h3>
         <div className="grid grid-cols-1 gap-4">
@@ -211,8 +211,8 @@ export function PackageSettingsForm() {
       </div>
 
       {/* Hero Section */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Hero Section Content
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -259,7 +259,7 @@ export function PackageSettingsForm() {
             <p className="mt-1 text-xs text-rose-500">{errors.heroImage[0]}</p>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-aera-champagne/30 pt-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[var(--admin-border)] pt-4 mt-4">
           <FormField
             label="Primary Button Label"
             value={primaryButtonLabel}
@@ -292,8 +292,8 @@ export function PackageSettingsForm() {
       </div>
 
       {/* Benefits Section */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Benefits / Why Choose Content
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -333,7 +333,7 @@ export function PackageSettingsForm() {
             <p className="mt-1 text-xs text-rose-500">{errors.benefitsImage[0]}</p>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-aera-champagne/30">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-[var(--admin-border)]">
           <FormField
             label="Benefits Action Label"
             value={benefitsButtonLabel}
@@ -352,8 +352,8 @@ export function PackageSettingsForm() {
       </div>
 
       {/* Section Headings */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Section Headings Override
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -403,8 +403,8 @@ export function PackageSettingsForm() {
       </div>
 
       {/* CTA / Contact block */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Call to Action (CTA) & Contact details
         </h3>
         <FormField
@@ -438,7 +438,7 @@ export function PackageSettingsForm() {
             error={errors.ctaButtonHref?.[0]}
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-aera-champagne/30">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-[var(--admin-border)]">
           <FormField
             label="Contact Phone"
             value={phone}
@@ -475,7 +475,7 @@ export function PackageSettingsForm() {
         <button
           type="submit"
           disabled={saveLoading}
-          className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-bold px-6 py-3 rounded-full cursor-pointer border-none shadow-sm transition-all"
+          className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs font-bold px-6 py-3 rounded-full cursor-pointer border-none shadow-sm transition-all"
         >
           {saveLoading ? "Saving Changes..." : "Save Settings"}
         </button>

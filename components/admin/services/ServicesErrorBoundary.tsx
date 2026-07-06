@@ -35,17 +35,17 @@ export class ServicesErrorBoundary extends React.Component<
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-rose-500 shadow-sm">
           <AlertTriangle size={22} />
         </div>
-        <h2 className="font-heading text-xl font-bold text-aera-ink">
+        <h2 className="font-heading text-xl font-bold text-[var(--admin-ink)]">
           Something went wrong while loading Services.
         </h2>
-        <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-aera-muted">
+        <p className="mx-auto mt-2 max-w-xl text-xs leading-6 text-[var(--admin-muted)]">
           The services manager hit an unexpected error. Try again, or reload the page if the issue persists.
         </p>
         <div className="mt-6 flex justify-center gap-3">
           <button
             type="button"
             onClick={() => this.setState({ error: null })}
-            className="inline-flex items-center gap-2 rounded-full border border-aera-champagne bg-white px-5 py-2 text-xs font-bold text-aera-ink transition hover:bg-aera-cream"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--admin-border)] bg-white px-5 py-2 text-xs font-bold text-[var(--admin-ink)] transition hover:bg-[var(--admin-surface-hover)]"
           >
             <RefreshCw size={13} />
             Try Again
@@ -53,7 +53,7 @@ export class ServicesErrorBoundary extends React.Component<
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-full bg-aera-accent px-5 py-2 text-xs font-bold text-white transition hover:bg-aera-accentHover"
+            className="rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold text-white transition hover:bg-[var(--admin-accent-hover)]"
           >
             Reload Page
           </button>

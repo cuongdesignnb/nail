@@ -15,7 +15,7 @@ export function GiftCardKpis({ kpis }: { kpis: { salesToday: number; activeBalan
     <div className="grid gap-4 md:grid-cols-4">
       {cards.map((card) => (
         <div key={card.label} className="rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5 shadow-[var(--admin-shadow-sm)]">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[var(--admin-radius-md)] bg-[var(--admin-accent-soft)] text-aera-accent">
+          <div className="flex h-10 w-10 items-center justify-center rounded-[var(--admin-radius-md)] bg-[var(--admin-accent-soft)] text-[var(--admin-accent)]">
             <card.icon size={20} />
           </div>
           <p className="mt-4 font-heading text-2xl font-bold text-[var(--admin-ink)]">{card.value}</p>

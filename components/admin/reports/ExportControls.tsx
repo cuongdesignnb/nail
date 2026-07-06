@@ -48,7 +48,7 @@ export default function ExportControls({
       type="button"
       onClick={handleExport}
       disabled={data.length === 0}
-      className="inline-flex items-center gap-2 rounded-full border border-aera-champagne/60 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-aera-ink shadow-sm transition-colors hover:bg-aera-champagne/20 disabled:opacity-40 disabled:cursor-not-allowed"
+      className="inline-flex items-center gap-2 rounded-full border border-[var(--admin-border-strong)] bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--admin-ink)] shadow-sm transition-colors hover:bg-[var(--admin-surface-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
     >
       <Download className="h-3.5 w-3.5" />
       {label}

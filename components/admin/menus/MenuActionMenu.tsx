@@ -69,21 +69,21 @@ export function MenuActionMenu({
           event.stopPropagation();
           setOpen((value) => !value);
         }}
-        className="flex h-10 w-10 items-center justify-center rounded-xl text-aera-muted transition hover:bg-aera-champagne/30 hover:text-aera-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40"
+        className="flex h-10 w-10 items-center justify-center rounded-xl text-[var(--admin-muted)] transition hover:bg-[var(--admin-surface-hover)] hover:text-[var(--admin-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40"
       >
         <MoreHorizontal className="h-4 w-4" />
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 top-11 z-30 w-56 rounded-2xl border border-aera-champagne/60 bg-white p-2 shadow-2xl">
+        <div role="menu" className="absolute right-0 top-11 z-30 w-56 rounded-2xl border border-[var(--admin-border-strong)] bg-white p-2 shadow-2xl">
           <MenuAction icon={<Pencil className="h-4 w-4" />} label="Edit" onClick={() => run(onEdit)} />
           {canAddChild && <MenuAction icon={<Plus className="h-4 w-4" />} label="Add Child" onClick={() => run(onAddChild)} />}
           <MenuAction icon={<Copy className="h-4 w-4" />} label="Duplicate" onClick={() => run(onDuplicate)} />
-          <div className="my-1 h-px bg-aera-champagne/50" />
+          <div className="my-1 h-px bg-[var(--admin-accent-soft)]" />
           <MenuAction icon={<ArrowUp className="h-4 w-4" />} label="Move Up" onClick={() => run(onMoveUp)} />
           <MenuAction icon={<ArrowDown className="h-4 w-4" />} label="Move Down" onClick={() => run(onMoveDown)} />
           {canIndent && <MenuAction icon={<ArrowRight className="h-4 w-4" />} label="Indent" onClick={() => run(onIndent)} />}
           {canOutdent && <MenuAction icon={<ArrowLeft className="h-4 w-4" />} label="Outdent" onClick={() => run(onOutdent)} />}
-          <div className="my-1 h-px bg-aera-champagne/50" />
+          <div className="my-1 h-px bg-[var(--admin-accent-soft)]" />
           <MenuAction icon={hidden ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />} label={hidden ? "Show" : "Hide"} onClick={() => run(onToggleEnabled)} />
           <MenuAction danger icon={<Trash2 className="h-4 w-4" />} label="Delete" onClick={() => run(onDelete)} />
         </div>
@@ -101,7 +101,7 @@ function MenuAction({ icon, label, danger, onClick }: { icon: ReactNode; label: 
         event.stopPropagation();
         onClick();
       }}
-      className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 ${danger ? "text-red-600 hover:bg-red-50" : "text-aera-ink hover:bg-aera-champagne/25"}`}
+      className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 ${danger ? "text-red-600 hover:bg-red-50" : "text-[var(--admin-ink)] hover:bg-[var(--admin-surface-hover)]"}`}
     >
       {icon}
       {label}

@@ -86,11 +86,11 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="rounded-2xl border border-aera-champagne/30 bg-white p-5 shadow-sm"
+        className="rounded-2xl border border-[var(--admin-border)] bg-white p-5 shadow-sm"
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-aera-muted uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[var(--admin-muted)] uppercase tracking-wider">
               Status
             </span>
             <StatusBadge status={bookingStatus} colorMap={STATUS_COLORS} />
@@ -110,36 +110,36 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
           <AdminSectionCard title="Booking Details" icon={Calendar}>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">
                   Booking Code
                 </p>
-                <p className="mt-1 text-sm font-semibold text-aera-ink font-mono">
+                <p className="mt-1 text-sm font-semibold text-[var(--admin-ink)] font-mono">
                   {booking.bookingCode}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">
                   Scheduled
                 </p>
-                <p className="mt-1 text-sm font-semibold text-aera-ink">
+                <p className="mt-1 text-sm font-semibold text-[var(--admin-ink)]">
                   {format(new Date(booking.scheduledStartAt), "MMM d, yyyy, h:mm a")}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">
                   Duration
                 </p>
-                <p className="mt-1 text-sm text-aera-ink flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5 text-aera-muted" />
+                <p className="mt-1 text-sm text-[var(--admin-ink)] flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5 text-[var(--admin-muted)]" />
                   {format(new Date(booking.scheduledStartAt), "h:mm a")} -{" "}
                   {format(new Date(booking.scheduledEndAt), "h:mm a")}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">
                   Technician
                 </p>
-                <p className="mt-1 text-sm text-aera-ink">
+                <p className="mt-1 text-sm text-[var(--admin-ink)]">
                   {booking.technician?.name || "No preference"}
                 </p>
               </div>
@@ -151,7 +151,7 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
             title="Services"
             icon={Scissors}
             badge={
-              <span className="rounded-full bg-aera-champagne/50 px-2 py-0.5 text-[10px] font-bold text-aera-muted">
+              <span className="rounded-full bg-[var(--admin-accent-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--admin-muted)]">
                 {booking.items?.length || 0}
               </span>
             }
@@ -160,17 +160,17 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
               {booking.items?.map((item: any) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between rounded-xl bg-aera-champagne/15 px-4 py-3"
+                  className="flex items-center justify-between rounded-xl bg-[var(--admin-surface-muted)] px-4 py-3"
                 >
                   <div>
-                    <p className="text-xs font-semibold text-aera-ink">
+                    <p className="text-xs font-semibold text-[var(--admin-ink)]">
                       {item.serviceNameSnapshot || item.service?.name || "Service"}
                     </p>
-                    <p className="text-[11px] text-aera-muted mt-0.5">
+                    <p className="text-[11px] text-[var(--admin-muted)] mt-0.5">
                       {item.duration} min
                     </p>
                   </div>
-                  <p className="text-xs font-bold text-aera-ink">
+                  <p className="text-xs font-bold text-[var(--admin-ink)]">
                     ${Number(item.price).toFixed(2)}
                   </p>
                 </div>
@@ -178,24 +178,24 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
               {booking.addonItems?.map((item: any) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between rounded-xl bg-aera-champagne/15 px-4 py-3"
+                  className="flex items-center justify-between rounded-xl bg-[var(--admin-surface-muted)] px-4 py-3"
                 >
                   <div>
-                    <p className="text-xs font-semibold text-aera-ink">
+                    <p className="text-xs font-semibold text-[var(--admin-ink)]">
                       {item.addonNameSnapshot}
                     </p>
-                    <p className="text-[11px] text-aera-muted mt-0.5">
+                    <p className="text-[11px] text-[var(--admin-muted)] mt-0.5">
                       Add-on
                     </p>
                   </div>
-                  <p className="text-xs font-bold text-aera-ink">
+                  <p className="text-xs font-bold text-[var(--admin-ink)]">
                     ${Number(item.price).toFixed(2)}
                   </p>
                 </div>
               ))}
 
-              <div className="border-t border-aera-champagne/30 pt-3 space-y-1.5">
-                <div className="flex justify-between text-xs text-aera-muted">
+              <div className="border-t border-[var(--admin-border)] pt-3 space-y-1.5">
+                <div className="flex justify-between text-xs text-[var(--admin-muted)]">
                   <span>Subtotal</span>
                   <span>${Number(booking.subtotal).toFixed(2)}</span>
                 </div>
@@ -206,12 +206,12 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                   </div>
                 )}
                 {Number(booking.taxAmount) > 0 && (
-                  <div className="flex justify-between text-xs text-aera-muted">
+                  <div className="flex justify-between text-xs text-[var(--admin-muted)]">
                     <span>Tax</span>
                     <span>${Number(booking.taxAmount).toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm font-bold text-aera-ink pt-1">
+                <div className="flex justify-between text-sm font-bold text-[var(--admin-ink)] pt-1">
                   <span>Total</span>
                   <span>${Number(booking.totalAmount).toFixed(2)}</span>
                 </div>
@@ -226,15 +226,15 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                 {booking.payments.map((payment: any) => (
                   <div
                     key={payment.id}
-                    className="rounded-xl bg-aera-champagne/15 px-4 py-3"
+                    className="rounded-xl bg-[var(--admin-surface-muted)] px-4 py-3"
                   >
                     <div className="flex items-center gap-3">
-                      <DollarSign className="h-4 w-4 text-aera-muted" />
+                      <DollarSign className="h-4 w-4 text-[var(--admin-muted)]" />
                       <div>
-                        <p className="text-xs font-semibold text-aera-ink">
+                        <p className="text-xs font-semibold text-[var(--admin-ink)]">
                           ${Number(payment.amount).toFixed(2)}
                         </p>
-                        <p className="text-[11px] text-aera-muted">
+                        <p className="text-[11px] text-[var(--admin-muted)]">
                           {payment.provider} - {payment.currency}
                         </p>
                       </div>
@@ -242,13 +242,13 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                     <div className="text-right">
                       <StatusBadge status={payment.status} colorMap={PAYMENT_COLORS} />
                       {payment.paidAt && (
-                        <p className="text-[10px] text-aera-muted mt-1">
+                        <p className="text-[10px] text-[var(--admin-muted)] mt-1">
                           {format(new Date(payment.paidAt), "MMM d, h:mm a")}
                         </p>
                       )}
                     </div>
                     {(payment.providerOrderId || payment.providerCaptureId || payment.providerPayerEmail) && (
-                      <div className="mt-3 grid grid-cols-1 gap-2 border-t border-aera-champagne/30 pt-3 text-left text-[11px] text-aera-muted md:grid-cols-2">
+                      <div className="mt-3 grid grid-cols-1 gap-2 border-t border-[var(--admin-border)] pt-3 text-left text-[11px] text-[var(--admin-muted)] md:grid-cols-2">
                         {payment.providerOrderId && <p><b>PayPal Order:</b> {payment.providerOrderId}</p>}
                         {payment.providerCaptureId && <p><b>Capture:</b> {payment.providerCaptureId}</p>}
                         {payment.providerPayerName && <p><b>Payer:</b> {payment.providerPayerName}</p>}
@@ -259,7 +259,7 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-aera-muted py-4 text-center">
+              <p className="text-xs text-[var(--admin-muted)] py-4 text-center">
                 No payments recorded yet.
               </p>
             )}
@@ -278,7 +278,7 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
                 type="button"
                 disabled={savingNotes || notes === (booking.internalNotes || "")}
                 onClick={handleSaveNotes}
-                className="inline-flex items-center gap-2 rounded-full bg-aera-accent px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
+                className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2"
               >
                 <Save className="h-3.5 w-3.5" />
                 {savingNotes ? "Saving..." : "Save Notes"}
@@ -293,19 +293,19 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
           <AdminSectionCard title="Customer" icon={User}>
             <div className="space-y-3">
               <div>
-                <p className="text-sm font-semibold text-aera-ink">
+                <p className="text-sm font-semibold text-[var(--admin-ink)]">
                   {booking.customer?.firstName} {booking.customer?.lastName}
                 </p>
-                <p className="text-xs text-aera-muted mt-0.5">
+                <p className="text-xs text-[var(--admin-muted)] mt-0.5">
                   {booking.customer?.email}
                 </p>
-                <p className="text-xs text-aera-muted">
+                <p className="text-xs text-[var(--admin-muted)]">
                   {booking.customer?.phone}
                 </p>
               </div>
               <a
                 href={`/admin/customers/${booking.customer?.id}`}
-                className="inline-flex items-center text-[11px] font-bold uppercase tracking-wider text-aera-accent hover:text-aera-accentHover transition-colors"
+                className="inline-flex items-center text-[11px] font-bold uppercase tracking-wider text-[var(--admin-accent)] hover:text-[var(--admin-accent-hover)] transition-colors"
               >
                 View Profile {">"}
               </a>
@@ -320,7 +320,7 @@ export const BookingDetailView: React.FC<BookingDetailViewProps> = ({
           {/* Customer Notes */}
           {booking.notes && (
             <AdminSectionCard title="Customer Notes" icon={FileText}>
-              <p className="text-xs text-aera-ink leading-relaxed whitespace-pre-wrap">
+              <p className="text-xs text-[var(--admin-ink)] leading-relaxed whitespace-pre-wrap">
                 {booking.notes}
               </p>
             </AdminSectionCard>

@@ -58,7 +58,7 @@ export default function BookingReport({ from, to }: BookingReportProps) {
   }, [from, to]);
 
   if (loading) return <AdminLoadingState variant="card" />;
-  if (!data) return <div className="text-sm text-aera-muted p-8 text-center">No booking data available</div>;
+  if (!data) return <div className="text-sm text-[var(--admin-muted)] p-8 text-center">No booking data available</div>;
 
   return (
     <motion.div
@@ -77,18 +77,18 @@ export default function BookingReport({ from, to }: BookingReportProps) {
         ].map((stat) => (
           <div
             key={stat.label}
-            className="rounded-2xl border border-aera-champagne/30 bg-white p-5"
+            className="rounded-2xl border border-[var(--admin-border)] bg-white p-5"
           >
-            <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">{stat.label}</p>
-            <p className="mt-1 text-2xl font-bold text-aera-ink">{stat.value}</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">{stat.label}</p>
+            <p className="mt-1 text-2xl font-bold text-[var(--admin-ink)]">{stat.value}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Status Breakdown */}
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white p-5">
-          <h3 className="text-sm font-bold text-aera-ink mb-4">Bookings by Status</h3>
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-5">
+          <h3 className="text-sm font-bold text-[var(--admin-ink)] mb-4">Bookings by Status</h3>
           {data.byStatus.length > 0 ? (
             <div className="flex flex-col items-center gap-4">
               <ResponsiveContainer width="100%" height={220}>
@@ -127,22 +127,22 @@ export default function BookingReport({ from, to }: BookingReportProps) {
                       className="h-2.5 w-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: STATUS_COLORS[s.status] || "#ccc" }}
                     />
-                    <span className="text-aera-ink font-medium">{s.status}</span>
-                    <span className="text-aera-muted">({s.count})</span>
+                    <span className="text-[var(--admin-ink)] font-medium">{s.status}</span>
+                    <span className="text-[var(--admin-muted)]">({s.count})</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="text-sm text-aera-muted py-8 text-center">No data</p>
+            <p className="text-sm text-[var(--admin-muted)] py-8 text-center">No data</p>
           )}
         </div>
 
         {/* Bookings Over Time */}
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white p-5">
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-aera-ink flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-aera-accent" />
+            <h3 className="text-sm font-bold text-[var(--admin-ink)] flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-[var(--admin-accent)]" />
               Bookings Over Time
             </h3>
             <ExportControls data={data.dailyBookings} filename="bookings-daily" />
@@ -165,7 +165,7 @@ export default function BookingReport({ from, to }: BookingReportProps) {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-sm text-aera-muted py-8 text-center">No data</p>
+            <p className="text-sm text-[var(--admin-muted)] py-8 text-center">No data</p>
           )}
         </div>
       </div>

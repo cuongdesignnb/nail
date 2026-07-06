@@ -37,11 +37,11 @@ export function MediaDeleteDialog({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="relative bg-white rounded-2xl shadow-luxury border border-aera-champagne/50 p-6 w-full max-w-sm"
+            className="relative bg-white rounded-2xl shadow-luxury border border-[var(--admin-border)]/50 p-6 w-full max-w-sm"
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-aera-muted hover:text-aera-ink transition-colors cursor-pointer"
+              className="absolute top-4 right-4 text-[var(--admin-muted)] hover:text-[var(--admin-ink)] transition-colors cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -51,16 +51,16 @@ export function MediaDeleteDialog({
                 <AlertTriangle size={20} className="text-rose-500" />
               </div>
               <div>
-                <h3 className="font-heading text-base font-semibold text-aera-ink">
+                <h3 className="font-heading text-base font-semibold text-[var(--admin-ink)]">
                   Delete Asset
                 </h3>
-                <p className="text-xs text-aera-muted">
+                <p className="text-xs text-[var(--admin-muted)]">
                   This action cannot be undone.
                 </p>
               </div>
             </div>
 
-            <p className="text-xs text-aera-ink mb-6">
+            <p className="text-xs text-[var(--admin-ink)] mb-6">
               Are you sure you want to delete{" "}
               <span className="font-semibold">&ldquo;{assetName}&rdquo;</span>?
               This will remove it from the media library.
@@ -69,7 +69,7 @@ export function MediaDeleteDialog({
             <div className="flex items-center gap-3 justify-end">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-medium text-aera-ink bg-gray-100 hover:bg-gray-200 rounded-full transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-medium text-[var(--admin-ink)] bg-gray-100 hover:bg-gray-200 rounded-full transition-colors cursor-pointer"
               >
                 Cancel
               </button>

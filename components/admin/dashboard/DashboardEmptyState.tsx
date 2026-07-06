@@ -16,50 +16,17 @@ export default function DashboardEmptyState({
   action,
 }: DashboardEmptyStateProps) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px 20px',
-        gap: 12,
-      }}
-    >
-      <div
-        style={{
-          width: 56,
-          height: 56,
-          borderRadius: 16,
-          background: 'rgba(155, 89, 29, 0.06)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Icon size={26} color="#9b591d" strokeWidth={1.5} />
+    <div className="flex flex-col items-center justify-center gap-3 px-5 py-10">
+      <div className="flex h-14 w-14 items-center justify-center rounded-[var(--admin-radius-lg)] bg-[var(--admin-accent-soft)]/60">
+        <Icon size={26} className="text-[var(--admin-accent)]" strokeWidth={1.5} />
       </div>
-      <p
-        style={{
-          fontSize: 14,
-          color: '#7f6d61',
-          textAlign: 'center',
-          margin: 0,
-          lineHeight: 1.5,
-        }}
-      >
+      <p className="m-0 text-center text-sm leading-relaxed text-[var(--admin-muted)]">
         {message}
       </p>
       {action && (
         <Link
           href={action.href}
-          style={{
-            fontSize: 13,
-            fontWeight: 500,
-            color: '#9b591d',
-            textDecoration: 'none',
-            marginTop: 4,
-          }}
+          className="mt-1 text-[13px] font-medium text-[var(--admin-accent)] no-underline transition-colors hover:text-[var(--admin-accent-hover)]"
         >
           {action.label} →
         </Link>

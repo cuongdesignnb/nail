@@ -50,7 +50,7 @@ function ToolbarButton({
       title={title}
       className={`
         flex h-8 w-8 items-center justify-center rounded-lg transition-colors border-none bg-transparent
-        ${active ? 'bg-aera-champagne/40 text-aera-accent font-bold' : 'text-aera-muted hover:bg-aera-cream/50 hover:text-aera-ink'}
+        ${active ? 'bg-[var(--admin-border-muted)] text-[var(--admin-accent)] font-bold' : 'text-[var(--admin-muted)] hover:bg-[var(--admin-surface-hover)]0 hover:text-[var(--admin-ink)]'}
         ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
       `}
     >
@@ -76,7 +76,7 @@ export function RichTextToolbar({ editor }: RichTextToolbarProps) {
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-0.5 border-b border-aera-champagne/45 bg-aera-cream/10 px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-[var(--admin-border)]/45 bg-[var(--admin-surface-hover)] px-2 py-1.5">
         {/* Text type */}
         <ToolbarButton
           onClick={() => editor.chain().focus().setParagraph().run()}
@@ -224,7 +224,7 @@ export function RichTextToolbar({ editor }: RichTextToolbarProps) {
         </ToolbarButton>
 
         {/* Character count */}
-        <div className="ml-auto text-xs text-aera-muted tabular-nums">
+        <div className="ml-auto text-xs text-[var(--admin-muted)] tabular-nums">
           {charCount} chars
         </div>
       </div>

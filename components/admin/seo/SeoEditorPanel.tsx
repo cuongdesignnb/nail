@@ -104,21 +104,21 @@ export function SeoEditorPanel({ scopeKey, pageKey, initialData, onSave }: SeoEd
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
   const inputClass =
-    'w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-aera-ink placeholder:text-aera-muted/50 focus:border-aera-accent focus:outline-none';
-  const labelClass = 'mb-1.5 block text-sm font-medium text-aera-ink';
+    'w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)] focus:border-[var(--admin-accent)] focus:outline-none';
+  const labelClass = 'mb-1.5 block text-sm font-medium text-[var(--admin-ink)]';
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-heading text-xl font-bold text-aera-ink">SEO Settings</h2>
-          <p className="text-sm text-aera-muted">Configure search engine optimization for this page</p>
+          <h2 className="font-heading text-xl font-bold text-[var(--admin-ink)]">SEO Settings</h2>
+          <p className="text-sm text-[var(--admin-muted)]">Configure search engine optimization for this page</p>
         </div>
         <button
           onClick={handleSave}
           disabled={!isDirty || saving}
-          className="inline-flex items-center gap-2 rounded-lg bg-aera-accent px-4 py-2 text-sm font-medium text-white hover:bg-aera-accentHover disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--admin-accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--admin-accent-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Save size={16} />
           {saving ? 'Saving...' : saved ? 'Saved!' : 'Save'}
@@ -127,12 +127,12 @@ export function SeoEditorPanel({ scopeKey, pageKey, initialData, onSave }: SeoEd
 
       {/* Basic SEO */}
       <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-aera-muted">Basic SEO</h3>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-muted)]">Basic SEO</h3>
 
         <div>
           <label className={labelClass}>
             Page Title
-            <span className="ml-2 text-xs text-aera-muted tabular-nums">{form.title?.length || 0}/60</span>
+            <span className="ml-2 text-xs text-[var(--admin-muted)] tabular-nums">{form.title?.length || 0}/60</span>
             <CharWarning count={form.title?.length || 0} limit={60} label="Title" />
           </label>
           <input
@@ -147,7 +147,7 @@ export function SeoEditorPanel({ scopeKey, pageKey, initialData, onSave }: SeoEd
         <div>
           <label className={labelClass}>
             Meta Description
-            <span className="ml-2 text-xs text-aera-muted tabular-nums">{form.description?.length || 0}/160</span>
+            <span className="ml-2 text-xs text-[var(--admin-muted)] tabular-nums">{form.description?.length || 0}/160</span>
             <CharWarning count={form.description?.length || 0} limit={160} label="Description" />
           </label>
           <textarea
@@ -168,7 +168,7 @@ export function SeoEditorPanel({ scopeKey, pageKey, initialData, onSave }: SeoEd
             placeholder="nail salon, manicure, pedicure"
             className={inputClass}
           />
-          <p className="mt-1 text-xs text-aera-muted">Comma-separated keywords</p>
+          <p className="mt-1 text-xs text-[var(--admin-muted)]">Comma-separated keywords</p>
         </div>
 
         <div>
@@ -197,7 +197,7 @@ export function SeoEditorPanel({ scopeKey, pageKey, initialData, onSave }: SeoEd
 
       {/* Open Graph / Social */}
       <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-aera-muted">Social / Open Graph</h3>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--admin-muted)]">Social / Open Graph</h3>
 
         <div>
           <label className={labelClass}>OG Title</label>

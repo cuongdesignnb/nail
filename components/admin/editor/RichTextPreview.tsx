@@ -12,7 +12,7 @@ export function RichTextPreview({ html, className = '' }: RichTextPreviewProps) 
     <div
       className={`rounded-xl border border-gray-200 bg-white p-6 ${className}`}
     >
-      <div className="mb-3 text-xs font-medium uppercase tracking-wider text-aera-muted">
+      <div className="mb-3 text-xs font-medium uppercase tracking-wider text-[var(--admin-muted)]">
         Preview
       </div>
       <div className="border-t border-gray-100 pt-4">

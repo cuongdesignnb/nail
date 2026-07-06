@@ -51,8 +51,8 @@ function TimeAgo({ date, label }: { date: string | null; label: string }) {
   });
 
   return (
-    <span className="text-[11px] text-aera-muted">
-      {label}: <span className="font-medium text-aera-ink/70">{formatted}</span>
+    <span className="text-[11px] text-[var(--admin-muted)]">
+      {label}: <span className="font-medium text-[var(--admin-ink)]/70">{formatted}</span>
     </span>
   );
 }
@@ -77,24 +77,24 @@ export function ContentEditorHeader({
   return (
     <div className="space-y-3">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-[11px] text-aera-muted">
+      <nav className="flex items-center gap-1.5 text-[11px] text-[var(--admin-muted)]">
         <Link
           href="/admin/content"
-          className="font-medium hover:text-aera-accent transition-colors no-underline"
+          className="font-medium hover:text-[var(--admin-accent)] transition-colors no-underline"
         >
           Content Hub
         </Link>
         <ChevronRight size={12} className="flex-shrink-0" />
-        <span className="font-bold text-aera-ink">{registryItem.label}</span>
+        <span className="font-bold text-[var(--admin-ink)]">{registryItem.label}</span>
       </nav>
 
       {/* Title Row */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-heading text-[clamp(22px,3vw,32px)] font-medium text-aera-ink leading-tight">
+          <h1 className="font-heading text-[clamp(22px,3vw,32px)] font-medium text-[var(--admin-ink)] leading-tight">
             {registryItem.label}
           </h1>
-          <p className="mt-1 text-xs text-aera-muted max-w-lg">
+          <p className="mt-1 text-xs text-[var(--admin-muted)] max-w-lg">
             {registryItem.description}
           </p>
         </div>
@@ -104,7 +104,7 @@ export function ContentEditorHeader({
           {registryItem.previewEnabled && (
             <Link
               href={`/admin/content/${registryItem.key}/preview`}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-aera-champagne/50 bg-white px-3.5 py-2 text-[11px] font-bold text-aera-ink hover:border-aera-accent/30 hover:shadow-sm transition-all no-underline"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--admin-border)]/50 bg-white px-3.5 py-2 text-[11px] font-bold text-[var(--admin-ink)] hover:border-[var(--admin-accent)]/30 hover:shadow-sm transition-all no-underline"
             >
               <Eye size={13} />
               Preview Draft
@@ -115,7 +115,7 @@ export function ContentEditorHeader({
               href={registryItem.publicPath}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-aera-champagne/50 bg-white px-3.5 py-2 text-[11px] font-bold text-aera-ink hover:border-aera-accent/30 hover:shadow-sm transition-all no-underline"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--admin-border)]/50 bg-white px-3.5 py-2 text-[11px] font-bold text-[var(--admin-ink)] hover:border-[var(--admin-accent)]/30 hover:shadow-sm transition-all no-underline"
             >
               <ExternalLink size={13} />
               View Public Page

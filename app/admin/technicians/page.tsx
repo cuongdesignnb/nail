@@ -2,8 +2,15 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Users, Search, Plus, Star, Eye } from "lucide-react";
+import { Users, Search, Star } from "lucide-react";
 import Link from "next/link";
+import {
+  AdminPageHeader,
+  AdminLoadingState,
+  AdminEmptyState,
+  AdminCard,
+  AdminStatusChip,
+} from "@/components/admin/ui";
 
 interface Technician {
   id: string;
@@ -34,46 +41,78 @@ export default function AdminTechniciansPage() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   return (
-    <div style={{ padding: "0 32px 32px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: "#2f1c11", fontFamily: "var(--font-display)" }}>Technicians</h1>
-          <p style={{ fontSize: 13, color: "#7f6d61", marginTop: 4 }}>Manage your nail artists and specialists</p>
-        </div>
+    <div className="admin-page-container">
+      <AdminPageHeader
+        eyebrow="Operations"
+        title="Technicians"
+        description="Manage your nail artists and specialists"
+      />
+
+      {/* Search */}
+      <div className="relative mb-5 max-w-sm">
+        <Search
+          size={16}
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--admin-muted)]"
+        />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search technicians..."
+          className="w-full rounded-[var(--admin-radius-md)] border border-[var(--admin-border-strong)] bg-[var(--admin-surface)] py-2.5 pl-9 pr-3 text-[13px] text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)] transition-colors focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20"
+        />
       </div>
 
-      <div style={{ marginBottom: 20, position: "relative", maxWidth: 400 }}>
-        <Search size={16} style={{ position: "absolute", left: 12, top: 11, color: "#7f6d61" }} />
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search technicians..." style={{ width: "100%", padding: "10px 12px 10px 36px", border: "1px solid rgba(116,55,15,0.12)", borderRadius: 10, fontSize: 13, background: "white" }} />
-      </div>
-
+      {/* Content */}
       {loading ? (
-        <div style={{ padding: 40, textAlign: "center", color: "#7f6d61" }}>Loading...</div>
+        <AdminLoadingState variant="card" />
       ) : technicians.length === 0 ? (
-        <div style={{ padding: 60, textAlign: "center", background: "white", borderRadius: 16 }}>
-          <Users size={40} style={{ color: "#d9b894", marginBottom: 12 }} />
-          <p style={{ fontSize: 15, fontWeight: 600, color: "#4a2d1e" }}>No technicians found</p>
-        </div>
+        <AdminCard>
+          <AdminEmptyState
+            icon={Users}
+            title="No technicians found"
+            description="Technician profiles will appear here once added."
+          />
+        </AdminCard>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {technicians.map((t, i) => (
-            <motion.div key={t.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-              <Link href={`/admin/technicians/${t.id}`} style={{ textDecoration: "none" }}>
-                <div style={{ background: "white", borderRadius: 16, border: "1px solid rgba(116,55,15,0.08)", padding: 20, transition: "all 0.2s", cursor: "pointer" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                    <div>
-                      <h3 style={{ fontSize: 16, fontWeight: 700, color: "#2f1c11" }}>{t.name}</h3>
-                      <p style={{ fontSize: 12, color: "#7f6d61", marginTop: 2 }}>{t.specialty || "General"}</p>
+            <motion.div
+              key={t.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+            >
+              <Link href={`/admin/technicians/${t.id}`} className="block no-underline">
+                <AdminCard hover>
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-base font-bold text-[var(--admin-ink)]">{t.name}</h3>
+                      <p className="mt-0.5 text-xs text-[var(--admin-muted)]">{t.specialty || "General"}</p>
                     </div>
-                    <span style={{ padding: "3px 10px", borderRadius: 8, fontSize: 11, fontWeight: 700, background: t.isActive ? "rgba(34,197,94,0.1)" : "rgba(107,114,128,0.1)", color: t.isActive ? "#15803d" : "#4b5563" }}>
-                      {t.isActive ? "Active" : "Inactive"}
-                    </span>
+                    <AdminStatusChip
+                      status={t.isActive ? "Active" : "Inactive"}
+                      size="sm"
+                    />
                   </div>
-                  <div style={{ display: "flex", gap: 16, marginTop: 16 }}>
-                    <div><span style={{ fontSize: 11, color: "#7f6d61" }}>Rating</span><div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}><Star size={13} fill="#eab308" color="#eab308" /><span style={{ fontSize: 14, fontWeight: 700, color: "#2f1c11" }}>{t.rating?.toFixed(1) || "N/A"}</span></div></div>
-                    <div><span style={{ fontSize: 11, color: "#7f6d61" }}>Bookings</span><div style={{ fontSize: 14, fontWeight: 700, color: "#2f1c11", marginTop: 2 }}>{t.bookingsCount || 0}</div></div>
+
+                  <div className="mt-4 flex gap-6">
+                    <div>
+                      <span className="text-[11px] text-[var(--admin-muted)]">Rating</span>
+                      <div className="mt-0.5 flex items-center gap-1">
+                        <Star size={13} className="fill-amber-400 text-amber-400" />
+                        <span className="text-sm font-bold text-[var(--admin-ink)]">
+                          {t.rating?.toFixed(1) || "N/A"}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-[var(--admin-muted)]">Bookings</span>
+                      <div className="mt-0.5 text-sm font-bold text-[var(--admin-ink)]">
+                        {t.bookingsCount || 0}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </AdminCard>
               </Link>
             </motion.div>
           ))}

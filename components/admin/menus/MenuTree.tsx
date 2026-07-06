@@ -79,16 +79,16 @@ export function MenuTree({ items, location, selectedId, onChange, onSelect, onRe
   }
 
   return (
-    <section className="rounded-[22px] border border-aera-champagne/40 bg-white/95 p-4 shadow-sm">
+    <section className="rounded-[22px] border border-[var(--admin-border)]/40 bg-white/95 p-4 shadow-sm">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-heading text-2xl text-aera-ink">Menu Items</h2>
-          <p className="text-xs text-aera-muted">Drag to reorder. Select an item to edit its destination.</p>
+          <h2 className="font-heading text-2xl text-[var(--admin-ink)]">Menu Items</h2>
+          <p className="text-xs text-[var(--admin-muted)]">Drag to reorder. Select an item to edit its destination.</p>
         </div>
         <button
           type="button"
           onClick={addRootItem}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-aera-accent px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-aera-accentHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--admin-accent)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[var(--admin-accent-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40"
         >
           <Plus className="h-4 w-4" />
           Add Menu Item

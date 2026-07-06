@@ -62,7 +62,7 @@ export default function AdminCustomerDetailPage() {
           <button
             type="button"
             onClick={() => router.push("/admin/customers")}
-            className="rounded-full border border-aera-champagne/60 bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-aera-ink transition-colors hover:bg-aera-champagne/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
+            className="rounded-full border border-[var(--admin-border-strong)] bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[var(--admin-ink)] transition-colors hover:bg-[var(--admin-surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2"
           >
             ← Back to Customers
           </button>

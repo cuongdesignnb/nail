@@ -144,7 +144,7 @@ export const BookingStatusActions: React.FC<BookingStatusActionsProps> = ({
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider shadow-sm transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
               action.variant === "danger"
                 ? "border border-red-200 bg-white text-red-600 hover:bg-red-50 focus-visible:ring-red-500/40"
-                : "bg-aera-accent text-white hover:bg-aera-accentHover focus-visible:ring-aera-accent/40"
+                : "bg-[var(--admin-accent)] text-white hover:bg-[var(--admin-accent-hover)] focus-visible:ring-[var(--admin-accent)]/40"
             }`}
           >
             {action.icon}

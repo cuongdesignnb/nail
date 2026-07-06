@@ -10,12 +10,12 @@ interface SeoSocialPreviewProps {
 export function SeoSocialPreview({ title, description, image, siteName }: SeoSocialPreviewProps) {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-aera-muted">
+      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--admin-muted)]">
         Social Preview
       </h3>
       <div className="overflow-hidden rounded-lg border border-gray-200">
         {/* Image area */}
-        <div className="aspect-[1.91/1] bg-aera-champagne flex items-center justify-center">
+        <div className="aspect-[1.91/1] bg-[var(--admin-surface-muted)] flex items-center justify-center">
           {image ? (
             <img
               src={image}
@@ -23,7 +23,7 @@ export function SeoSocialPreview({ title, description, image, siteName }: SeoSoc
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex flex-col items-center gap-2 text-aera-muted/50">
+            <div className="flex flex-col items-center gap-2 text-[var(--admin-placeholder)]">
               <Globe size={32} />
               <span className="text-xs">No image set</span>
             </div>
@@ -32,7 +32,7 @@ export function SeoSocialPreview({ title, description, image, siteName }: SeoSoc
         {/* Content */}
         <div className="border-t border-gray-200 bg-gray-50 p-3">
           <div className="text-xs uppercase text-gray-500">{siteName}</div>
-          <div className="mt-1 text-sm font-semibold text-aera-ink line-clamp-1">
+          <div className="mt-1 text-sm font-semibold text-[var(--admin-ink)] line-clamp-1">
             {title || 'Page Title'}
           </div>
           <div className="mt-0.5 text-xs text-gray-500 line-clamp-2">

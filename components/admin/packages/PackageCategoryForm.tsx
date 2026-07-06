@@ -4,11 +4,14 @@ import { FormField, FormTextarea } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Plus, Edit2, Trash2, X } from "lucide-react";
 import { PackageCategoryDTO } from "@/types/packages";
+import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
 
 export function PackageCategoryForm() {
+  const toast = useToast();
   const [list, setList] = useState<PackageCategoryDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [globalError, setGlobalError] = useState("");
 
@@ -106,38 +109,42 @@ export function PackageCategoryForm() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this category?")) return;
+  const handleDeleteClick = (id: string) => setDeleteTarget(id);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/package-categories/${id}`, {
+      const res = await fetch(`/api/admin/package-categories/${deleteTarget}`, {
         method: "DELETE",
       });
       if (res.ok) {
         fetchList();
       } else {
         const json = await res.json();
-        alert(json.message || "Failed to delete");
+        toast.toast({ type: "error", title: json.message || "Failed to delete" });
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left font-sans">
       {/* List side */}
-      <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Available Categories
         </h3>
 
         {loading ? (
-          <p className="text-xs text-aera-muted italic py-6 text-center">Loading list...</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-6 text-center">Loading list...</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-aera-champagne/20 text-aera-muted">
+                <tr className="border-b border-[var(--admin-border)]/20 text-[var(--admin-muted)]">
                   <th className="py-3 text-left">Name</th>
                   <th className="py-3 text-left">Slug</th>
                   <th className="py-3 text-center">Order</th>
@@ -147,9 +154,9 @@ export function PackageCategoryForm() {
               </thead>
               <tbody>
                 {list.map((cat: any) => (
-                  <tr key={cat.id} className="border-b border-aera-champagne/10 hover:bg-aera-cream/10">
-                    <td className="py-3 font-semibold text-aera-ink">{cat.name}</td>
-                    <td className="py-3 text-aera-muted">{cat.slug}</td>
+                  <tr key={cat.id} className="border-b border-[var(--admin-border)]/10 hover:bg-[var(--admin-surface-muted)]">
+                    <td className="py-3 font-semibold text-[var(--admin-ink)]">{cat.name}</td>
+                    <td className="py-3 text-[var(--admin-muted)]">{cat.slug}</td>
                     <td className="py-3 text-center">{cat.sortOrder}</td>
                     <td className="py-3 text-center">
                       <StatusBadge active={cat.isActive} />
@@ -158,12 +165,12 @@ export function PackageCategoryForm() {
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => handleEdit(cat)}
-                          className="p-1.5 text-gray-500 hover:text-aera-accent bg-transparent border-none cursor-pointer"
+                          className="p-1.5 text-gray-500 hover:text-[var(--admin-accent)] bg-transparent border-none cursor-pointer"
                         >
                           <Edit2 size={13} />
                         </button>
                         <button
-                          onClick={() => handleDelete(cat.id)}
+                          onClick={() => handleDeleteClick(cat.id)}
                           className="p-1.5 text-gray-500 hover:text-rose-600 bg-transparent border-none cursor-pointer"
                         >
                           <Trash2 size={13} />
@@ -179,8 +186,8 @@ export function PackageCategoryForm() {
       </div>
 
       {/* Editor Form side */}
-      <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury self-start">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3 flex justify-between items-center">
+      <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury self-start">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3 flex justify-between items-center">
           <span>{editId ? "Edit Category" : "Add New Category"}</span>
           {editId && (
             <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer">
@@ -251,7 +258,7 @@ export function PackageCategoryForm() {
             <button
               type="submit"
               disabled={saveLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
             >
               {editId ? <Edit2 size={13} /> : <Plus size={13} />}
               <span>{saveLoading ? "Saving..." : editId ? "Save Changes" : "Create"}</span>
@@ -259,6 +266,15 @@ export function PackageCategoryForm() {
           </div>
         </form>
       </div>
+      <AdminConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Category"
+        description="Are you sure you want to delete this category? This cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

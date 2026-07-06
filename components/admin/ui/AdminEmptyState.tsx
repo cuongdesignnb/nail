@@ -26,14 +26,14 @@ export const AdminEmptyState: React.FC<AdminEmptyStateProps> = ({
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="flex flex-col items-center justify-center py-16 px-6 text-center"
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-aera-champagne/50 mb-4">
-        <Icon className="h-7 w-7 text-aera-muted/60" />
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--admin-accent-soft)] mb-4">
+        <Icon className="h-7 w-7 text-[var(--admin-muted)]" />
       </div>
 
-      <h3 className="text-sm font-bold text-aera-ink mb-1">{title}</h3>
+      <h3 className="text-sm font-bold text-[var(--admin-ink)] mb-1">{title}</h3>
 
       {description && (
-        <p className="text-xs text-aera-muted max-w-xs leading-relaxed">
+        <p className="text-xs text-[var(--admin-muted)] max-w-xs leading-relaxed">
           {description}
         </p>
       )}
@@ -42,7 +42,7 @@ export const AdminEmptyState: React.FC<AdminEmptyStateProps> = ({
         <button
           type="button"
           onClick={onAction}
-          className="mt-5 inline-flex items-center gap-2 rounded-full bg-aera-accent px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
+          className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2"
         >
           {actionLabel}
         </button>

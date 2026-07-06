@@ -3,11 +3,13 @@ import React, { useState, useEffect } from "react";
 import { FormField } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Plus, Edit2, Trash2, X, Save } from "lucide-react";
+import { AdminConfirmDialog } from "@/components/admin/ui";
 
 export function PackageComparisonForm() {
   const [list, setList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [globalError, setGlobalError] = useState("");
 
@@ -113,10 +115,12 @@ export function PackageComparisonForm() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete comparison feature row?")) return;
+  const handleDeleteClick = (id: string) => setDeleteTarget(id);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/package-comparison-features/${id}`, {
+      const res = await fetch(`/api/admin/package-comparison-features/${deleteTarget}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -124,24 +128,26 @@ export function PackageComparisonForm() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left font-sans">
       {/* List side */}
-      <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Comparison Table Rows
         </h3>
 
         {loading ? (
-          <p className="text-xs text-aera-muted italic py-6 text-center">Loading rows...</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-6 text-center">Loading rows...</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[500px]">
               <thead>
-                <tr className="border-b border-aera-champagne/20 text-aera-muted">
+                <tr className="border-b border-[var(--admin-border)]/20 text-[var(--admin-muted)]">
                   <th className="py-3 text-left">Feature</th>
                   <th className="py-3 text-center">Essential</th>
                   <th className="py-3 text-center">Signature</th>
@@ -153,12 +159,12 @@ export function PackageComparisonForm() {
               </thead>
               <tbody>
                 {list.map((item) => (
-                  <tr key={item.id} className="border-b border-aera-champagne/10 hover:bg-aera-cream/10">
-                    <td className="py-3 font-semibold text-aera-ink">{item.featureName}</td>
-                    <td className="py-3 text-center font-medium text-aera-accent">{item.essentialValue || "-"}</td>
-                    <td className="py-3 text-center font-medium text-aera-accent">{item.signatureValue || "-"}</td>
-                    <td className="py-3 text-center font-medium text-aera-accent">{item.premiumValue || "-"}</td>
-                    <td className="py-3 text-center font-medium text-aera-accent">{item.vipValue || "-"}</td>
+                  <tr key={item.id} className="border-b border-[var(--admin-border)]/10 hover:bg-[var(--admin-surface-muted)]">
+                    <td className="py-3 font-semibold text-[var(--admin-ink)]">{item.featureName}</td>
+                    <td className="py-3 text-center font-medium text-[var(--admin-accent)]">{item.essentialValue || "-"}</td>
+                    <td className="py-3 text-center font-medium text-[var(--admin-accent)]">{item.signatureValue || "-"}</td>
+                    <td className="py-3 text-center font-medium text-[var(--admin-accent)]">{item.premiumValue || "-"}</td>
+                    <td className="py-3 text-center font-medium text-[var(--admin-accent)]">{item.vipValue || "-"}</td>
                     <td className="py-3 text-center">
                       <StatusBadge active={item.isActive} />
                     </td>
@@ -166,12 +172,12 @@ export function PackageComparisonForm() {
                       <div className="flex justify-end gap-1">
                         <button
                           onClick={() => handleEdit(item)}
-                          className="p-1.5 text-gray-500 hover:text-aera-accent bg-transparent border-none cursor-pointer"
+                          className="p-1.5 text-gray-500 hover:text-[var(--admin-accent)] bg-transparent border-none cursor-pointer"
                         >
                           <Edit2 size={13} />
                         </button>
                         <button
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => handleDeleteClick(item.id)}
                           className="p-1.5 text-gray-500 hover:text-rose-600 bg-transparent border-none cursor-pointer"
                         >
                           <Trash2 size={13} />
@@ -187,8 +193,8 @@ export function PackageComparisonForm() {
       </div>
 
       {/* Editor Form side */}
-      <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury self-start">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3 flex justify-between items-center">
+      <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury self-start">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3 flex justify-between items-center">
           <span>{editId ? "Edit Comparison Feature" : "Add Comparison Row"}</span>
           {editId && (
             <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer">
@@ -198,8 +204,8 @@ export function PackageComparisonForm() {
         </h3>
 
         {/* Tip box */}
-        <div className="bg-aera-cream/50 border border-aera-champagne text-aera-muted rounded-2xl p-4 mb-4 text-[10px] leading-relaxed">
-          <strong className="text-aera-accent block mb-1">Formatting Guidelines:</strong>
+        <div className="bg-[var(--admin-surface-muted)] border border-[var(--admin-border)] text-[var(--admin-muted)] rounded-2xl p-4 mb-4 text-[10px] leading-relaxed">
+          <strong className="text-[var(--admin-accent)] block mb-1">Formatting Guidelines:</strong>
           - Type <code className="bg-white border px-1 py-0.5 rounded">check</code> to display a checkmark icon.<br />
           - Type <code className="bg-white border px-1 py-0.5 rounded">-</code> to display a dash divider.<br />
           - Type any text (e.g. <code className="bg-white border px-1 py-0.5 rounded">$15</code> or <code className="bg-white border px-1 py-0.5 rounded">Deluxe</code>) to display literal value.
@@ -250,7 +256,7 @@ export function PackageComparisonForm() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 border-t border-aera-champagne/20 pt-4">
+          <div className="grid grid-cols-2 gap-4 border-t border-[var(--admin-border)]/20 pt-4">
             <FormField
               label="Sort Order"
               type="number"
@@ -282,7 +288,7 @@ export function PackageComparisonForm() {
             <button
               type="submit"
               disabled={saveLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
             >
               {editId ? <Save size={13} /> : <Plus size={13} />}
               <span>{saveLoading ? "Saving..." : editId ? "Save Row" : "Add Row"}</span>
@@ -290,6 +296,15 @@ export function PackageComparisonForm() {
           </div>
         </form>
       </div>
+      <AdminConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Comparison Feature"
+        description="Are you sure you want to delete this comparison feature row? This cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

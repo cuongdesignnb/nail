@@ -41,23 +41,23 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   return (
     <div
+      className="border px-3.5 py-2.5"
       style={{
-        background: 'rgba(255, 253, 249, 0.97)',
-        border: '1px solid rgba(116, 55, 15, 0.12)',
-        borderRadius: 12,
-        padding: '10px 14px',
-        boxShadow: '0 4px 20px rgba(77, 43, 20, 0.1)',
+        background: 'var(--admin-surface)',
+        borderColor: 'var(--admin-border)',
+        borderRadius: 'var(--admin-radius-md)',
+        boxShadow: 'var(--admin-shadow-md)',
       }}
     >
-      <p style={{ margin: 0, fontSize: 11, color: '#7f6d61' }}>{label}</p>
       <p
-        style={{
-          margin: '4px 0 0',
-          fontSize: 15,
-          fontWeight: 700,
-          color: '#2f1c11',
-          fontFamily: 'Georgia, serif',
-        }}
+        className="m-0 text-[11px]"
+        style={{ color: 'var(--admin-muted)' }}
+      >
+        {label}
+      </p>
+      <p
+        className="mt-1 mb-0 text-[15px] font-bold font-heading"
+        style={{ color: 'var(--admin-ink)' }}
       >
         {formatCurrency(payload[0].value, currency)}
       </p>
@@ -87,29 +87,29 @@ export default function RevenueOverviewCard({
               <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="0%"
-                  stopColor="rgba(168, 93, 30, 0.2)"
-                  stopOpacity={1}
+                  stopColor="var(--admin-accent)"
+                  stopOpacity={0.2}
                 />
                 <stop
                   offset="100%"
-                  stopColor="rgba(168, 93, 30, 0.02)"
-                  stopOpacity={1}
+                  stopColor="var(--admin-accent)"
+                  stopOpacity={0.02}
                 />
               </linearGradient>
             </defs>
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="rgba(116, 55, 15, 0.06)"
+              stroke="var(--admin-border-muted)"
               vertical={false}
             />
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 11, fill: '#7f6d61' }}
-              axisLine={{ stroke: 'rgba(116, 55, 15, 0.08)' }}
+              tick={{ fontSize: 11, fill: 'var(--admin-muted)' }}
+              axisLine={{ stroke: 'var(--admin-border)' }}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 11, fill: '#7f6d61' }}
+              tick={{ fontSize: 11, fill: 'var(--admin-muted)' }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v: number) =>
@@ -125,14 +125,14 @@ export default function RevenueOverviewCard({
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#a85d1e"
+              stroke="var(--admin-accent)"
               strokeWidth={2.5}
               fill="url(#revenueGradient)"
               dot={false}
               activeDot={{
                 r: 5,
-                fill: '#a85d1e',
-                stroke: '#fffaf4',
+                fill: 'var(--admin-accent)',
+                stroke: 'var(--admin-surface)',
                 strokeWidth: 2,
               }}
             />

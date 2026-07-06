@@ -29,8 +29,8 @@ export const AdminToggle: React.FC<AdminToggleProps> = ({
         onClick={() => onChange(!checked)}
         className={clsx(
           "relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2",
-          checked ? "bg-aera-accent" : "bg-aera-champagne"
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2",
+          checked ? "bg-[var(--admin-accent)]" : "bg-[var(--admin-border)]"
         )}
       >
         <motion.span
@@ -48,13 +48,13 @@ export const AdminToggle: React.FC<AdminToggleProps> = ({
           {label && (
             <label
               htmlFor={id}
-              className="block text-xs font-semibold text-aera-ink cursor-pointer"
+              className="block text-xs font-semibold text-[var(--admin-ink)] cursor-pointer"
             >
               {label}
             </label>
           )}
           {helpText && (
-            <p className="mt-0.5 text-[11px] text-aera-muted leading-relaxed">
+            <p className="mt-0.5 text-[11px] text-[var(--admin-muted)] leading-relaxed">
               {helpText}
             </p>
           )}

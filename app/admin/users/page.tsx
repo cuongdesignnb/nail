@@ -97,9 +97,10 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="admin-page-container">
       <AdminPageHeader
         title="Users & Roles"
+        eyebrow="System"
         description="Manage admin users and their access permissions."
         breadcrumbs={[
           { label: "Admin", href: "/admin" },
@@ -109,7 +110,7 @@ export default function AdminUsersPage() {
           <button
             type="button"
             onClick={() => setPanelOpen(true)}
-            className="inline-flex items-center gap-2 rounded-full bg-aera-accent px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2"
           >
             <UserPlus className="h-3.5 w-3.5" />
             Add User
@@ -156,7 +157,7 @@ export default function AdminUsersPage() {
               onSubmit={handleUpdate}
               onCancel={() => setEditingUser(null)}
             />
-            <div className="border-t border-aera-champagne/30 pt-5">
+            <div className="border-t border-[var(--admin-border)] pt-5">
               <button
                 type="button"
                 onClick={() => {

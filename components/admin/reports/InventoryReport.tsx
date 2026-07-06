@@ -55,7 +55,7 @@ export default function InventoryReport() {
   }, []);
 
   if (loading) return <AdminLoadingState variant="table" />;
-  if (!data) return <div className="text-sm text-aera-muted p-8 text-center">No inventory data</div>;
+  if (!data) return <div className="text-sm text-[var(--admin-muted)] p-8 text-center">No inventory data</div>;
 
   const columns = [
     { key: "name", label: "Item" },
@@ -75,18 +75,18 @@ export default function InventoryReport() {
     >
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white p-5">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">Total Items</p>
-          <p className="mt-1 text-2xl font-bold text-aera-ink">{data.totalItems}</p>
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-5">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">Total Items</p>
+          <p className="mt-1 text-2xl font-bold text-[var(--admin-ink)]">{data.totalItems}</p>
         </div>
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white p-5">
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-5">
           <div className="flex items-center gap-2">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">Low Stock</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">Low Stock</p>
             {data.lowStockCount > 0 && (
               <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
             )}
           </div>
-          <p className="mt-1 text-2xl font-bold text-aera-ink">{data.lowStockCount}</p>
+          <p className="mt-1 text-2xl font-bold text-[var(--admin-ink)]">{data.lowStockCount}</p>
         </div>
       </div>
 
@@ -113,8 +113,8 @@ export default function InventoryReport() {
 
       {/* Inventory Table */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-aera-ink flex items-center gap-2">
-          <Package className="h-4 w-4 text-aera-accent" />
+        <h3 className="text-sm font-bold text-[var(--admin-ink)] flex items-center gap-2">
+          <Package className="h-4 w-4 text-[var(--admin-accent)]" />
           Stock Levels
         </h3>
         <ExportControls
@@ -138,14 +138,14 @@ export default function InventoryReport() {
         emptyTitle="No inventory items"
       >
         {data.items.map((item) => (
-          <tr key={item.id} className="hover:bg-aera-champagne/10 transition-colors">
-            <td className="px-5 py-3 text-xs font-semibold text-aera-ink">{item.name}</td>
-            <td className="px-5 py-3 text-[10px] font-mono text-aera-muted">{item.sku}</td>
-            <td className="px-5 py-3 text-xs text-aera-muted">{item.category}</td>
-            <td className="px-5 py-3 text-xs font-semibold text-aera-ink">
+          <tr key={item.id} className="hover:bg-[var(--admin-surface-muted)] transition-colors">
+            <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">{item.name}</td>
+            <td className="px-5 py-3 text-[10px] font-mono text-[var(--admin-muted)]">{item.sku}</td>
+            <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">{item.category}</td>
+            <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">
               {item.currentStock} {item.unit}
             </td>
-            <td className="px-5 py-3 text-xs text-aera-muted">{item.reorderLevel}</td>
+            <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">{item.reorderLevel}</td>
             <td className="px-5 py-3">
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${

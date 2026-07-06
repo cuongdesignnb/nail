@@ -112,9 +112,9 @@ export function GalleryItemForm({ categories, initialData, onSave, onCancel }: G
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury text-left font-sans max-w-4xl"
+      className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury text-left font-sans max-w-4xl"
     >
-      <h3 className="font-heading text-lg font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <h3 className="font-heading text-lg font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
         {initialData ? "Edit Nail Design Item" : "Create Nail Design Item"}
       </h3>
 
@@ -199,7 +199,7 @@ export function GalleryItemForm({ categories, initialData, onSave, onCancel }: G
                 type="checkbox"
                 checked={isHighlight}
                 onChange={(e) => setIsHighlight(e.target.checked)}
-                className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+                className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
               />
               <span>Is Highlight (displays as double-sized tile in mosaic grid)</span>
             </label>
@@ -209,7 +209,7 @@ export function GalleryItemForm({ categories, initialData, onSave, onCancel }: G
                 type="checkbox"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+                className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
               />
               <span>Active Status</span>
             </label>
@@ -228,18 +228,18 @@ export function GalleryItemForm({ categories, initialData, onSave, onCancel }: G
         />
       </div>
 
-      <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-aera-champagne/40">
+      <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-[var(--admin-border)]/40">
         <button
           type="button"
           onClick={onCancel}
-          className="border border-aera-champagne text-aera-muted hover:bg-aera-champagne/10 rounded-full px-5 py-2 text-xs font-semibold cursor-pointer"
+          className="border border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[var(--admin-surface-muted)] rounded-full px-5 py-2 text-xs font-semibold cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-full px-6 py-2 text-xs font-semibold cursor-pointer border-none"
+          className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-full px-6 py-2 text-xs font-semibold cursor-pointer border-none"
         >
           {loading ? "Saving..." : "Save Design"}
         </button>

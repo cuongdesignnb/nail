@@ -1,5 +1,9 @@
 import { ContentHubPage } from "@/components/admin/content-hub/ContentHubPage";
 
 export default function AdminContentPage() {
-  return <ContentHubPage />;
+  return (
+    <div className="admin-page-container">
+      <ContentHubPage />
+    </div>
+  );
 }

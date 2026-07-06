@@ -4,11 +4,13 @@ import { FormField, FormTextarea } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Plus, Edit2, Trash2, X, Save } from "lucide-react";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { AdminConfirmDialog } from "@/components/admin/ui";
 
 export function PackageRewardForm() {
   const [list, setList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [globalError, setGlobalError] = useState("");
 
@@ -135,10 +137,12 @@ export function PackageRewardForm() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this reward?")) return;
+  const handleDeleteClick = (id: string) => setDeleteTarget(id);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/package-rewards/${id}`, {
+      const res = await fetch(`/api/admin/package-rewards/${deleteTarget}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -146,24 +150,26 @@ export function PackageRewardForm() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left font-sans">
       {/* List side */}
-      <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Loyalty Rewards & Promos
         </h3>
 
         {loading ? (
-          <p className="text-xs text-aera-muted italic py-6 text-center">Loading rewards...</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-6 text-center">Loading rewards...</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[500px]">
               <thead>
-                <tr className="border-b border-aera-champagne/20 text-aera-muted">
+                <tr className="border-b border-[var(--admin-border)]/20 text-[var(--admin-muted)]">
                   <th className="py-3 text-left">Type</th>
                   <th className="py-3 text-left">Title</th>
                   <th className="py-3 text-left">Description</th>
@@ -174,12 +180,12 @@ export function PackageRewardForm() {
               </thead>
               <tbody>
                 {list.map((rew) => (
-                  <tr key={rew.id} className="border-b border-aera-champagne/10 hover:bg-aera-cream/10">
-                    <td className="py-3 font-semibold text-aera-accent">
+                  <tr key={rew.id} className="border-b border-[var(--admin-border)]/10 hover:bg-[var(--admin-surface-muted)]">
+                    <td className="py-3 font-semibold text-[var(--admin-accent)]">
                       {rew.promoValue ? "PROMO BLOCK" : "REWARD CARD"}
                     </td>
-                    <td className="py-3 font-semibold text-aera-ink">{rew.title}</td>
-                    <td className="py-3 text-aera-muted max-w-[200px] truncate">{rew.description}</td>
+                    <td className="py-3 font-semibold text-[var(--admin-ink)]">{rew.title}</td>
+                    <td className="py-3 text-[var(--admin-muted)] max-w-[200px] truncate">{rew.description}</td>
                     <td className="py-3 text-center">{rew.sortOrder}</td>
                     <td className="py-3 text-center">
                       <StatusBadge active={rew.isActive} />
@@ -188,12 +194,12 @@ export function PackageRewardForm() {
                       <div className="flex justify-end gap-1">
                         <button
                           onClick={() => handleEdit(rew)}
-                          className="p-1.5 text-gray-500 hover:text-aera-accent bg-transparent border-none cursor-pointer"
+                          className="p-1.5 text-gray-500 hover:text-[var(--admin-accent)] bg-transparent border-none cursor-pointer"
                         >
                           <Edit2 size={13} />
                         </button>
                         <button
-                          onClick={() => handleDelete(rew.id)}
+                          onClick={() => handleDeleteClick(rew.id)}
                           className="p-1.5 text-gray-500 hover:text-rose-600 bg-transparent border-none cursor-pointer"
                         >
                           <Trash2 size={13} />
@@ -209,8 +215,8 @@ export function PackageRewardForm() {
       </div>
 
       {/* Editor Form side */}
-      <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury self-start">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3 flex justify-between items-center">
+      <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury self-start">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3 flex justify-between items-center">
           <span>{editId ? "Edit Reward Item" : "Add Reward Item"}</span>
           {editId && (
             <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer">
@@ -220,12 +226,12 @@ export function PackageRewardForm() {
         </h3>
 
         {/* Reward Type Toggle */}
-        <div className="flex bg-aera-cream/40 rounded-xl p-1 mb-4">
+        <div className="flex bg-[var(--admin-surface-muted)] rounded-xl p-1 mb-4">
           <button
             type="button"
             onClick={() => setIsPromoType(false)}
             className={`flex-1 py-1.5 text-center text-[10px] font-bold rounded-lg border-none cursor-pointer transition-all ${
-              !isPromoType ? "bg-aera-accent text-white shadow-sm" : "text-aera-muted bg-transparent hover:text-aera-accent"
+              !isPromoType ? "bg-[var(--admin-accent)] text-white shadow-sm" : "text-[var(--admin-muted)] bg-transparent hover:text-[var(--admin-accent)]"
             }`}
           >
             STANDARD CARD
@@ -234,7 +240,7 @@ export function PackageRewardForm() {
             type="button"
             onClick={() => setIsPromoType(true)}
             className={`flex-1 py-1.5 text-center text-[10px] font-bold rounded-lg border-none cursor-pointer transition-all ${
-              isPromoType ? "bg-aera-accent text-white shadow-sm" : "text-aera-muted bg-transparent hover:text-aera-accent"
+              isPromoType ? "bg-[var(--admin-accent)] text-white shadow-sm" : "text-[var(--admin-muted)] bg-transparent hover:text-[var(--admin-accent)]"
             }`}
           >
             PROMO BANNER CARD
@@ -276,8 +282,8 @@ export function PackageRewardForm() {
           />
 
           {isPromoType && (
-            <div className="space-y-4 border-t border-aera-champagne/20 pt-4 mt-4">
-              <h4 className="font-heading text-xs font-bold text-aera-accent mb-2">Promo Card Configurations</h4>
+            <div className="space-y-4 border-t border-[var(--admin-border)]/20 pt-4 mt-4">
+              <h4 className="font-heading text-xs font-bold text-[var(--admin-accent)] mb-2">Promo Card Configurations</h4>
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   label="Promo Title"
@@ -322,7 +328,7 @@ export function PackageRewardForm() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4 border-t border-aera-champagne/20 pt-4 mt-4">
+          <div className="grid grid-cols-2 gap-4 border-t border-[var(--admin-border)]/20 pt-4 mt-4">
             <FormField
               label="Sort Order"
               type="number"
@@ -354,7 +360,7 @@ export function PackageRewardForm() {
             <button
               type="submit"
               disabled={saveLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
             >
               {editId ? <Save size={13} /> : <Plus size={13} />}
               <span>{saveLoading ? "Saving..." : editId ? "Save Item" : "Create Item"}</span>
@@ -362,6 +368,15 @@ export function PackageRewardForm() {
           </div>
         </form>
       </div>
+      <AdminConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Reward"
+        description="Are you sure you want to delete this reward? This cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

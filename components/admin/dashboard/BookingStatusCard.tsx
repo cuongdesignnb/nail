@@ -33,19 +33,11 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   const d = payload[0];
   return (
-    <div
-      style={{
-        background: 'rgba(255, 253, 249, 0.97)',
-        border: '1px solid rgba(116, 55, 15, 0.12)',
-        borderRadius: 10,
-        padding: '8px 12px',
-        boxShadow: '0 4px 16px rgba(77, 43, 20, 0.1)',
-      }}
-    >
-      <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#2f1c11' }}>
+    <div className="rounded-[10px] border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-2 shadow-[var(--admin-shadow-md)]">
+      <p className="m-0 text-[13px] font-semibold text-[var(--admin-ink)]">
         {d.name}
       </p>
-      <p style={{ margin: '2px 0 0', fontSize: 12, color: '#7f6d61' }}>
+      <p className="m-0 mt-0.5 text-xs text-[var(--admin-muted)]">
         {d.value} bookings
       </p>
     </div>
@@ -66,15 +58,8 @@ export default function BookingStatusCard({
           message="No booking data available."
         />
       ) : (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 16,
-          }}
-        >
-          <div style={{ position: 'relative', width: '100%', height: 200 }}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative h-[200px] w-full">
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
@@ -91,7 +76,7 @@ export default function BookingStatusCard({
                   {data.map((entry) => (
                     <Cell
                       key={entry.status}
-                      fill={STATUS_COLORS[entry.status] || '#7f6d61'}
+                      fill={STATUS_COLORS[entry.status] || 'var(--admin-muted)'}
                     />
                   ))}
                 </Pie>
@@ -99,64 +84,31 @@ export default function BookingStatusCard({
               </PieChart>
             </ResponsiveContainer>
             {/* Center label */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                textAlign: 'center',
-                pointerEvents: 'none',
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: 'Georgia, serif',
-                  fontSize: 24,
-                  fontWeight: 700,
-                  color: '#2f1c11',
-                  lineHeight: 1.1,
-                }}
-              >
+            <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+              <div className="font-heading text-2xl font-bold leading-none text-[var(--admin-ink)]">
                 {total}
               </div>
-              <div style={{ fontSize: 11, color: '#7f6d61', marginTop: 2 }}>
+              <div className="mt-0.5 text-[11px] text-[var(--admin-muted)]">
                 Bookings
               </div>
             </div>
           </div>
 
           {/* Legend */}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '8px 16px',
-              justifyContent: 'center',
-            }}
-          >
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
             {data.map((d) => (
               <div
                 key={d.status}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  fontSize: 12,
-                  color: '#2f1c11',
-                }}
+                className="flex items-center gap-1.5 text-xs text-[var(--admin-ink)]"
               >
                 <div
+                  className="h-2 w-2 shrink-0 rounded-[3px]"
                   style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 3,
-                    background: STATUS_COLORS[d.status] || '#7f6d61',
-                    flexShrink: 0,
+                    background: STATUS_COLORS[d.status] || 'var(--admin-muted)',
                   }}
                 />
                 <span>{d.status}</span>
-                <span style={{ color: '#7f6d61', fontWeight: 600 }}>
+                <span className="font-semibold text-[var(--admin-muted)]">
                   {d.count}
                 </span>
               </div>

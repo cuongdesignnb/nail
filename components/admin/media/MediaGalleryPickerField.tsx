@@ -68,14 +68,14 @@ export function MediaGalleryPickerField({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <label className="text-[11px] font-semibold text-aera-ink uppercase tracking-wide">
+        <label className="text-[11px] font-semibold text-[var(--admin-ink)] uppercase tracking-wide">
           {label}
         </label>
         <button
           type="button"
           onClick={() => setOpen(true)}
           disabled={Boolean(maxItems && items.length >= maxItems)}
-          className="inline-flex items-center gap-1.5 rounded-full bg-aera-accent px-4 py-2 text-[11px] font-bold text-white transition hover:bg-aera-accentHover disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[var(--admin-accent)] px-4 py-2 text-[11px] font-bold text-white transition hover:bg-[var(--admin-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <ImagePlus size={13} />
           Add Images
@@ -86,7 +86,7 @@ export function MediaGalleryPickerField({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-aera-champagne/60 bg-aera-cream/10 py-8 text-aera-muted transition hover:border-aera-accent/40 hover:bg-aera-cream/30"
+          className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--admin-border-strong)] bg-[var(--admin-surface-muted)] py-8 text-[var(--admin-muted)] transition hover:border-[var(--admin-accent)]/40 hover:bg-[var(--admin-surface-hover)]/30"
         >
           <ImagePlus size={24} className="opacity-50" />
           <span className="text-[11px] font-medium">No images selected yet.</span>
@@ -94,8 +94,8 @@ export function MediaGalleryPickerField({
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item, index) => (
-            <div key={`${item.mediaId ?? item.src}-${index}`} className="rounded-xl border border-aera-champagne/40 bg-white p-2">
-              <div className="relative overflow-hidden rounded-lg bg-aera-cream" style={{ aspectRatio }}>
+            <div key={`${item.mediaId ?? item.src}-${index}`} className="rounded-xl border border-[var(--admin-border)]/40 bg-white p-2">
+              <div className="relative overflow-hidden rounded-lg bg-[var(--admin-surface-muted)]" style={{ aspectRatio }}>
                 <Image src={item.src} alt={item.alt || label} fill sizes="240px" className="object-cover" />
               </div>
               <input
@@ -106,13 +106,13 @@ export function MediaGalleryPickerField({
                   onChange(next);
                 }}
                 placeholder="Alt text"
-                className="mt-2 w-full rounded-lg border border-aera-champagne/60 px-3 py-1.5 text-xs outline-none focus:border-aera-accent"
+                className="mt-2 w-full rounded-lg border border-[var(--admin-border-strong)] px-3 py-1.5 text-xs outline-none focus:border-[var(--admin-accent)]"
               />
               <div className="mt-2 flex items-center justify-end gap-1">
-                <button type="button" onClick={() => move(index, -1)} className="rounded-lg p-1.5 text-aera-muted hover:bg-aera-cream">
+                <button type="button" onClick={() => move(index, -1)} className="rounded-lg p-1.5 text-[var(--admin-muted)] hover:bg-[var(--admin-surface-hover)]">
                   <MoveUp size={13} />
                 </button>
-                <button type="button" onClick={() => move(index, 1)} className="rounded-lg p-1.5 text-aera-muted hover:bg-aera-cream">
+                <button type="button" onClick={() => move(index, 1)} className="rounded-lg p-1.5 text-[var(--admin-muted)] hover:bg-[var(--admin-surface-hover)]">
                   <MoveDown size={13} />
                 </button>
                 <button type="button" onClick={() => remove(index)} className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50">

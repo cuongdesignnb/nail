@@ -6,6 +6,7 @@ import {
   AdminPageHeader,
   AdminLoadingState,
   AdminErrorState,
+  AdminButton,
 } from "@/components/admin/ui";
 import { BookingDetailView } from "@/components/admin/bookings/BookingDetailView";
 
@@ -60,7 +61,7 @@ export default function AdminBookingDetailPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="admin-page-container">
       <AdminPageHeader
         title={booking ? `Booking #${booking.bookingCode}` : "Booking Details"}
         description="View and manage booking details, status, and payments."
@@ -70,13 +71,13 @@ export default function AdminBookingDetailPage() {
           { label: booking?.bookingCode || "Details" },
         ]}
         actions={
-          <button
-            type="button"
+          <AdminButton
+            variant="secondary"
+            size="sm"
             onClick={() => router.push("/admin/bookings")}
-            className="rounded-full border border-aera-champagne/60 bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-aera-ink transition-colors hover:bg-aera-champagne/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
           >
             ← Back to Bookings
-          </button>
+          </AdminButton>
         }
       />
 

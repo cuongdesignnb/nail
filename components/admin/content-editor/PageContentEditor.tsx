@@ -402,7 +402,7 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
         </p>
         <button
           onClick={loadData}
-          className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-aera-accent px-4 py-2 text-xs font-bold text-white hover:bg-aera-accentHover transition-colors"
+          className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[var(--admin-accent)] px-4 py-2 text-xs font-bold text-white hover:bg-[var(--admin-accent-hover)] transition-colors"
         >
           Try Again
         </button>

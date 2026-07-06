@@ -29,7 +29,7 @@ export const AdminSectionCard: React.FC<AdminSectionCardProps> = ({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="rounded-2xl border border-aera-champagne/30 bg-white shadow-sm overflow-hidden"
+      className="rounded-2xl border border-[var(--admin-border)] bg-white shadow-sm overflow-hidden"
     >
       {/* Header */}
       <button
@@ -37,24 +37,24 @@ export const AdminSectionCard: React.FC<AdminSectionCardProps> = ({
         onClick={() => setIsOpen((prev) => !prev)}
         className={clsx(
           "flex w-full items-center gap-3 px-5 py-4 text-left transition-colors",
-          "hover:bg-aera-champagne/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-inset"
+          "hover:bg-[var(--admin-surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-inset"
         )}
       >
         {Icon && (
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-aera-champagne/40">
-            <Icon className="h-4.5 w-4.5 text-aera-accent" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--admin-accent-soft)]">
+            <Icon className="h-4.5 w-4.5 text-[var(--admin-accent)]" />
           </div>
         )}
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-bold text-aera-ink truncate">
+            <h3 className="text-sm font-bold text-[var(--admin-ink)] truncate">
               {title}
             </h3>
             {badge && <span>{badge}</span>}
           </div>
           {description && (
-            <p className="mt-0.5 text-xs text-aera-muted truncate">
+            <p className="mt-0.5 text-xs text-[var(--admin-muted)] truncate">
               {description}
             </p>
           )}
@@ -65,7 +65,7 @@ export const AdminSectionCard: React.FC<AdminSectionCardProps> = ({
           transition={{ duration: 0.25, ease: "easeInOut" }}
           className="shrink-0"
         >
-          <ChevronDown className="h-4 w-4 text-aera-muted" />
+          <ChevronDown className="h-4 w-4 text-[var(--admin-muted)]" />
         </motion.div>
       </button>
 
@@ -80,7 +80,7 @@ export const AdminSectionCard: React.FC<AdminSectionCardProps> = ({
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="border-t border-aera-champagne/30 px-5 py-5">
+            <div className="border-t border-[var(--admin-border)] px-5 py-5">
               {children}
             </div>
           </motion.div>

@@ -73,22 +73,22 @@ export function ContentPageCard({ meta, registry }: Props) {
   const publishedAgo = relativeTime(meta.publishedAt);
 
   return (
-    <div className="group bg-white/90 border border-aera-champagne/30 rounded-2xl p-5 hover:shadow-luxury hover:border-aera-accent/20 transition-all duration-300 flex flex-col">
+    <div className="group bg-white/90 border border-[var(--admin-border)] rounded-2xl p-5 hover:shadow-luxury hover:border-[var(--admin-accent)]/20 transition-all duration-300 flex flex-col">
       {/* Top row: icon + status */}
       <div className="flex items-start justify-between mb-4">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aera-champagne to-aera-cream flex items-center justify-center group-hover:from-aera-accent/10 group-hover:to-aera-champagne transition-all">
-          <Icon size={18} className="text-aera-accent" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--admin-accent-soft)] to-[var(--admin-surface-muted)] flex items-center justify-center group-hover:from-[var(--admin-accent-soft)] group-hover:to-[var(--admin-accent-soft)] transition-all">
+          <Icon size={18} className="text-[var(--admin-accent)]" />
         </div>
         <ContentStatusChip status={meta.status} />
       </div>
 
       {/* Title */}
-      <h3 className="text-sm font-bold text-aera-ink mb-1.5 group-hover:text-aera-accent transition-colors">
+      <h3 className="text-sm font-bold text-[var(--admin-ink)] mb-1.5 group-hover:text-[var(--admin-accent)] transition-colors">
         {registry.label}
       </h3>
 
       {/* Description */}
-      <p className="text-[11px] text-aera-muted leading-relaxed mb-3">
+      <p className="text-[11px] text-[var(--admin-muted)] leading-relaxed mb-3">
         {registry.description}
       </p>
 
@@ -98,7 +98,7 @@ export function ContentPageCard({ meta, registry }: Props) {
           href={registry.publicPath}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-[11px] text-aera-accent font-medium hover:text-aera-accentHover transition-colors mb-3 no-underline"
+          className="inline-flex items-center gap-1 text-[11px] text-[var(--admin-accent)] font-medium hover:text-[var(--admin-accent)]Hover transition-colors mb-3 no-underline"
         >
           <ExternalLink size={11} />
           aeranaillounge.com{registry.publicPath}
@@ -106,7 +106,7 @@ export function ContentPageCard({ meta, registry }: Props) {
       )}
 
       {/* Timestamps */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-aera-muted mb-1">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-[var(--admin-muted)] mb-1">
         {updatedAgo && (
           <span className="inline-flex items-center gap-1">
             <Clock size={10} className="shrink-0" />

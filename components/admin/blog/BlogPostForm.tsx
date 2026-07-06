@@ -181,9 +181,9 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury text-left font-sans max-w-5xl">
-      <div className="flex justify-between items-center border-b border-aera-champagne/40 pb-4 mb-6">
-        <h3 className="font-heading text-lg font-normal text-aera-ink">
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury text-left font-sans max-w-5xl">
+      <div className="flex justify-between items-center border-b border-[var(--admin-border)]/40 pb-4 mb-6">
+        <h3 className="font-heading text-lg font-normal text-[var(--admin-ink)]">
           {initialData ? `Edit Article: ${initialData.title}` : "Compose New Journal Entry"}
         </h3>
         <button onClick={onCancel} className="p-1 hover:bg-gray-100 rounded-full border-none bg-transparent cursor-pointer text-gray-400">
@@ -195,9 +195,9 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {initialData?.aiGenerated && (
-          <div className="rounded-2xl border border-aera-champagne/40 bg-aera-cream/25 p-4 text-xs text-aera-ink">
+          <div className="rounded-2xl border border-[var(--admin-border)]/40 bg-[var(--admin-surface-muted)] p-4 text-xs text-[var(--admin-ink)]">
             <div className="font-bold flex items-center gap-2"><Sparkles size={14} /> AI Generated Article</div>
-            <div className="mt-1 text-aera-muted">Job: {initialData.aiContentJobId || "-"} | Language: {initialData.generatedLanguage || "-"}</div>
+            <div className="mt-1 text-[var(--admin-muted)]">Job: {initialData.aiContentJobId || "-"} | Language: {initialData.generatedLanguage || "-"}</div>
           </div>
         )}
 
@@ -222,16 +222,16 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
         <FormTextarea label="Excerpt Summary (Card preview snippet) *" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Brief summary introducing the article topics..." error={errors.excerpt?.[0]} rows={2} />
 
         <div className="space-y-1">
-          <label className="block text-xs font-semibold text-aera-ink uppercase tracking-wider">Article Content *</label>
+          <label className="block text-xs font-semibold text-[var(--admin-ink)] uppercase tracking-wider">Article Content *</label>
           <RichTextEditor value={content} onChange={setContent} placeholder="Write your detailed beauty story here..." minHeight="320px" />
           {errors.content?.[0] && <p className="text-[10px] text-rose-600 mt-1 font-semibold">{errors.content[0]}</p>}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-aera-champagne/20 pt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-[var(--admin-border)]/20 pt-6">
           <MediaPickerField label="Cover Image" value={coverImage} onChange={setCoverImage} alt={coverImageAlt} onAltChange={setCoverImageAlt} folder="blog" aspectRatio="16/9" required />
 
           <div className="space-y-4">
-            <label className="block text-xs font-semibold text-aera-ink uppercase tracking-wider">Author Details</label>
+            <label className="block text-xs font-semibold text-[var(--admin-ink)] uppercase tracking-wider">Author Details</label>
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Author Name" value={authorName} onChange={(e) => setAuthorName(e.target.value)} />
               <FormField label="Author Role" value={authorRole} onChange={(e) => setAuthorRole(e.target.value)} />
@@ -240,14 +240,14 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
           </div>
         </div>
 
-        <div className="border-t border-aera-champagne/20 pt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="border-t border-[var(--admin-border)]/20 pt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
           <FormField label="Featured Article (Hero)" type="checkbox" checked={isFeatured} onChange={(e: any) => setIsFeatured(e.target.checked)} />
           <FormField label="Trending Article" type="checkbox" checked={isTrending} onChange={(e: any) => setIsTrending(e.target.checked)} />
           <FormField label="Editor's Pick" type="checkbox" checked={isEditorsPick} onChange={(e: any) => setIsEditorsPick(e.target.checked)} />
           <FormField label="Pin to Top of List" type="checkbox" checked={isPinned} onChange={(e: any) => setIsPinned(e.target.checked)} />
         </div>
 
-        <div className="border-t border-aera-champagne/20 pt-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-aera-cream/15 p-5 rounded-3xl">
+        <div className="border-t border-[var(--admin-border)]/20 pt-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-[var(--admin-surface-muted)] p-5 rounded-3xl">
           <FormSelect label="Publication Status *" value={status} onChange={(e) => handleStatusChange(e.target.value)} options={statusOptions} error={errors.status?.[0]} />
 
           {status === "SCHEDULED" && (
@@ -290,8 +290,8 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
           onRemove={(idx) => setProducts(products.filter((_, i) => i !== idx))}
         />
 
-        <div className="border-t border-aera-champagne/20 pt-6 space-y-4">
-          <h4 className="font-heading text-xs font-bold text-aera-accent flex items-center gap-1.5 uppercase"><Sparkles size={13} /> SEO & Metadata Configurations</h4>
+        <div className="border-t border-[var(--admin-border)]/20 pt-6 space-y-4">
+          <h4 className="font-heading text-xs font-bold text-[var(--admin-accent)] flex items-center gap-1.5 uppercase"><Sparkles size={13} /> SEO & Metadata Configurations</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField label="SEO Title Override" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} />
             <FormField label="SEO Keywords (comma separated)" value={seoKeywords} onChange={(e) => setSeoKeywords(e.target.value)} />
@@ -299,9 +299,9 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
           <FormTextarea label="SEO Description Override" value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} rows={2} />
         </div>
 
-        <div className="flex justify-end gap-3 pt-6 border-t border-aera-champagne/20">
+        <div className="flex justify-end gap-3 pt-6 border-t border-[var(--admin-border)]/20">
           <button type="button" onClick={onCancel} className="px-5 py-2.5 text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full border-none cursor-pointer">Cancel</button>
-          <button type="submit" disabled={saveLoading} className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-bold px-6 py-3 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5">
+          <button type="submit" disabled={saveLoading} className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs font-bold px-6 py-3 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5">
             <Save size={14} />
             <span>{saveLoading ? "Saving Article..." : "Save Article"}</span>
           </button>
@@ -322,11 +322,11 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
 function DateInput({ label, value, onChange, error }: { label: string; value: string; onChange: (value: string) => void; error?: string }) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-semibold text-aera-ink uppercase tracking-wider flex items-center gap-1">
+      <label className="block text-xs font-semibold text-[var(--admin-ink)] uppercase tracking-wider flex items-center gap-1">
         <Calendar size={13} />
         <span>{label}</span>
       </label>
-      <input type="datetime-local" value={value} onChange={(e) => onChange(e.target.value)} className="w-full rounded-xl border border-aera-champagne/60 px-4 py-2.5 text-xs text-aera-ink focus:border-aera-accent outline-none bg-white shadow-sm" />
+      <input type="datetime-local" value={value} onChange={(e) => onChange(e.target.value)} className="w-full rounded-xl border border-[var(--admin-border-strong)] px-4 py-2.5 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] outline-none bg-white shadow-sm" />
       {error && <p className="text-[10px] text-rose-600 mt-1 font-semibold">{error}</p>}
     </div>
   );
@@ -341,16 +341,16 @@ function RepeaterSection<T>({ title, items, addLabel, onAdd, onRemove, render }:
   render: (item: T, index: number) => React.ReactNode;
 }) {
   return (
-    <div className="border-t border-aera-champagne/20 pt-6 space-y-4">
-      <h4 className="font-heading text-xs font-bold text-aera-accent flex items-center gap-1.5 uppercase"><Sparkles size={13} /> {title}</h4>
+    <div className="border-t border-[var(--admin-border)]/20 pt-6 space-y-4">
+      <h4 className="font-heading text-xs font-bold text-[var(--admin-accent)] flex items-center gap-1.5 uppercase"><Sparkles size={13} /> {title}</h4>
       <div className="space-y-4">
         {items.map((item, idx) => (
-          <div key={idx} className="bg-aera-cream/15 p-4 rounded-2xl border border-aera-champagne/40 space-y-3 relative">
+          <div key={idx} className="bg-[var(--admin-surface-muted)] p-4 rounded-2xl border border-[var(--admin-border)]/40 space-y-3 relative">
             <button type="button" onClick={() => onRemove(idx)} className="absolute top-2 right-2 text-rose-500 hover:text-rose-700 bg-transparent border-none cursor-pointer"><X size={14} /></button>
             {render(item, idx)}
           </div>
         ))}
-        <button type="button" onClick={onAdd} className="bg-white hover:bg-aera-cream text-aera-accent border border-aera-champagne px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+        <button type="button" onClick={onAdd} className="bg-white hover:bg-[var(--admin-surface-muted)] text-[var(--admin-accent)] border border-[var(--admin-border)] px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer">
           <Plus size={13} />
           <span>{addLabel}</span>
         </button>

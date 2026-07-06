@@ -18,17 +18,18 @@ interface ServiceCategoryDistributionCardProps {
   loading?: boolean;
 }
 
+/* Chart palette — uses CSS vars at render time so theming propagates */
 const WARM_COLORS = [
-  '#9b591d',
-  '#a85d1e',
+  'var(--admin-accent)',
+  'var(--admin-accent-hover)',
   '#c87533',
   '#d4a464',
-  '#e6a023',
+  'var(--admin-warning)',
   '#b8956a',
-  '#7f6d61',
-  '#5b7b9a',
-  '#3f9142',
-  '#c53030',
+  'var(--admin-muted)',
+  'var(--admin-info)',
+  'var(--admin-success)',
+  'var(--admin-danger)',
 ];
 
 function CustomTooltip({
@@ -42,18 +43,24 @@ function CustomTooltip({
   const d = payload[0];
   return (
     <div
+      className="border px-3 py-2"
       style={{
-        background: 'rgba(255, 253, 249, 0.97)',
-        border: '1px solid rgba(116, 55, 15, 0.12)',
-        borderRadius: 10,
-        padding: '8px 12px',
-        boxShadow: '0 4px 16px rgba(77, 43, 20, 0.1)',
+        background: 'var(--admin-surface)',
+        borderColor: 'var(--admin-border)',
+        borderRadius: 'var(--admin-radius-sm)',
+        boxShadow: 'var(--admin-shadow-md)',
       }}
     >
-      <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#2f1c11' }}>
+      <p
+        className="m-0 text-[13px] font-semibold"
+        style={{ color: 'var(--admin-ink)' }}
+      >
         {d.name}
       </p>
-      <p style={{ margin: '2px 0 0', fontSize: 12, color: '#7f6d61' }}>
+      <p
+        className="mt-0.5 mb-0 text-xs"
+        style={{ color: 'var(--admin-muted)' }}
+      >
         {d.value} bookings
       </p>
     </div>
@@ -74,14 +81,7 @@ export default function ServiceCategoryDistributionCard({
           message="No category distribution data."
         />
       ) : (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 16,
-          }}
-        >
+        <div className="flex flex-col items-center gap-4">
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie
@@ -107,40 +107,35 @@ export default function ServiceCategoryDistributionCard({
           </ResponsiveContainer>
 
           {/* Legend */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6,
-              width: '100%',
-            }}
-          >
+          <div className="flex flex-col gap-1.5 w-full">
             {data.map((d, i) => (
               <div
                 key={d.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  fontSize: 12,
-                }}
+                className="flex items-center gap-2 text-xs"
               >
                 <div
+                  className="w-2 h-2 shrink-0"
                   style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 3,
+                    borderRadius: 'var(--admin-radius-xs)',
                     background: WARM_COLORS[i % WARM_COLORS.length],
-                    flexShrink: 0,
                   }}
                 />
-                <span style={{ flex: 1, color: '#2f1c11' }}>
+                <span
+                  className="flex-1"
+                  style={{ color: 'var(--admin-ink)' }}
+                >
                   {d.name}
                 </span>
-                <span style={{ color: '#7f6d61', fontWeight: 600 }}>
+                <span
+                  className="font-semibold"
+                  style={{ color: 'var(--admin-muted)' }}
+                >
                   {d.count}
                 </span>
-                <span style={{ color: '#9b591d', fontWeight: 500, width: 36, textAlign: 'right' }}>
+                <span
+                  className="font-medium w-9 text-right"
+                  style={{ color: 'var(--admin-accent)' }}
+                >
                   {d.percentage}%
                 </span>
               </div>

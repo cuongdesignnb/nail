@@ -58,7 +58,7 @@ export default function BookingPolicySettings() {
   };
 
   const inputClass =
-    "w-full rounded-xl border border-aera-champagne/60 bg-white px-3 py-2.5 text-xs text-aera-ink focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20";
+    "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2.5 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
 
   return (
     <motion.div
@@ -67,14 +67,14 @@ export default function BookingPolicySettings() {
       transition={{ duration: 0.4 }}
       className="max-w-4xl space-y-6"
     >
-      <div className="rounded-2xl border border-aera-champagne/30 bg-white p-6 space-y-5">
+      <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-6 space-y-5">
         <div className="flex items-center gap-3 mb-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-aera-champagne/40">
-            <FileText className="h-4.5 w-4.5 text-aera-accent" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--admin-surface-muted)]">
+            <FileText className="h-4.5 w-4.5 text-[var(--admin-accent)]" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-aera-ink">Booking Policies</h3>
-            <p className="text-[11px] text-aera-muted">Configure scheduling rules and deposit requirements</p>
+            <h3 className="text-sm font-bold text-[var(--admin-ink)]">Booking Policies</h3>
+            <p className="text-[11px] text-[var(--admin-muted)]">Configure scheduling rules and deposit requirements</p>
           </div>
         </div>
 
@@ -91,7 +91,7 @@ export default function BookingPolicySettings() {
                 onChange={(e) => update("minAdvanceHours", Number(e.target.value))}
                 className={inputClass}
               />
-              <span className="text-xs text-aera-muted shrink-0">hours</span>
+              <span className="text-xs text-[var(--admin-muted)] shrink-0">hours</span>
             </div>
           </AdminFormField>
 
@@ -107,7 +107,7 @@ export default function BookingPolicySettings() {
                 onChange={(e) => update("maxAdvanceDays", Number(e.target.value))}
                 className={inputClass}
               />
-              <span className="text-xs text-aera-muted shrink-0">days</span>
+              <span className="text-xs text-[var(--admin-muted)] shrink-0">days</span>
             </div>
           </AdminFormField>
 
@@ -123,7 +123,7 @@ export default function BookingPolicySettings() {
                 onChange={(e) => update("cancellationWindowHours", Number(e.target.value))}
                 className={inputClass}
               />
-              <span className="text-xs text-aera-muted shrink-0">hours</span>
+              <span className="text-xs text-[var(--admin-muted)] shrink-0">hours</span>
             </div>
           </AdminFormField>
 
@@ -140,12 +140,12 @@ export default function BookingPolicySettings() {
                 onChange={(e) => update("bufferMinutes", Number(e.target.value))}
                 className={inputClass}
               />
-              <span className="text-xs text-aera-muted shrink-0">minutes</span>
+              <span className="text-xs text-[var(--admin-muted)] shrink-0">minutes</span>
             </div>
           </AdminFormField>
         </div>
 
-        <div className="border-t border-aera-champagne/30 pt-5 space-y-4">
+        <div className="border-t border-[var(--admin-border)] pt-5 space-y-4">
           <AdminToggle
             label="Require Deposit"
             checked={form.depositRequired}
@@ -164,7 +164,7 @@ export default function BookingPolicySettings() {
                   onChange={(e) => update("depositPercent", Number(e.target.value))}
                   className={inputClass}
                 />
-                <span className="text-xs text-aera-muted shrink-0">%</span>
+                <span className="text-xs text-[var(--admin-muted)] shrink-0">%</span>
               </div>
             </AdminFormField>
           )}
@@ -174,7 +174,7 @@ export default function BookingPolicySettings() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 rounded-full bg-aera-accent px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover disabled:opacity-40"
+          className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-40"
         >
           <Save className="h-3.5 w-3.5" />
           {saving ? "Saving..." : saved ? "Saved!" : "Save Policies"}

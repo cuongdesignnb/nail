@@ -23,7 +23,7 @@ export function ContentEditorSectionNav({
 }) {
   return (
     <nav className="content-editor-section-nav">
-      <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-aera-muted px-3 mb-2">
+      <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[var(--admin-muted)] px-3 mb-2">
         Sections
       </p>
       {sections.map((s) => {
@@ -89,7 +89,7 @@ export function ContentEditorStatusPanel({
     <aside className="content-editor-status-panel">
       {/* Status */}
       <div className="mb-4">
-        <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-aera-muted mb-2">
+        <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[var(--admin-muted)] mb-2">
           Status
         </p>
         <span className={`draft-status ${statusClass}`}>{statusLabel}</span>
@@ -98,18 +98,18 @@ export function ContentEditorStatusPanel({
       {/* Meta */}
       <div className="grid gap-2 mb-5 text-[11px]">
         <div className="flex justify-between">
-          <span className="text-aera-muted">Version</span>
+          <span className="text-[var(--admin-muted)]">Version</span>
           <span className="font-bold">{version}</span>
         </div>
         {updatedAt && (
           <div className="flex justify-between">
-            <span className="text-aera-muted">Last Saved</span>
+            <span className="text-[var(--admin-muted)]">Last Saved</span>
             <span className="font-bold">{new Date(updatedAt).toLocaleDateString()}</span>
           </div>
         )}
         {publishedAt && (
           <div className="flex justify-between">
-            <span className="text-aera-muted">Published</span>
+            <span className="text-[var(--admin-muted)]">Published</span>
             <span className="font-bold">{new Date(publishedAt).toLocaleDateString()}</span>
           </div>
         )}
@@ -147,12 +147,12 @@ export function ContentEditorStatusPanel({
           </a>
         )}
 
-        <hr className="border-aera-champagne/30 my-1" />
+        <hr className="border-[var(--admin-border)] my-1" />
 
         <button
           onClick={onDiscard}
           disabled={!hasUnpublishedChanges || loading}
-          className="w-full inline-flex items-center justify-center gap-2 bg-transparent border border-aera-champagne/50 text-aera-muted rounded-xl px-4 py-2 text-[11px] font-bold hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          className="w-full inline-flex items-center justify-center gap-2 bg-transparent border border-[var(--admin-border)]/50 text-[var(--admin-muted)] rounded-xl px-4 py-2 text-[11px] font-bold hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         >
           <Undo2 size={13} />
           Discard Draft
@@ -161,7 +161,7 @@ export function ContentEditorStatusPanel({
         <button
           onClick={onRestore}
           disabled={loading}
-          className="w-full inline-flex items-center justify-center gap-2 bg-transparent text-aera-muted text-[11px] font-bold hover:text-aera-accent transition-colors disabled:opacity-30"
+          className="w-full inline-flex items-center justify-center gap-2 bg-transparent text-[var(--admin-muted)] text-[11px] font-bold hover:text-[var(--admin-accent)] transition-colors disabled:opacity-30"
         >
           Restore Defaults
         </button>

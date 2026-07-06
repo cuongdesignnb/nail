@@ -15,12 +15,12 @@ function Bone({
 }) {
   return (
     <div
+      className="animate-pulse"
       style={{
         width: w,
         height: h,
         borderRadius: r,
-        background: 'rgba(155, 89, 29, 0.07)',
-        animation: 'skeletonPulse 1.6s ease-in-out infinite',
+        background: 'var(--admin-accent-muted)',
         marginBottom: mb,
       }}
     />
@@ -36,26 +36,16 @@ function SkeletonCard({
 }) {
   return (
     <div
-      style={{
-        gridColumn: `span ${span}`,
-        background: 'rgba(255, 253, 249, 0.95)',
-        border: '1px solid rgba(116, 55, 15, 0.08)',
-        borderRadius: 20,
-        boxShadow: '0 4px 24px rgba(77, 43, 20, 0.06)',
-        padding: 24,
-        minHeight: h,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 12,
-      }}
+      className="flex flex-col gap-3 rounded-[var(--admin-radius-xl)] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-6 shadow-[var(--admin-shadow-md)]"
+      style={{ gridColumn: `span ${span}`, minHeight: h }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="flex items-center gap-2.5">
         <Bone w={36} h={36} r={10} />
         <Bone w="40%" h={14} />
       </div>
       <Bone w="60%" h={12} />
       <Bone w="80%" h={12} />
-      <div style={{ flex: 1 }} />
+      <div className="flex-1" />
       <Bone w="30%" h={12} />
     </div>
   );
@@ -63,19 +53,8 @@ function SkeletonCard({
 
 function KpiSkeleton() {
   return (
-    <div
-      style={{
-        background: 'rgba(255, 253, 249, 0.95)',
-        border: '1px solid rgba(116, 55, 15, 0.08)',
-        borderRadius: 20,
-        boxShadow: '0 4px 24px rgba(77, 43, 20, 0.06)',
-        padding: 24,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div className="flex flex-col gap-2.5 rounded-[var(--admin-radius-xl)] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-6 shadow-[var(--admin-shadow-md)]">
+      <div className="flex items-center gap-2.5">
         <Bone w={40} h={40} r={12} />
         <Bone w="50%" h={12} />
       </div>
@@ -87,16 +66,9 @@ function KpiSkeleton() {
 
 export default function DashboardSkeleton() {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 20,
-        padding: '0 0 40px',
-      }}
-    >
+    <div className="flex flex-col gap-5 pb-10">
       {/* Header skeleton */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div className="flex flex-col gap-2">
         <Bone w={140} h={14} />
         <Bone w={280} h={28} r={6} />
         <Bone w={200} h={14} />
@@ -104,12 +76,8 @@ export default function DashboardSkeleton() {
 
       {/* KPI row */}
       <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 20,
-        }}
-        className="skeleton-kpi-grid"
+        className="skeleton-kpi-grid grid gap-5"
+        style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}
       >
         <KpiSkeleton />
         <KpiSkeleton />
@@ -119,12 +87,8 @@ export default function DashboardSkeleton() {
 
       {/* Charts row */}
       <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(12, 1fr)',
-          gap: 20,
-        }}
-        className="skeleton-main-grid"
+        className="skeleton-main-grid grid gap-5"
+        style={{ gridTemplateColumns: 'repeat(12, 1fr)' }}
       >
         <SkeletonCard span={7} h={340} />
         <SkeletonCard span={5} h={340} />
@@ -140,15 +104,6 @@ export default function DashboardSkeleton() {
       </div>
 
       <style jsx global>{`
-        @keyframes skeletonPulse {
-          0%,
-          100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.4;
-          }
-        }
         @media (max-width: 1100px) {
           .skeleton-kpi-grid {
             grid-template-columns: repeat(2, 1fr) !important;

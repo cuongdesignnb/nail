@@ -49,13 +49,13 @@ function buttonFrom(value: unknown) {
 function RichCopy({ value }: { value: unknown }) {
   const html = text(value);
   if (!html) return null;
-  return <RichTextRenderer html={html} className="text-sm leading-7 text-aera-muted" />;
+  return <RichTextRenderer html={html} className="text-sm leading-7 text-[var(--admin-muted)]" />;
 }
 
 function PreviewImage({ image }: { image: { src: string; alt: string } | null }) {
   if (!image) return null;
   return (
-    <div className="relative min-h-[220px] overflow-hidden rounded-2xl border border-aera-champagne/40 bg-aera-cream">
+    <div className="relative min-h-[220px] overflow-hidden rounded-2xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)]">
       <Image src={image.src} alt={image.alt} fill sizes="(max-width: 768px) 100vw, 420px" className="object-cover" />
     </div>
   );
@@ -64,7 +64,7 @@ function PreviewImage({ image }: { image: { src: string; alt: string } | null })
 function PreviewButton({ button }: { button: { label: string; href: string } | null }) {
   if (!button) return null;
   return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-aera-accent px-4 py-2 text-xs font-bold text-white shadow-sm">
+    <span className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-4 py-2 text-xs font-bold text-white shadow-sm">
       {button.label}
       <ArrowRight size={14} />
     </span>
@@ -79,22 +79,22 @@ function renderList(items: unknown) {
         const row = isRecord(item) ? item : {};
         const image = imageFrom(row.image) || imageFrom(row.avatar);
         return (
-          <article key={text(row.id, `item-${index}`)} className="rounded-xl border border-aera-champagne/30 bg-white p-4 shadow-sm">
+          <article key={text(row.id, `item-${index}`)} className="rounded-xl border border-[var(--admin-border)] bg-white p-4 shadow-sm">
             <div className="flex gap-3">
               {image && (
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-aera-cream">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[var(--admin-surface-muted)]">
                   <Image src={image.src} alt={image.alt} fill sizes="56px" className="object-cover" />
                 </div>
               )}
               <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-aera-accent">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--admin-accent)]">
                   {text(row.step) || text(row.role) || text(row.label)}
                 </p>
-                <h3 className="mt-1 font-heading text-lg font-bold text-aera-ink">
+                <h3 className="mt-1 font-heading text-lg font-bold text-[var(--admin-ink)]">
                   {text(row.title) || text(row.name) || text(row.question) || `Item ${index + 1}`}
                 </h3>
                 {typeof row.rating === "number" && (
-                  <div className="mt-1 flex text-aera-accent" aria-label={`${row.rating} star rating`}>
+                  <div className="mt-1 flex text-[var(--admin-accent)]" aria-label={`${row.rating} star rating`}>
                     {Array.from({ length: Math.max(0, Math.min(5, row.rating)) }).map((_, starIndex) => (
                       <Star key={starIndex} size={13} fill="currentColor" />
                     ))}
@@ -115,9 +115,9 @@ function renderList(items: unknown) {
 function SectionPreview({ label, data }: { label: string; data: unknown }) {
   if (!isRecord(data)) {
     return (
-      <section className="rounded-2xl border border-aera-champagne/30 bg-white p-6 shadow-sm">
-        <h2 className="font-heading text-xl font-bold text-aera-ink">{label}</h2>
-        <p className="mt-3 text-sm text-aera-muted">This section has no draft content yet.</p>
+      <section className="rounded-2xl border border-[var(--admin-border)] bg-white p-6 shadow-sm">
+        <h2 className="font-heading text-xl font-bold text-[var(--admin-ink)]">{label}</h2>
+        <p className="mt-3 text-sm text-[var(--admin-muted)]">This section has no draft content yet.</p>
       </section>
     );
   }
@@ -128,15 +128,15 @@ function SectionPreview({ label, data }: { label: string; data: unknown }) {
   const items = data.items || data.steps || data.features || data.quickLinks || data.serviceLinks || data.schedule;
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-aera-champagne/30 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-[var(--admin-border)] bg-white shadow-sm">
       <div className="grid gap-6 p-6 md:grid-cols-[1.1fr_0.9fr]">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-aera-accent">
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--admin-accent)]">
             {text(data.eyebrow, label)}
           </p>
-          <h2 className="mt-2 font-heading text-3xl font-bold text-aera-ink">
+          <h2 className="mt-2 font-heading text-3xl font-bold text-[var(--admin-ink)]">
             {text(data.title) || text(data.name) || label}
-            {text(data.highlight) && <span className="text-aera-accent"> {text(data.highlight)}</span>}
+            {text(data.highlight) && <span className="text-[var(--admin-accent)]"> {text(data.highlight)}</span>}
           </h2>
           <div className="mt-4 space-y-3">
             <RichCopy value={data.description || data.content || data.brandText || data.tagline} />
@@ -145,7 +145,7 @@ function SectionPreview({ label, data }: { label: string; data: unknown }) {
             <PreviewButton button={primaryButton} />
             <PreviewButton button={secondaryButton} />
           </div>
-          <div className="mt-5 grid gap-2 text-sm text-aera-muted sm:grid-cols-2">
+          <div className="mt-5 grid gap-2 text-sm text-[var(--admin-muted)] sm:grid-cols-2">
             {["phone", "email", "address", "hours", "googleMapsUrl", "instagramUrl", "facebookUrl", "tiktokUrl"].map((key) => (
               text(data[key]) ? <div key={key}>{text(data[key])}</div> : null
             ))}
@@ -153,7 +153,7 @@ function SectionPreview({ label, data }: { label: string; data: unknown }) {
         </div>
         <PreviewImage image={heroImage} />
       </div>
-      {renderList(items) && <div className="border-t border-aera-champagne/20 bg-aera-cream/30 p-6">{renderList(items)}</div>}
+      {renderList(items) && <div className="border-t border-[var(--admin-border)] bg-[var(--admin-surface-muted)] p-6">{renderList(items)}</div>}
     </section>
   );
 }
@@ -171,15 +171,15 @@ export default async function ContentPreviewPage({
     const response = authErrorResponse(error);
     if (response?.status === 401) {
       return (
-        <main className="min-h-screen bg-aera-bg p-8 text-center">
-          <p className="text-sm text-aera-muted">Please sign in as an Owner or Manager to preview draft content.</p>
+        <main className="min-h-screen bg-[var(--admin-canvas)] p-8 text-center">
+          <p className="text-sm text-[var(--admin-muted)]">Please sign in as an Owner or Manager to preview draft content.</p>
           <Link className="primary-btn mt-4 inline-flex" href="/login">Sign In</Link>
         </main>
       );
     }
     return (
-      <main className="min-h-screen bg-aera-bg p-8 text-center">
-        <p className="text-sm text-aera-muted">You do not have permission to preview draft content.</p>
+      <main className="min-h-screen bg-[var(--admin-canvas)] p-8 text-center">
+        <p className="text-sm text-[var(--admin-muted)]">You do not have permission to preview draft content.</p>
       </main>
     );
   }
@@ -191,13 +191,13 @@ export default async function ContentPreviewPage({
   const draftContent = await getDraftContent(pageKey);
 
   return (
-    <main className="min-h-screen bg-aera-bg">
+    <main className="min-h-screen bg-[var(--admin-canvas)]">
       <div className="sticky top-0 z-50 border-b border-amber-200 bg-amber-50/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-4 py-2.5 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
               href={`/admin/content/${pageKey}`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-bold text-aera-ink no-underline transition-colors hover:bg-amber-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-bold text-[var(--admin-ink)] no-underline transition-colors hover:bg-amber-50"
             >
               <ArrowLeft size={14} />
               Back to Editor
@@ -213,8 +213,8 @@ export default async function ContentPreviewPage({
 
       <div className="mx-auto max-w-[1200px] space-y-6 px-4 py-8 sm:px-6">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-aera-ink">{registryItem.label}</h1>
-          <p className="mt-1 text-sm text-aera-muted">Saved draft content rendered as a visual page preview.</p>
+          <h1 className="font-heading text-3xl font-bold text-[var(--admin-ink)]">{registryItem.label}</h1>
+          <p className="mt-1 text-sm text-[var(--admin-muted)]">Saved draft content rendered as a visual page preview.</p>
         </div>
 
         {registryItem.sections.map((section) => (

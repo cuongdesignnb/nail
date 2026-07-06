@@ -42,8 +42,8 @@ export function MediaCard({ asset, selected, onSelect }: MediaCardProps) {
       onClick={onSelect}
       className={`group relative aspect-square rounded-2xl overflow-hidden border cursor-pointer bg-white shadow-sm hover:shadow-md transition-all duration-200 ${
         selected
-          ? "border-aera-accent ring-2 ring-aera-accent/30"
-          : "border-aera-champagne/50 hover:border-aera-accent/40"
+          ? "border-[var(--admin-accent)] ring-2 ring-[var(--admin-accent)]/30"
+          : "border-[var(--admin-border)]/50 hover:border-[var(--admin-accent)]/40"
       }`}
     >
       {/* Image */}
@@ -79,7 +79,7 @@ export function MediaCard({ asset, selected, onSelect }: MediaCardProps) {
         <motion.span
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="absolute top-2 right-2 bg-aera-accent text-white p-1 rounded-full z-10 shadow-lg"
+          className="absolute top-2 right-2 bg-[var(--admin-accent)] text-white p-1 rounded-full z-10 shadow-lg"
         >
           <Check size={10} strokeWidth={3} />
         </motion.span>

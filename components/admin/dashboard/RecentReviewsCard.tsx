@@ -13,13 +13,17 @@ interface RecentReviewsCardProps {
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div style={{ display: 'flex', gap: 2 }}>
+    <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => (
         <StarIcon
           key={star}
           size={13}
-          fill={star <= rating ? '#e6a023' : 'transparent'}
-          color={star <= rating ? '#e6a023' : 'rgba(116, 55, 15, 0.2)'}
+          fill={star <= rating ? 'var(--admin-warning)' : 'transparent'}
+          className={
+            star <= rating
+              ? 'text-[var(--admin-warning)]'
+              : 'text-[var(--admin-border)]'
+          }
           strokeWidth={1.5}
         />
       ))}
@@ -44,90 +48,31 @@ export default function RecentReviewsCard({
           message="No approved reviews yet."
         />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="flex flex-col gap-3">
           {reviews.map((review) => (
             <div
               key={review.id}
-              style={{
-                display: 'flex',
-                gap: 12,
-                padding: '12px',
-                borderRadius: 12,
-                transition: 'background 0.15s',
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = 'rgba(155, 89, 29, 0.03)')
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = 'transparent')
-              }
+              className="group flex gap-3 rounded-[var(--admin-radius-md)] p-3 transition-colors duration-150 hover:bg-[var(--admin-accent-soft)]/30"
             >
               {/* Customer initial */}
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: 'rgba(155, 89, 29, 0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: '#9b591d',
-                  flexShrink: 0,
-                }}
-              >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--admin-accent-soft)] text-sm font-bold text-[var(--admin-accent)]">
                 {review.customer.charAt(0).toUpperCase()}
               </div>
 
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 8,
-                    marginBottom: 4,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: '#2f1c11',
-                    }}
-                  >
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <span className="text-[13px] font-semibold text-[var(--admin-ink)]">
                     {review.customer}
                   </span>
                   <StarRating rating={review.rating} />
                 </div>
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: '#7f6d61',
-                    margin: 0,
-                    lineHeight: 1.5,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                  }}
-                >
+                <p className="m-0 line-clamp-2 text-xs leading-relaxed text-[var(--admin-muted)]">
                   {review.text.length > 100
                     ? review.text.slice(0, 100) + '…'
                     : review.text}
                 </p>
                 {review.createdAt && (
-                  <span
-                    style={{
-                      fontSize: 11,
-                      color: 'rgba(127, 109, 97, 0.7)',
-                      marginTop: 4,
-                      display: 'block',
-                    }}
-                  >
+                  <span className="mt-1 block text-[11px] text-[var(--admin-muted)]/70">
                     {new Date(review.createdAt).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',

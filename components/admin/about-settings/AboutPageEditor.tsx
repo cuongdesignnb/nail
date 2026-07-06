@@ -270,13 +270,13 @@ export function AboutPageEditor() {
 
       {/* Header */}
       <div className="mb-6">
-        <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-aera-muted mb-2">
+        <p className="text-[11px] font-bold uppercase tracking-[1.5px] text-[var(--admin-muted)] mb-2">
           Content Settings
         </p>
-        <h1 className="font-heading text-[clamp(28px,3.5vw,42px)] font-medium text-aera-ink mb-1">
+        <h1 className="font-heading text-[clamp(28px,3.5vw,42px)] font-medium text-[var(--admin-ink)] mb-1">
           About Page Editor
         </h1>
-        <p className="text-aera-muted text-sm">
+        <p className="text-[var(--admin-muted)] text-sm">
           Edit the content, images, and SEO for the public About page.
         </p>
       </div>

@@ -46,7 +46,7 @@ export function ContentQuickActions({ pageKey, registry }: Props) {
   ];
 
   return (
-    <div className="mt-4 pt-3 border-t border-aera-champagne/40 flex flex-wrap gap-2">
+    <div className="mt-4 pt-3 border-t border-[var(--admin-border)]/40 flex flex-wrap gap-2">
       {actions.map((action) => {
         const Icon = action.icon;
         const isExternal = action.href.startsWith("/") && !action.href.startsWith("/admin");
@@ -58,8 +58,8 @@ export function ContentQuickActions({ pageKey, registry }: Props) {
             {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             className={`inline-flex items-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-1.5 transition-all duration-200 no-underline ${
               action.primary
-                ? "bg-aera-accent text-white hover:bg-aera-accentHover shadow-sm"
-                : "bg-aera-champagne/50 text-aera-ink hover:bg-aera-champagne hover:text-aera-accent"
+                ? "bg-[var(--admin-accent)] text-white hover:bg-[var(--admin-accent-hover)] shadow-sm"
+                : "bg-[var(--admin-accent-soft)] text-[var(--admin-ink)] hover:bg-[var(--admin-accent-soft)] hover:text-[var(--admin-accent)]"
             }`}
           >
             <Icon size={12} />

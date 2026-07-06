@@ -26,7 +26,7 @@ function TabsBar() {
   };
 
   return (
-    <div className="flex items-center justify-start overflow-x-auto gap-2 border-b border-aera-champagne/45 pb-3 scrollbar-hide">
+    <div className="flex items-center justify-start overflow-x-auto gap-2 border-b border-[var(--admin-border)]/45 pb-3 scrollbar-hide">
       {PAGES.map((p) => {
         const isActive = activePage === p.key;
         return (
@@ -35,8 +35,8 @@ function TabsBar() {
             onClick={() => handlePageClick(p.key)}
             className={`px-4 py-2 rounded-full font-sans text-xs tracking-wider transition-all duration-200 whitespace-nowrap shrink-0 cursor-pointer border-none ${
               isActive
-                ? "bg-aera-accent text-white font-bold shadow-sm"
-                : "bg-aera-champagne/15 text-aera-muted hover:bg-aera-champagne/30"
+                ? "bg-[var(--admin-accent)] text-white font-bold shadow-sm"
+                : "bg-[var(--admin-surface-muted)] text-[var(--admin-muted)] hover:bg-[var(--admin-surface-hover)]"
             }`}
           >
             {p.label}

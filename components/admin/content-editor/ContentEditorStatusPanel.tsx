@@ -27,11 +27,11 @@ function RelativeTime({ date, label, icon: Icon }: { date: string | null; label:
   const relative = formatDistanceToNow(new Date(date), { addSuffix: true });
   return (
     <div className="flex items-start justify-between gap-2">
-      <span className="inline-flex items-center gap-1.5 text-aera-muted">
+      <span className="inline-flex items-center gap-1.5 text-[var(--admin-muted)]">
         <Icon size={11} className="flex-shrink-0 mt-px" />
         {label}
       </span>
-      <span className="font-bold text-aera-ink/80 text-right" title={new Date(date).toLocaleString()}>
+      <span className="font-bold text-[var(--admin-ink)]/80 text-right" title={new Date(date).toLocaleString()}>
         {relative}
       </span>
     </div>
@@ -57,10 +57,10 @@ export function ContentEditorStatusPanel({
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: 0.05, ease: "easeOut" }}
-      className="rounded-2xl border border-aera-champagne/20 bg-white/90 p-4 space-y-4"
+      className="rounded-2xl border border-[var(--admin-border)]/20 bg-white/90 p-4 space-y-4"
     >
       {/* Section label */}
-      <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-aera-muted">
+      <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[var(--admin-muted)]">
         Status
       </p>
 
@@ -77,11 +77,11 @@ export function ContentEditorStatusPanel({
       {/* Meta info */}
       <div className="grid gap-2.5 text-[11px]">
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 text-aera-muted">
+          <span className="inline-flex items-center gap-1.5 text-[var(--admin-muted)]">
             <Hash size={11} />
             Version
           </span>
-          <span className="inline-flex items-center justify-center rounded-full bg-aera-champagne/30 px-2 py-0.5 text-[10px] font-bold text-aera-ink">
+          <span className="inline-flex items-center justify-center rounded-full bg-[var(--admin-surface-muted)] px-2 py-0.5 text-[10px] font-bold text-[var(--admin-ink)]">
             v{version}
           </span>
         </div>

@@ -28,69 +28,22 @@ export default function DashboardHeader({
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 16,
-      }}
+      className="flex flex-col gap-1"
     >
-      {/* Left: text */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <span
-          style={{
-            fontSize: 13,
-            fontWeight: 500,
-            color: '#9b591d',
-            textTransform: 'uppercase',
-            letterSpacing: 1.2,
-          }}
-        >
-          {today}
-        </span>
-        <h1
-          style={{
-            fontFamily: 'Georgia, serif',
-            fontSize: 28,
-            fontWeight: 700,
-            color: '#2f1c11',
-            margin: 0,
-            lineHeight: 1.2,
-          }}
-        >
-          Welcome back, {adminName}
-        </h1>
-        <p
-          style={{
-            fontSize: 14,
-            color: '#7f6d61',
-            margin: 0,
-          }}
-        >
-          Your salon dashboard overview
-        </p>
-      </div>
+      <span className="text-[11px] font-bold uppercase tracking-[1.2px] text-[var(--admin-muted)]">
+        {today}
+      </span>
+      <h1 className="font-heading text-2xl font-bold text-[var(--admin-ink)] sm:text-3xl">
+        Welcome back, {adminName}
+      </h1>
+      <p className="text-sm text-[var(--admin-muted)]">
+        Your salon dashboard overview
+      </p>
 
-      {/* Right: actions */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+      <div className="mt-3 flex items-center gap-2.5 flex-wrap">
         <Link
           href="/booking"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '10px 20px',
-            borderRadius: 12,
-            background: '#9b591d',
-            color: '#fff',
-            fontSize: 13,
-            fontWeight: 600,
-            textDecoration: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'background 0.2s',
-          }}
+          className="inline-flex items-center gap-1.5 rounded-[var(--admin-radius-md)] bg-[var(--admin-accent)] px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40"
         >
           <CalendarPlus size={15} strokeWidth={2} />
           Create Booking
@@ -98,21 +51,7 @@ export default function DashboardHeader({
 
         <Link
           href="/admin/calendar"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '10px 20px',
-            borderRadius: 12,
-            background: 'rgba(155, 89, 29, 0.08)',
-            color: '#9b591d',
-            fontSize: 13,
-            fontWeight: 600,
-            textDecoration: 'none',
-            border: '1px solid rgba(155, 89, 29, 0.15)',
-            cursor: 'pointer',
-            transition: 'background 0.2s',
-          }}
+          className="inline-flex items-center gap-1.5 rounded-[var(--admin-radius-md)] border border-[var(--admin-border-strong)] bg-[var(--admin-surface)] px-5 py-2.5 text-[13px] font-semibold text-[var(--admin-accent)] transition-colors hover:bg-[var(--admin-surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40"
         >
           <CalendarDays size={15} strokeWidth={2} />
           View Calendar
@@ -121,41 +60,16 @@ export default function DashboardHeader({
         <button
           onClick={onRefresh}
           disabled={loading}
-          title="Refresh data"
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            border: '1px solid rgba(116, 55, 15, 0.12)',
-            background: 'rgba(255, 253, 249, 0.95)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'border-color 0.2s',
-          }}
+          aria-label="Refresh data"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-[var(--admin-radius-md)] border border-[var(--admin-border)] bg-[var(--admin-surface)] text-[var(--admin-accent)] transition-colors hover:bg-[var(--admin-surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <RefreshCw
             size={16}
-            color="#9b591d"
             strokeWidth={2}
-            style={{
-              animation: loading ? 'spin 1s linear infinite' : 'none',
-            }}
+            className={loading ? "animate-[admin-spin_0.7s_linear_infinite]" : ""}
           />
         </button>
       </div>
-
-      <style jsx global>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </motion.div>
   );
 }

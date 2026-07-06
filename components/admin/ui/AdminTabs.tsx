@@ -28,7 +28,7 @@ export const AdminTabs: React.FC<AdminTabsProps> = ({
     <div>
       {/* Tab List */}
       <div
-        className="flex items-center gap-1 border-b border-aera-champagne/30 overflow-x-auto scrollbar-none"
+        className="flex items-center gap-1 border-b border-[var(--admin-border)] overflow-x-auto scrollbar-none"
         role="tablist"
       >
         {tabs.map((tab) => {
@@ -44,10 +44,10 @@ export const AdminTabs: React.FC<AdminTabsProps> = ({
               onClick={() => onChange(tab.key)}
               className={clsx(
                 "relative flex items-center gap-1.5 whitespace-nowrap px-4 py-2.5 text-xs font-semibold transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-inset rounded-t-lg",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-inset rounded-t-lg",
                 isActive
-                  ? "text-aera-accent"
-                  : "text-aera-muted hover:text-aera-ink"
+                  ? "text-[var(--admin-accent)]"
+                  : "text-[var(--admin-muted)] hover:text-[var(--admin-ink)]"
               )}
             >
               {IconComp && (
@@ -59,7 +59,7 @@ export const AdminTabs: React.FC<AdminTabsProps> = ({
               {isActive && (
                 <motion.div
                   layoutId="admin-tab-underline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-aera-accent rounded-full"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--admin-accent)] rounded-full"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}

@@ -16,7 +16,7 @@ export function AdminNavTabs() {
   ];
 
   return (
-    <div className="flex border-b border-aera-champagne/60 mb-6 w-full font-sans">
+    <div className="flex border-b border-[var(--admin-border-strong)] mb-6 w-full font-sans">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
         const Icon = tab.icon;
@@ -27,8 +27,8 @@ export function AdminNavTabs() {
             className={clsx(
               "flex items-center gap-2 px-5 py-3 border-b-2 font-medium text-xs tracking-wider uppercase transition-all duration-200 decoration-none -mb-[2px]",
               {
-                "border-aera-accent text-aera-accent font-bold": isActive,
-                "border-transparent text-aera-muted hover:text-aera-accent hover:border-aera-champagne": !isActive,
+                "border-[var(--admin-accent)] text-[var(--admin-accent)] font-bold": isActive,
+                "border-transparent text-[var(--admin-muted)] hover:text-[var(--admin-accent)] hover:border-[var(--admin-border)]": !isActive,
               }
             )}
           >

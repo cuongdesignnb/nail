@@ -13,7 +13,7 @@ export function SeoSerpPreview({ title, url, description }: SeoSerpPreviewProps)
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-aera-muted">
+      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--admin-muted)]">
         Google Preview
       </h3>
       <div className="rounded-lg border border-gray-100 bg-white p-4">

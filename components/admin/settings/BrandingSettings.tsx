@@ -53,14 +53,14 @@ export default function BrandingSettings() {
       transition={{ duration: 0.4 }}
       className="max-w-4xl space-y-6"
     >
-      <div className="rounded-2xl border border-aera-champagne/30 bg-white p-6 space-y-6">
+      <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-6 space-y-6">
         <div className="flex items-center gap-3 mb-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-aera-champagne/40">
-            <Palette className="h-4.5 w-4.5 text-aera-accent" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--admin-surface-muted)]">
+            <Palette className="h-4.5 w-4.5 text-[var(--admin-accent)]" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-aera-ink">Branding</h3>
-            <p className="text-[11px] text-aera-muted">Logo, favicon and brand color palette</p>
+            <h3 className="text-sm font-bold text-[var(--admin-ink)]">Branding</h3>
+            <p className="text-[11px] text-[var(--admin-muted)]">Logo, favicon and brand color palette</p>
           </div>
         </div>
 
@@ -90,17 +90,17 @@ export default function BrandingSettings() {
 
         {/* Brand Colors */}
         <div>
-          <h4 className="text-xs font-bold text-aera-ink mb-3 uppercase tracking-wider">Brand Colors</h4>
+          <h4 className="text-xs font-bold text-[var(--admin-ink)] mb-3 uppercase tracking-wider">Brand Colors</h4>
           <div className="flex flex-wrap gap-3">
             {BRAND_COLORS.map((color) => (
               <div key={color.name} className="flex items-center gap-2">
                 <div
-                  className="h-8 w-8 rounded-lg border border-aera-champagne/40 shadow-sm"
+                  className="h-8 w-8 rounded-lg border border-[var(--admin-border)] shadow-sm"
                   style={{ backgroundColor: color.value }}
                 />
                 <div>
-                  <p className="text-[10px] font-semibold text-aera-ink">{color.name}</p>
-                  <p className="text-[9px] font-mono text-aera-muted">{color.value}</p>
+                  <p className="text-[10px] font-semibold text-[var(--admin-ink)]">{color.name}</p>
+                  <p className="text-[9px] font-mono text-[var(--admin-muted)]">{color.value}</p>
                 </div>
               </div>
             ))}
@@ -111,7 +111,7 @@ export default function BrandingSettings() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 rounded-full bg-aera-accent px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover disabled:opacity-40"
+          className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-40"
         >
           <Save className="h-3.5 w-3.5" />
           {saving ? "Saving..." : saved ? "Saved!" : "Save Branding"}

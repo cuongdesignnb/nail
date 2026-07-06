@@ -64,9 +64,9 @@ export function MediaUploadForm({ onSuccess }: MediaUploadFormProps) {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury text-left font-sans max-w-xl mx-auto">
-      <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3 flex items-center gap-1.5">
-        <Plus size={16} className="text-aera-accent" />
+    <div className="bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury text-left font-sans max-w-xl mx-auto">
+      <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3 flex items-center gap-1.5">
+        <Plus size={16} className="text-[var(--admin-accent)]" />
         <span>Register New Media URL</span>
       </h3>
 
@@ -112,7 +112,7 @@ export function MediaUploadForm({ onSuccess }: MediaUploadFormProps) {
           <button
             type="submit"
             disabled={loading || !url.trim()}
-            className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
+            className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
           >
             <Save size={13} />
             <span>{loading ? "Registering..." : "Add to Library"}</span>

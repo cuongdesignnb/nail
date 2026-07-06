@@ -41,7 +41,7 @@ export function ContentEditorSectionNav({
     <>
       {/* Desktop: vertical sidebar nav */}
       <nav className="hidden lg:block">
-        <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-aera-muted px-3 mb-2">
+        <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[var(--admin-muted)] px-3 mb-2">
           Sections
         </p>
         <div className="space-y-0.5">
@@ -55,8 +55,8 @@ export function ContentEditorSectionNav({
                 onClick={() => onSelect(s.id)}
                 className={`w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-[12px] font-medium transition-all duration-200 ${
                   isActive
-                    ? "bg-aera-accent/8 text-aera-accent font-bold shadow-sm border border-aera-accent/15"
-                    : "text-aera-ink/70 hover:bg-aera-champagne/20 hover:text-aera-ink border border-transparent"
+                    ? "bg-[var(--admin-accent)]/8 text-[var(--admin-accent)] font-bold shadow-sm border border-[var(--admin-accent)]/15"
+                    : "text-[var(--admin-ink)]/70 hover:bg-[var(--admin-surface-hover)] hover:text-[var(--admin-ink)] border border-transparent"
                 }`}
               >
                 <span className="truncate flex-1">{s.label}</span>
@@ -83,8 +83,8 @@ export function ContentEditorSectionNav({
               onClick={() => onSelect(s.id)}
               className={`flex-shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-bold transition-all whitespace-nowrap ${
                 isActive
-                  ? "bg-aera-accent text-white shadow-sm"
-                  : "bg-white border border-aera-champagne/40 text-aera-ink/70 hover:border-aera-accent/30"
+                  ? "bg-[var(--admin-accent)] text-white shadow-sm"
+                  : "bg-white border border-[var(--admin-border)]/40 text-[var(--admin-ink)]/70 hover:border-[var(--admin-accent)]/30"
               }`}
             >
               {s.label}

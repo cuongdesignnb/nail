@@ -119,7 +119,7 @@ export const BookingTimeline: React.FC<BookingTimelineProps> = ({ booking }) => 
   return (
     <div className="relative pl-6">
       {/* Vertical line */}
-      <div className="absolute left-[11px] top-2 bottom-2 w-px bg-aera-champagne/60" />
+      <div className="absolute left-[11px] top-2 bottom-2 w-px bg-[var(--admin-border-strong)]" />
 
       <div className="space-y-5">
         {events.map((event, idx) => (
@@ -138,16 +138,16 @@ export const BookingTimeline: React.FC<BookingTimelineProps> = ({ booking }) => 
             </div>
 
             <div className="min-w-0 pt-0.5">
-              <p className="text-xs font-semibold text-aera-ink">
+              <p className="text-xs font-semibold text-[var(--admin-ink)]">
                 {event.label}
               </p>
               {event.timestamp && (
-                <p className="text-[11px] text-aera-muted mt-0.5">
+                <p className="text-[11px] text-[var(--admin-muted)] mt-0.5">
                   {formatDt(event.timestamp)}
                 </p>
               )}
               {!event.timestamp && (
-                <p className="text-[11px] text-aera-muted mt-0.5 italic">
+                <p className="text-[11px] text-[var(--admin-muted)] mt-0.5 italic">
                   Current status
                 </p>
               )}

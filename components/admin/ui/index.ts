@@ -1,6 +1,8 @@
 // Admin UI Component Library - Barrel Export
 // Aera Nail Lounge
 
+// ── Existing Components ──────────────────────────────────────────────────
+
 export { AdminPageHeader } from "./AdminPageHeader";
 export type { AdminPageHeaderProps, BreadcrumbItem as PageHeaderBreadcrumbItem } from "./AdminPageHeader";
 
@@ -63,3 +65,59 @@ export type { AdminStickyActionBarProps } from "./AdminStickyActionBar";
 
 export { AdminSidePanel } from "./AdminSidePanel";
 export type { AdminSidePanelProps } from "./AdminSidePanel";
+
+// ── New Primitive Components ─────────────────────────────────────────────
+
+export { AdminButton } from "./AdminButton";
+export type { AdminButtonProps } from "./AdminButton";
+
+export { AdminIconButton } from "./AdminIconButton";
+export type { AdminIconButtonProps } from "./AdminIconButton";
+
+export { AdminCard } from "./AdminCard";
+export type { AdminCardProps } from "./AdminCard";
+
+export { AdminStatCard } from "./AdminStatCard";
+export type { AdminStatCardProps } from "./AdminStatCard";
+
+export { AdminKpiCard } from "./AdminKpiCard";
+export type { AdminKpiCardProps, KpiTrend } from "./AdminKpiCard";
+
+export { AdminBadge } from "./AdminBadge";
+export type { AdminBadgeProps, AdminBadgeVariant } from "./AdminBadge";
+
+export { AdminStatusChip } from "./AdminStatusChip";
+export type { AdminStatusChipProps } from "./AdminStatusChip";
+
+export { AdminInput } from "./AdminInput";
+export type { AdminInputProps } from "./AdminInput";
+
+export { AdminSelect } from "./AdminSelect";
+export type { AdminSelectProps, AdminSelectOption } from "./AdminSelect";
+
+export { AdminDialog } from "./AdminDialog";
+export type { AdminDialogProps } from "./AdminDialog";
+
+export { AdminDrawer } from "./AdminDrawer";
+export type { AdminDrawerProps } from "./AdminDrawer";
+
+export { AdminTooltip } from "./AdminTooltip";
+export type { AdminTooltipProps } from "./AdminTooltip";
+
+export { AdminAvatar } from "./AdminAvatar";
+export type { AdminAvatarProps } from "./AdminAvatar";
+
+export { AdminMetricTrend } from "./AdminMetricTrend";
+export type { AdminMetricTrendProps, MetricTrendDirection } from "./AdminMetricTrend";
+
+export { AdminSkeleton } from "./AdminSkeleton";
+export type { AdminSkeletonProps, AdminSkeletonVariant } from "./AdminSkeleton";
+
+export { AdminSegmentedControl } from "./AdminSegmentedControl";
+export type { AdminSegmentedControlProps, SegmentedOption } from "./AdminSegmentedControl";
+
+export { AdminDateRangePicker } from "./AdminDateRangePicker";
+export type { AdminDateRangePickerProps } from "./AdminDateRangePicker";
+
+export { AdminSectionHeader } from "./AdminSectionHeader";
+export type { AdminSectionHeaderProps } from "./AdminSectionHeader";

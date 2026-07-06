@@ -55,8 +55,8 @@ export function MenuTreeItem({
       aria-selected={selected}
       aria-level={item.depth}
       className={clsx(
-        "relative rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-aera-accent/30 hover:bg-aera-champagne/10 hover:shadow-md",
-        selected ? "border-aera-accent bg-aera-accent/10 shadow-md before:absolute before:inset-y-3 before:left-0 before:w-1 before:rounded-r-full before:bg-aera-accent" : "border-aera-champagne/45",
+        "relative rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--admin-accent)]/30 hover:bg-[var(--admin-surface-muted)] hover:shadow-md",
+        selected ? "border-[var(--admin-accent)] bg-[var(--admin-accent)]/10 shadow-md before:absolute before:inset-y-3 before:left-0 before:w-1 before:rounded-r-full before:bg-[var(--admin-accent)]" : "border-[var(--admin-border)]/45",
         item.isEnabled === false && "opacity-65",
         isDragging && "opacity-40"
       )}
@@ -65,7 +65,7 @@ export function MenuTreeItem({
         <button
           type="button"
           aria-label={`Drag ${item.label || "menu item"}`}
-          className="flex h-10 w-8 items-center justify-center rounded-xl text-aera-muted hover:bg-aera-champagne/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40"
+          className="flex h-10 w-8 items-center justify-center rounded-xl text-[var(--admin-muted)] hover:bg-[var(--admin-surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40"
           {...attributes}
           {...listeners}
         >
@@ -79,16 +79,16 @@ export function MenuTreeItem({
             event.stopPropagation();
             onToggleExpanded(item.id);
           }}
-          className="flex h-10 w-9 items-center justify-center rounded-xl text-aera-muted hover:bg-aera-champagne/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40"
+          className="flex h-10 w-9 items-center justify-center rounded-xl text-[var(--admin-muted)] hover:bg-[var(--admin-surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40"
         >
           {childCount ? expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" /> : item.depth > 1 ? <CornerDownRight className="h-4 w-4 opacity-40" /> : <span className="h-4 w-4" />}
         </button>
         <button type="button" onClick={() => onSelect(item.id)} className="min-w-0 text-left focus-visible:outline-none">
-          <span className="block truncate text-[15px] font-bold leading-5 text-aera-ink">{item.label || "Untitled Link"}</span>
-          <span className="mt-1 block min-w-0 truncate text-xs leading-4 text-aera-muted">{destination}</span>
+          <span className="block truncate text-[15px] font-bold leading-5 text-[var(--admin-ink)]">{item.label || "Untitled Link"}</span>
+          <span className="mt-1 block min-w-0 truncate text-xs leading-4 text-[var(--admin-muted)]">{destination}</span>
         </button>
         <div className="hidden shrink-0 items-center gap-2 md:flex">
-          {childCount > 0 && <span className="rounded-full bg-aera-champagne/40 px-2.5 py-1 text-[10px] font-bold text-aera-ink">{childCount} items</span>}
+          {childCount > 0 && <span className="rounded-full bg-[var(--admin-surface-muted)] px-2.5 py-1 text-[10px] font-bold text-[var(--admin-ink)]">{childCount} items</span>}
           <span className={clsx("rounded-full px-2.5 py-1 text-[10px] font-bold", item.isEnabled === false ? "bg-stone-100 text-stone-500" : "bg-emerald-50 text-emerald-700")}>
             {item.isEnabled === false ? "Hidden" : "Visible"}
           </span>

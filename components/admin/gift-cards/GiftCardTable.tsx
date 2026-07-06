@@ -36,7 +36,7 @@ export function GiftCardTable({ cards }: { cards: AdminGiftCardRow[] }) {
               <td className="px-4 py-3"><GiftCardStatusBadge value={card.status} /></td>
               <td className="px-4 py-3"><GiftCardStatusBadge value={card.emailStatus} /></td>
               <td className="px-4 py-3">{new Date(card.createdAt).toLocaleDateString()}</td>
-              <td className="px-4 py-3"><Link className="font-semibold text-aera-accent" href={`/admin/gift-cards/${card.id}`}>View Details</Link></td>
+              <td className="px-4 py-3"><Link className="font-semibold text-[var(--admin-accent)]" href={`/admin/gift-cards/${card.id}`}>View Details</Link></td>
             </tr>
           ))}
           {cards.length === 0 && <tr><td className="px-4 py-8 text-center text-[var(--admin-muted)]" colSpan={10}>No Gift Cards found.</td></tr>}

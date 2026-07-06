@@ -15,19 +15,20 @@ import {
   CalendarDays,
   Users,
   UserCog,
-  Inbox,
   Gem,
   Package,
+  Inbox,
   Gift,
   Tags,
-  FolderOpen,
-  Image as ImageIcon,
-  Globe,
-  FileText,
   Star,
   BarChart3,
   Settings,
+  FolderOpen,
+  FileText,
+  Image as ImageIcon,
+  Globe,
   Menu,
+  ShieldCheck,
 } from "lucide-react";
 
 export const navGroups: NavGroup[] = [
@@ -44,7 +45,6 @@ export const navGroups: NavGroup[] = [
       { label: "Calendar", href: "/admin/calendar", icon: CalendarDays },
       { label: "Customers", href: "/admin/customers", icon: Users },
       { label: "Technicians", href: "/admin/technicians", icon: UserCog },
-      { label: "Inventory", href: "/admin/inventory", icon: Inbox },
     ],
   },
   {
@@ -52,26 +52,43 @@ export const navGroups: NavGroup[] = [
     items: [
       { label: "Services", href: "/admin/services", icon: Gem },
       { label: "Packages", href: "/admin/packages", icon: Package },
+      { label: "Inventory", href: "/admin/inventory", icon: Inbox },
+    ],
+  },
+  {
+    title: "Commerce",
+    items: [
       { label: "Gift Cards", href: "/admin/gift-cards", icon: Gift },
       { label: "Promotions", href: "/admin/promotions", icon: Tags },
+    ],
+  },
+  {
+    title: "Reputation",
+    items: [
+      { label: "Reviews", href: "/admin/reviews", icon: Star },
+    ],
+  },
+  {
+    title: "Analytics",
+    items: [
+      { label: "Reports", href: "/admin/reports", icon: BarChart3 },
     ],
   },
   {
     title: "Website",
     items: [
       { label: "Content Hub", href: "/admin/content", icon: FolderOpen },
-      { label: "Menus", href: "/admin/menus", icon: Menu },
-      { label: "Media Library", href: "/admin/media", icon: ImageIcon },
-      { label: "SEO Manager", href: "/admin/seo", icon: Globe },
       { label: "Blog", href: "/admin/blog", icon: FileText },
-      { label: "Reviews", href: "/admin/reviews", icon: Star },
+      { label: "Media Library", href: "/admin/media", icon: ImageIcon },
+      { label: "Menus", href: "/admin/menus", icon: Menu },
+      { label: "SEO Manager", href: "/admin/seo", icon: Globe },
     ],
   },
   {
     title: "System",
     items: [
-      { label: "Reports", href: "/admin/reports", icon: BarChart3 },
       { label: "Settings", href: "/admin/settings", icon: Settings },
+      { label: "Users", href: "/admin/users", icon: ShieldCheck },
     ],
   },
 ];

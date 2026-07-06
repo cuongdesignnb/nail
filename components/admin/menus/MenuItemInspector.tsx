@@ -29,10 +29,10 @@ export function MenuItemInspector({ item, depth, location, onChange, onAddChild,
 
   if (!item) {
     return (
-      <section className="rounded-[22px] border border-aera-champagne/40 bg-white/95 p-6 shadow-sm">
-        <h2 className="font-heading text-2xl text-aera-ink">Edit Menu Item</h2>
-        <div className="mt-6 rounded-2xl border border-dashed border-aera-champagne/70 bg-aera-ivory p-8 text-center">
-          <p className="text-sm font-bold text-aera-ink">Select a menu item to edit its label, destination and visibility.</p>
+      <section className="rounded-[22px] border border-[var(--admin-border)]/40 bg-white/95 p-6 shadow-sm">
+        <h2 className="font-heading text-2xl text-[var(--admin-ink)]">Edit Menu Item</h2>
+        <div className="mt-6 rounded-2xl border border-dashed border-[var(--admin-border)]/70 bg-[var(--admin-canvas)] p-8 text-center">
+          <p className="text-sm font-bold text-[var(--admin-ink)]">Select a menu item to edit its label, destination and visibility.</p>
         </div>
       </section>
     );
@@ -44,25 +44,25 @@ export function MenuItemInspector({ item, depth, location, onChange, onAddChild,
   }
 
   return (
-    <section className="rounded-[22px] border border-aera-champagne/40 bg-white/95 p-6 shadow-sm">
+    <section className="rounded-[22px] border border-[var(--admin-border)]/40 bg-white/95 p-6 shadow-sm">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-wider text-aera-muted">Edit Menu Item</p>
-          <h2 className="mt-1 truncate font-heading text-3xl text-aera-ink">{item.label || "Untitled Link"}</h2>
+          <p className="text-xs font-bold uppercase tracking-wider text-[var(--admin-muted)]">Edit Menu Item</p>
+          <h2 className="mt-1 truncate font-heading text-3xl text-[var(--admin-ink)]">{item.label || "Untitled Link"}</h2>
         </div>
-        <span className="rounded-full bg-aera-ivory px-3 py-1 text-xs font-semibold text-aera-muted">Level {depth}</span>
+        <span className="rounded-full bg-[var(--admin-canvas)] px-3 py-1 text-xs font-semibold text-[var(--admin-muted)]">Level {depth}</span>
       </div>
 
       <div className="space-y-6">
         <InspectorSection title="Navigation Label">
           <label className="block">
-            <span className="text-sm font-bold text-aera-ink">Label</span>
+            <span className="text-sm font-bold text-[var(--admin-ink)]">Label</span>
             <input
               ref={labelRef}
               value={item.label || ""}
               onChange={(event) => patch({ label: event.target.value })}
               placeholder="Untitled Link"
-              className="mt-2 min-h-12 w-full rounded-2xl border border-aera-champagne/60 bg-white px-4 text-base font-semibold text-aera-ink outline-none focus:border-aera-accent focus:ring-2 focus:ring-aera-accent/15"
+              className="mt-2 min-h-12 w-full rounded-2xl border border-[var(--admin-border-strong)] bg-white px-4 text-base font-semibold text-[var(--admin-ink)] outline-none focus:border-[var(--admin-accent)] focus:ring-2 focus:ring-[var(--admin-accent)]/15"
             />
           </label>
         </InspectorSection>
@@ -72,28 +72,28 @@ export function MenuItemInspector({ item, depth, location, onChange, onAddChild,
         </InspectorSection>
 
         <InspectorSection title="Visibility">
-          <label className="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-aera-champagne/50 bg-aera-ivory px-4">
+          <label className="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-[var(--admin-border)]/50 bg-[var(--admin-canvas)] px-4">
             <span>
-              <span className="block text-sm font-bold text-aera-ink">Visible in public menu</span>
-              <span className="block text-xs text-aera-muted">Hidden items stay in draft but do not show publicly.</span>
+              <span className="block text-sm font-bold text-[var(--admin-ink)]">Visible in public menu</span>
+              <span className="block text-xs text-[var(--admin-muted)]">Hidden items stay in draft but do not show publicly.</span>
             </span>
-            <input type="checkbox" checked={item.isEnabled !== false} onChange={(event) => patch({ isEnabled: event.target.checked })} className="h-5 w-5 accent-aera-accent" />
+            <input type="checkbox" checked={item.isEnabled !== false} onChange={(event) => patch({ isEnabled: event.target.checked })} className="h-5 w-5 accent-[var(--admin-accent)]" />
           </label>
         </InspectorSection>
 
         {item.children?.length ? (
           <InspectorSection title="Parent / Submenu Settings">
-            <p className="mb-3 text-sm font-semibold text-aera-ink">When visitors click this parent item:</p>
+            <p className="mb-3 text-sm font-semibold text-[var(--admin-ink)]">When visitors click this parent item:</p>
             <div className="grid gap-2 sm:grid-cols-2">
-              <button type="button" onClick={() => patch({ type: item.href ? item.type : "internal" })} className={`rounded-2xl border px-4 py-3 text-left text-sm font-bold ${item.type !== "none" ? "border-aera-accent bg-aera-accent/10 text-aera-ink" : "border-aera-champagne/50 bg-white text-aera-muted hover:bg-aera-champagne/20"}`}>
+              <button type="button" onClick={() => patch({ type: item.href ? item.type : "internal" })} className={`rounded-2xl border px-4 py-3 text-left text-sm font-bold ${item.type !== "none" ? "border-[var(--admin-accent)] bg-[var(--admin-accent)]/10 text-[var(--admin-ink)]" : "border-[var(--admin-border)]/50 bg-white text-[var(--admin-muted)] hover:bg-[var(--admin-surface-hover)]"}`}>
                 Open its destination page
               </button>
-              <button type="button" onClick={() => patch({ type: "none", href: "", target: "_self" })} className={`rounded-2xl border px-4 py-3 text-left text-sm font-bold ${item.type === "none" ? "border-aera-accent bg-aera-accent/10 text-aera-ink" : "border-aera-champagne/50 bg-white text-aera-muted hover:bg-aera-champagne/20"}`}>
+              <button type="button" onClick={() => patch({ type: "none", href: "", target: "_self" })} className={`rounded-2xl border px-4 py-3 text-left text-sm font-bold ${item.type === "none" ? "border-[var(--admin-accent)] bg-[var(--admin-accent)]/10 text-[var(--admin-ink)]" : "border-[var(--admin-border)]/50 bg-white text-[var(--admin-muted)] hover:bg-[var(--admin-surface-hover)]"}`}>
                 Open submenu only
               </button>
             </div>
             {canAddChild && (
-              <button type="button" onClick={onAddChild} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full border border-aera-champagne/60 bg-white px-4 text-xs font-bold uppercase tracking-wider text-aera-ink hover:bg-aera-champagne/20">
+              <button type="button" onClick={onAddChild} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--admin-border-strong)] bg-white px-4 text-xs font-bold uppercase tracking-wider text-[var(--admin-ink)] hover:bg-[var(--admin-surface-hover)]">
                 <Plus className="h-4 w-4" />
                 Add Submenu Item
               </button>
@@ -101,23 +101,23 @@ export function MenuItemInspector({ item, depth, location, onChange, onAddChild,
           </InspectorSection>
         ) : canAddChild ? (
           <InspectorSection title="Parent / Submenu Settings">
-            <button type="button" onClick={onAddChild} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-aera-champagne/60 bg-white px-4 text-xs font-bold uppercase tracking-wider text-aera-ink hover:bg-aera-champagne/20">
+            <button type="button" onClick={onAddChild} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--admin-border-strong)] bg-white px-4 text-xs font-bold uppercase tracking-wider text-[var(--admin-ink)] hover:bg-[var(--admin-surface-hover)]">
               <Plus className="h-4 w-4" />
               Add Submenu Item
             </button>
           </InspectorSection>
         ) : null}
 
-        <div className="rounded-2xl border border-aera-champagne/45 bg-white">
-          <button type="button" onClick={() => setAdvancedOpen((value) => !value)} className="flex min-h-12 w-full items-center justify-between px-4 text-left text-sm font-bold text-aera-ink">
+        <div className="rounded-2xl border border-[var(--admin-border)]/45 bg-white">
+          <button type="button" onClick={() => setAdvancedOpen((value) => !value)} className="flex min-h-12 w-full items-center justify-between px-4 text-left text-sm font-bold text-[var(--admin-ink)]">
             Advanced Options
             <ChevronDown className={`h-4 w-4 transition ${advancedOpen ? "rotate-180" : ""}`} />
           </button>
           {advancedOpen && (
-            <div className="border-t border-aera-champagne/40 p-4">
+            <div className="border-t border-[var(--admin-border)]/40 p-4">
               <label className="flex min-h-11 items-center justify-between gap-4">
-                <span className="text-sm font-semibold text-aera-ink">Open in new tab</span>
-                <input type="checkbox" checked={item.target === "_blank"} onChange={(event) => patch({ target: event.target.checked ? "_blank" : "_self" })} className="h-5 w-5 accent-aera-accent" />
+                <span className="text-sm font-semibold text-[var(--admin-ink)]">Open in new tab</span>
+                <input type="checkbox" checked={item.target === "_blank"} onChange={(event) => patch({ target: event.target.checked ? "_blank" : "_self" })} className="h-5 w-5 accent-[var(--admin-accent)]" />
               </label>
             </div>
           )}
@@ -136,8 +136,8 @@ export function MenuItemInspector({ item, depth, location, onChange, onAddChild,
 
 function InspectorSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="border-t border-aera-champagne/35 pt-5 first:border-t-0 first:pt-0">
-      <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-aera-muted">{title}</h3>
+    <section className="border-t border-[var(--admin-border)]/35 pt-5 first:border-t-0 first:pt-0">
+      <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--admin-muted)]">{title}</h3>
       {children}
     </section>
   );

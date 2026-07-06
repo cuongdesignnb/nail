@@ -20,7 +20,7 @@ type AiSettings = {
   lastTestStatus: string | null;
 };
 
-const inputClass = "w-full rounded-xl border border-aera-champagne/60 bg-white px-3 py-2.5 text-xs text-aera-ink focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20";
+const inputClass = "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2.5 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
 
 export default function AiContentSettings() {
   const [settings, setSettings] = useState<AiSettings | null>(null);
@@ -78,29 +78,29 @@ export default function AiContentSettings() {
     }
   }
 
-  if (!settings) return <div className="text-xs text-aera-muted">Loading AI settings...</div>;
+  if (!settings) return <div className="text-xs text-[var(--admin-muted)]">Loading AI settings...</div>;
 
   return (
     <div className="max-w-3xl space-y-6">
-      <div className="rounded-2xl border border-aera-champagne/30 bg-white p-6 space-y-5">
+      <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-6 space-y-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-sm font-bold text-aera-ink flex items-center gap-2"><Bot size={16} /> AI Content Studio</h3>
-            <p className="mt-1 text-xs text-aera-muted">OpenAI provider, model defaults, batch limits, and human review policy.</p>
+            <h3 className="text-sm font-bold text-[var(--admin-ink)] flex items-center gap-2"><Bot size={16} /> AI Content Studio</h3>
+            <p className="mt-1 text-xs text-[var(--admin-muted)]">OpenAI provider, model defaults, batch limits, and human review policy.</p>
           </div>
-          <label className="flex items-center gap-2 text-xs font-semibold text-aera-ink">
+          <label className="flex items-center gap-2 text-xs font-semibold text-[var(--admin-ink)]">
             <input type="checkbox" checked={settings.isEnabled} onChange={(e) => setSettings({ ...settings, isEnabled: e.target.checked })} />
             Enabled
           </label>
         </div>
 
         {message && (
-          <div className="rounded-xl border border-aera-champagne/40 bg-aera-cream/30 px-3 py-2 text-xs text-aera-ink">{message}</div>
+          <div className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] px-3 py-2 text-xs text-[var(--admin-ink)]">{message}</div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5 md:col-span-2">
-            <label className="block text-xs font-semibold text-aera-ink">OpenAI API Key</label>
+            <label className="block text-xs font-semibold text-[var(--admin-ink)]">OpenAI API Key</label>
             <div className="flex gap-2">
               <input value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder={settings.apiKeyConfigured ? `Configured ending ${settings.apiKeyLastFour}` : "sk-..."} className={inputClass} type="password" />
               <button type="button" onClick={() => postAction("/api/admin/settings/ai-content/remove-key", "API key removed.")} className="rounded-xl border border-rose-200 px-3 text-rose-600"><Trash2 size={14} /></button>
@@ -122,8 +122,8 @@ export default function AiContentSettings() {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button type="button" onClick={() => submit()} disabled={saving} className="rounded-full bg-aera-accent px-5 py-2 text-xs font-bold text-white inline-flex items-center gap-2 disabled:opacity-40"><Save size={14} /> {saving ? "Saving..." : "Save AI Settings"}</button>
-          <button type="button" onClick={() => postAction("/api/admin/settings/ai-content/test", "OpenAI connection test passed.")} disabled={testing} className="rounded-full border border-aera-champagne px-5 py-2 text-xs font-bold text-aera-ink inline-flex items-center gap-2"><Zap size={14} /> {testing ? "Testing..." : "Test Connection"}</button>
+          <button type="button" onClick={() => submit()} disabled={saving} className="rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold text-white inline-flex items-center gap-2 disabled:opacity-40"><Save size={14} /> {saving ? "Saving..." : "Save AI Settings"}</button>
+          <button type="button" onClick={() => postAction("/api/admin/settings/ai-content/test", "OpenAI connection test passed.")} disabled={testing} className="rounded-full border border-[var(--admin-border)] px-5 py-2 text-xs font-bold text-[var(--admin-ink)] inline-flex items-center gap-2"><Zap size={14} /> {testing ? "Testing..." : "Test Connection"}</button>
         </div>
       </div>
     </div>
@@ -133,7 +133,7 @@ export default function AiContentSettings() {
 function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (value: string) => void; type?: string }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-semibold text-aera-ink">{label}</label>
+      <label className="block text-xs font-semibold text-[var(--admin-ink)]">{label}</label>
       <input type={type} value={value} onChange={(e) => onChange(e.target.value)} className={inputClass} />
     </div>
   );
@@ -141,8 +141,8 @@ function Field({ label, value, onChange, type = "text" }: { label: string; value
 
 function Toggle({ icon: Icon, label, checked, onChange }: { icon: any; label: string; checked: boolean; onChange: (value: boolean) => void }) {
   return (
-    <label className="flex items-center gap-2 rounded-xl border border-aera-champagne/40 bg-aera-cream/10 px-3 py-3 text-xs font-semibold text-aera-ink">
-      <Icon size={14} className="text-aera-accent" />
+    <label className="flex items-center gap-2 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] px-3 py-3 text-xs font-semibold text-[var(--admin-ink)]">
+      <Icon size={14} className="text-[var(--admin-accent)]" />
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       {label}
     </label>

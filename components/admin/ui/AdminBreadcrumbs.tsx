@@ -23,22 +23,22 @@ export const AdminBreadcrumbs: React.FC<AdminBreadcrumbsProps> = ({ items }) => 
           return (
             <li key={index} className="flex items-center gap-1.5">
               {index > 0 && (
-                <ChevronRight className="h-3.5 w-3.5 text-aera-muted/50 shrink-0" />
+                <ChevronRight className="h-3.5 w-3.5 text-[var(--admin-placeholder)] shrink-0" />
               )}
 
               {isLast ? (
-                <span className="text-aera-accent font-semibold truncate">
+                <span className="text-[var(--admin-accent)] font-semibold truncate">
                   {item.label}
                 </span>
               ) : item.href ? (
                 <Link
                   href={item.href}
-                  className="text-aera-muted hover:text-aera-ink transition-colors truncate"
+                  className="text-[var(--admin-muted)] hover:text-[var(--admin-ink)] transition-colors truncate"
                 >
                   {item.label}
                 </Link>
               ) : (
-                <span className="text-aera-muted truncate">{item.label}</span>
+                <span className="text-[var(--admin-muted)] truncate">{item.label}</span>
               )}
             </li>
           );

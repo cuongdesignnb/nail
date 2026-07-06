@@ -61,7 +61,7 @@ export const AdminConfirmDialog: React.FC<AdminConfirmDialogProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-aera-ink/30 backdrop-blur-sm"
+            className="absolute inset-0 bg-[var(--admin-ink)]/30 backdrop-blur-sm"
             onClick={onClose}
           />
 
@@ -71,7 +71,7 @@ export const AdminConfirmDialog: React.FC<AdminConfirmDialogProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 10 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="relative z-10 w-full max-w-md rounded-2xl bg-white border border-aera-champagne/30 shadow-luxury p-6"
+            className="relative z-10 w-full max-w-md rounded-2xl bg-white border border-[var(--admin-border)] shadow-luxury p-6"
             role="dialog"
             aria-modal="true"
             aria-labelledby="confirm-dialog-title"
@@ -80,7 +80,7 @@ export const AdminConfirmDialog: React.FC<AdminConfirmDialogProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="absolute right-4 top-4 rounded-lg p-1 text-aera-muted hover:text-aera-ink hover:bg-aera-champagne/30 transition-colors"
+              className="absolute right-4 top-4 rounded-lg p-1 text-[var(--admin-muted)] hover:text-[var(--admin-ink)] hover:bg-[var(--admin-surface-hover)] transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
@@ -95,12 +95,12 @@ export const AdminConfirmDialog: React.FC<AdminConfirmDialogProps> = ({
             {/* Content */}
             <h2
               id="confirm-dialog-title"
-              className="text-base font-bold text-aera-ink pr-8"
+              className="text-base font-bold text-[var(--admin-ink)] pr-8"
             >
               {title}
             </h2>
             {description && (
-              <p className="mt-2 text-xs text-aera-muted leading-relaxed">
+              <p className="mt-2 text-xs text-[var(--admin-muted)] leading-relaxed">
                 {description}
               </p>
             )}
@@ -110,7 +110,7 @@ export const AdminConfirmDialog: React.FC<AdminConfirmDialogProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full border border-aera-champagne/60 bg-white px-5 py-2 text-xs font-bold uppercase tracking-wider text-aera-ink transition-colors hover:bg-aera-champagne/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
+                className="rounded-full border border-[var(--admin-border-strong)] bg-white px-5 py-2 text-xs font-bold uppercase tracking-wider text-[var(--admin-ink)] transition-colors hover:bg-[var(--admin-surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2"
               >
                 {cancelLabel}
               </button>
@@ -124,7 +124,7 @@ export const AdminConfirmDialog: React.FC<AdminConfirmDialogProps> = ({
                   "rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                   isDanger
                     ? "bg-red-600 hover:bg-red-700 focus-visible:ring-red-500/40"
-                    : "bg-aera-accent hover:bg-aera-accentHover focus-visible:ring-aera-accent/40"
+                    : "bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] focus-visible:ring-[var(--admin-accent)]/40"
                 )}
               >
                 {confirmLabel}

@@ -36,7 +36,7 @@ export function ContentEditorToolbar({
         type="button"
         onClick={onSave}
         disabled={!isDirty || isSaving}
-        className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-aera-accent px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-all duration-200 hover:bg-aera-accentHover hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-aera-accent"
+        className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--admin-accent)] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-all duration-200 hover:bg-[var(--admin-accent-hover)] hover:shadow-md active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-[var(--admin-accent)]"
       >
         {isSaving ? (
           <Loader2 size={14} className="animate-spin" />

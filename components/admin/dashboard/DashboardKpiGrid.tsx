@@ -47,25 +47,10 @@ export default function DashboardKpiGrid({ kpis }: DashboardKpiGridProps) {
   ];
 
   return (
-    <div className="kpi-grid" style={{ display: 'grid', gap: 20 }}>
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((item, i) => (
         <DashboardKpiCard key={item.label} {...item} index={i} />
       ))}
-      <style jsx>{`
-        .kpi-grid {
-          grid-template-columns: repeat(4, 1fr);
-        }
-        @media (max-width: 1100px) {
-          .kpi-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-        @media (max-width: 768px) {
-          .kpi-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </div>
   );
 }

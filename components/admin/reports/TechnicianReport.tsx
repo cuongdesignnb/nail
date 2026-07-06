@@ -65,7 +65,7 @@ export default function TechnicianReport({ from, to }: TechnicianReportProps) {
             stroke={s <= rating ? "#A85D1E" : "#EED9C2"}
           />
         ))}
-        <span className="ml-1 text-[10px] text-aera-muted">{rating.toFixed(1)}</span>
+        <span className="ml-1 text-[10px] text-[var(--admin-muted)]">{rating.toFixed(1)}</span>
       </div>
     );
   };
@@ -78,8 +78,8 @@ export default function TechnicianReport({ from, to }: TechnicianReportProps) {
       className="space-y-4"
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-aera-ink flex items-center gap-2">
-          <Users className="h-4 w-4 text-aera-accent" />
+        <h3 className="text-sm font-bold text-[var(--admin-ink)] flex items-center gap-2">
+          <Users className="h-4 w-4 text-[var(--admin-accent)]" />
           Technician Performance
         </h3>
         <ExportControls
@@ -101,26 +101,26 @@ export default function TechnicianReport({ from, to }: TechnicianReportProps) {
         emptyDescription="No completed appointments in the selected range."
       >
         {data.map((tech) => (
-          <tr key={tech.id} className="hover:bg-aera-champagne/10 transition-colors">
+          <tr key={tech.id} className="hover:bg-[var(--admin-surface-muted)] transition-colors">
             <td className="px-5 py-3">
               <div className="flex items-center gap-3">
                 {tech.avatar ? (
                   <img
                     src={tech.avatar}
                     alt={tech.name}
-                    className="h-8 w-8 rounded-full object-cover border border-aera-champagne/40"
+                    className="h-8 w-8 rounded-full object-cover border border-[var(--admin-border)]/40"
                   />
                 ) : (
-                  <div className="h-8 w-8 rounded-full bg-aera-champagne/40 flex items-center justify-center text-[10px] font-bold text-aera-ink">
+                  <div className="h-8 w-8 rounded-full bg-[var(--admin-surface-muted)] flex items-center justify-center text-[10px] font-bold text-[var(--admin-ink)]">
                     {tech.name.charAt(0)}
                   </div>
                 )}
-                <span className="text-xs font-semibold text-aera-ink">{tech.name}</span>
+                <span className="text-xs font-semibold text-[var(--admin-ink)]">{tech.name}</span>
               </div>
             </td>
-            <td className="px-5 py-3 text-xs text-aera-muted">{tech.specialty}</td>
-            <td className="px-5 py-3 text-xs font-semibold text-aera-ink">{tech.completed}</td>
-            <td className="px-5 py-3 text-xs font-semibold text-aera-ink">
+            <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">{tech.specialty}</td>
+            <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">{tech.completed}</td>
+            <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">
               ${tech.revenue.toLocaleString()}
             </td>
             <td className="px-5 py-3">{renderStars(tech.avgRating)}</td>

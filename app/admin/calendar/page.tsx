@@ -2,7 +2,13 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { format, startOfWeek, addDays, parseISO } from "date-fns";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import {
+  AdminPageHeader,
+  AdminLoadingState,
+  AdminIconButton,
+  AdminButton,
+} from "@/components/admin/ui";
 
 interface CalendarBooking {
   id: string;
@@ -15,8 +21,13 @@ interface CalendarBooking {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  Pending: "#eab308", Confirmed: "#3b82f6", "Checked In": "#a85d1e",
-  "In Service": "#8a4b19", Completed: "#22c55e", Cancelled: "#ef4444", "No Show": "#6b7280",
+  Pending: "var(--admin-warning)",
+  Confirmed: "var(--admin-success)",
+  "Checked In": "var(--admin-accent)",
+  "In Service": "var(--admin-accent-hover)",
+  Completed: "var(--admin-neutral)",
+  Cancelled: "var(--admin-danger)",
+  "No Show": "var(--admin-muted)",
 };
 
 export default function AdminCalendarPage() {
@@ -47,35 +58,71 @@ export default function AdminCalendarPage() {
     });
   };
 
+  const isToday = (d: Date) => d.toDateString() === new Date().toDateString();
+
   return (
-    <div style={{ padding: "0 32px 32px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: "#2f1c11", fontFamily: "var(--font-display)" }}>Calendar</h1>
-          <p style={{ fontSize: 13, color: "#7f6d61", marginTop: 4 }}>Weekly appointment view</p>
-        </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <button onClick={() => setWeekStart((d) => addDays(d, -7))} style={navBtn}><ChevronLeft size={16} /></button>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#2f1c11", minWidth: 200, textAlign: "center" }}>
-            {format(weekStart, "MMM d")} — {format(addDays(weekStart, 6), "MMM d, yyyy")}
-          </span>
-          <button onClick={() => setWeekStart((d) => addDays(d, 7))} style={navBtn}><ChevronRight size={16} /></button>
-          <button onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))} style={{ ...navBtn, padding: "8px 14px", fontSize: 12 }}>Today</button>
-        </div>
-      </div>
+    <div className="admin-page-container">
+      <AdminPageHeader
+        eyebrow="Operations"
+        title="Calendar"
+        description="Weekly appointment view"
+        actions={
+          <div className="flex items-center gap-2">
+            <AdminIconButton
+              aria-label="Previous week"
+              variant="default"
+              size="sm"
+              onClick={() => setWeekStart((d) => addDays(d, -7))}
+            >
+              <ChevronLeft size={16} />
+            </AdminIconButton>
+            <span className="min-w-[200px] text-center text-sm font-bold text-[var(--admin-ink)]">
+              {format(weekStart, "MMM d")} — {format(addDays(weekStart, 6), "MMM d, yyyy")}
+            </span>
+            <AdminIconButton
+              aria-label="Next week"
+              variant="default"
+              size="sm"
+              onClick={() => setWeekStart((d) => addDays(d, 7))}
+            >
+              <ChevronRight size={16} />
+            </AdminIconButton>
+            <AdminButton
+              variant="tertiary"
+              size="sm"
+              onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+            >
+              Today
+            </AdminButton>
+          </div>
+        }
+      />
 
       {loading ? (
-        <div style={{ padding: 40, textAlign: "center", color: "#7f6d61" }}>Loading calendar...</div>
+        <AdminLoadingState variant="table" />
       ) : (
-        <div style={{ background: "white", borderRadius: 16, border: "1px solid rgba(116,55,15,0.08)", overflow: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 800 }}>
+        <div className="overflow-auto rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-[var(--admin-shadow-sm)]">
+          <table className="w-full min-w-[800px] border-collapse">
             <thead>
               <tr>
-                <th style={{ ...thStyle, width: 60 }}><Clock size={14} /></th>
+                <th className="w-[60px] border-b border-r border-[var(--admin-border)] px-2 py-3 text-center">
+                  <Clock size={14} className="mx-auto text-[var(--admin-muted)]" />
+                </th>
                 {days.map((d) => (
-                  <th key={d.toISOString()} style={{ ...thStyle, background: d.toDateString() === new Date().toDateString() ? "rgba(168,93,30,0.06)" : undefined }}>
-                    <div style={{ fontSize: 11, color: "#7f6d61" }}>{format(d, "EEE")}</div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: d.toDateString() === new Date().toDateString() ? "#a85d1e" : "#2f1c11" }}>{format(d, "d")}</div>
+                  <th
+                    key={d.toISOString()}
+                    className={`border-b border-r border-[var(--admin-border)] px-2 py-3 text-center ${
+                      isToday(d) ? "bg-[var(--admin-accent-soft)]" : ""
+                    }`}
+                  >
+                    <div className="text-[11px] text-[var(--admin-muted)]">{format(d, "EEE")}</div>
+                    <div
+                      className={`text-base font-bold ${
+                        isToday(d) ? "text-[var(--admin-accent)]" : "text-[var(--admin-ink)]"
+                      }`}
+                    >
+                      {format(d, "d")}
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -83,19 +130,34 @@ export default function AdminCalendarPage() {
             <tbody>
               {hours.map((hour) => (
                 <tr key={hour}>
-                  <td style={{ padding: "8px", fontSize: 11, color: "#7f6d61", textAlign: "center", borderRight: "1px solid rgba(116,55,15,0.06)" }}>
+                  <td className="border-r border-[var(--admin-border-muted)] px-2 py-2 text-center text-[11px] text-[var(--admin-muted)]">
                     {hour > 12 ? `${hour - 12}pm` : hour === 12 ? "12pm" : `${hour}am`}
                   </td>
                   {days.map((day) => {
                     const slot = getBookingsForSlot(day, hour);
                     return (
-                      <td key={day.toISOString() + hour} style={{ padding: 4, borderRight: "1px solid rgba(116,55,15,0.04)", borderBottom: "1px solid rgba(116,55,15,0.04)", verticalAlign: "top", height: 60, background: day.toDateString() === new Date().toDateString() ? "rgba(168,93,30,0.02)" : undefined }}>
-                        {slot.map((b) => (
-                          <div key={b.id} style={{ background: STATUS_COLORS[b.status] + "18", borderLeft: `3px solid ${STATUS_COLORS[b.status] || "#a85d1e"}`, borderRadius: 6, padding: "4px 8px", marginBottom: 2, fontSize: 11, cursor: "pointer" }}>
-                            <div style={{ fontWeight: 700, color: "#2f1c11" }}>{b.customerName}</div>
-                            <div style={{ color: "#7f6d61" }}>{b.services[0]}</div>
-                          </div>
-                        ))}
+                      <td
+                        key={day.toISOString() + hour}
+                        className={`h-[60px] border-b border-r border-[var(--admin-border-muted)] p-1 align-top ${
+                          isToday(day) ? "bg-[var(--admin-accent-soft)]/30" : ""
+                        }`}
+                      >
+                        {slot.map((b) => {
+                          const color = STATUS_COLORS[b.status] || "var(--admin-accent)";
+                          return (
+                            <div
+                              key={b.id}
+                              className="mb-0.5 cursor-pointer rounded-[var(--admin-radius-xs)] px-2 py-1 text-[11px] transition-opacity hover:opacity-80"
+                              style={{
+                                borderLeft: `3px solid ${color}`,
+                                backgroundColor: `color-mix(in srgb, ${color} 8%, transparent)`,
+                              }}
+                            >
+                              <div className="font-bold text-[var(--admin-ink)]">{b.customerName}</div>
+                              <div className="text-[var(--admin-muted)]">{b.services[0]}</div>
+                            </div>
+                          );
+                        })}
                       </td>
                     );
                   })}
@@ -108,13 +170,3 @@ export default function AdminCalendarPage() {
     </div>
   );
 }
-
-const navBtn: React.CSSProperties = {
-  display: "flex", alignItems: "center", justifyContent: "center",
-  width: 32, height: 32, borderRadius: 8, background: "white",
-  border: "1px solid rgba(116,55,15,0.12)", color: "#4a2d1e", cursor: "pointer",
-};
-const thStyle: React.CSSProperties = {
-  padding: "12px 8px", textAlign: "center", borderBottom: "1px solid rgba(116,55,15,0.08)",
-  borderRight: "1px solid rgba(116,55,15,0.06)",
-};

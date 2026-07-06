@@ -26,7 +26,7 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color }) => (
-  <div className="rounded-2xl border border-aera-champagne/30 bg-white p-4 shadow-sm">
+  <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-4 shadow-sm">
     <div className="flex items-center gap-3">
       <div
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${color}`}
@@ -34,10 +34,10 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color }) => (
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">
           {label}
         </p>
-        <p className="text-lg font-bold text-aera-ink">{value}</p>
+        <p className="text-lg font-bold text-[var(--admin-ink)]">{value}</p>
       </div>
     </div>
   </div>
@@ -56,7 +56,7 @@ export const TechnicianProfile: React.FC<TechnicianProfileProps> = ({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="rounded-2xl border border-aera-champagne/30 bg-white p-6 shadow-sm"
+        className="rounded-2xl border border-[var(--admin-border)] bg-white p-6 shadow-sm"
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           {technician.avatar ? (
@@ -66,20 +66,20 @@ export const TechnicianProfile: React.FC<TechnicianProfileProps> = ({
               className="h-16 w-16 shrink-0 rounded-2xl object-cover"
             />
           ) : (
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-aera-champagne/50">
-              <User className="h-8 w-8 text-aera-accent" />
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--admin-accent-soft)]">
+              <User className="h-8 w-8 text-[var(--admin-accent)]" />
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-bold text-aera-ink font-heading">
+            <h2 className="text-xl font-bold text-[var(--admin-ink)] font-heading">
               {technician.name}
             </h2>
             <div className="mt-2 flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center gap-1 rounded-full bg-aera-champagne/40 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-aera-ink">
-                <Sparkles className="h-3 w-3 text-aera-accent" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--admin-surface-muted)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--admin-ink)]">
+                <Sparkles className="h-3 w-3 text-[var(--admin-accent)]" />
                 {technician.role}
               </span>
-              <span className="inline-flex items-center gap-1 text-xs text-aera-muted">
+              <span className="inline-flex items-center gap-1 text-xs text-[var(--admin-muted)]">
                 <Star className="h-3.5 w-3.5 text-amber-500" />
                 {technician.specialty}
               </span>
@@ -122,7 +122,7 @@ export const TechnicianProfile: React.FC<TechnicianProfileProps> = ({
           color="bg-blue-50"
         />
         <StatCard
-          icon={<DollarSign className="h-5 w-5 text-aera-accent" />}
+          icon={<DollarSign className="h-5 w-5 text-[var(--admin-accent)]" />}
           label="Revenue"
           value={`$${(stats.totalRevenue || 0).toFixed(2)}`}
           color="bg-amber-50"
@@ -140,7 +140,7 @@ export const TechnicianProfile: React.FC<TechnicianProfileProps> = ({
         title="Upcoming Bookings"
         icon={CalendarDays}
         badge={
-          <span className="rounded-full bg-aera-champagne/50 px-2 py-0.5 text-[10px] font-bold text-aera-muted">
+          <span className="rounded-full bg-[var(--admin-accent-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--admin-muted)]">
             {upcomingBookings.length}
           </span>
         }
@@ -151,13 +151,13 @@ export const TechnicianProfile: React.FC<TechnicianProfileProps> = ({
               <a
                 key={booking.id}
                 href={`/admin/bookings/${booking.id}`}
-                className="flex items-center justify-between rounded-xl bg-aera-champagne/15 px-4 py-3 transition-colors hover:bg-aera-champagne/25"
+                className="flex items-center justify-between rounded-xl bg-[var(--admin-surface-muted)] px-4 py-3 transition-colors hover:bg-[var(--admin-surface-hover)]"
               >
                 <div>
-                  <p className="text-xs font-semibold text-aera-ink">
+                  <p className="text-xs font-semibold text-[var(--admin-ink)]">
                     {booking.customer?.firstName} {booking.customer?.lastName}
                   </p>
-                  <p className="text-[11px] text-aera-muted mt-0.5 flex items-center gap-1">
+                  <p className="text-[11px] text-[var(--admin-muted)] mt-0.5 flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {format(
                       new Date(booking.scheduledStartAt),
@@ -169,7 +169,7 @@ export const TechnicianProfile: React.FC<TechnicianProfileProps> = ({
                   {booking.items?.map((item: any) => (
                     <span
                       key={item.id}
-                      className="rounded-full bg-aera-champagne/40 px-2 py-0.5 text-[10px] font-bold text-aera-ink"
+                      className="rounded-full bg-[var(--admin-surface-muted)] px-2 py-0.5 text-[10px] font-bold text-[var(--admin-ink)]"
                     >
                       {item.service?.name}
                     </span>
@@ -179,7 +179,7 @@ export const TechnicianProfile: React.FC<TechnicianProfileProps> = ({
             ))}
           </div>
         ) : (
-          <p className="text-xs text-aera-muted py-4 text-center">
+          <p className="text-xs text-[var(--admin-muted)] py-4 text-center">
             No upcoming bookings.
           </p>
         )}

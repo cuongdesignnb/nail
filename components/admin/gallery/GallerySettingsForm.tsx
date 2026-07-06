@@ -155,7 +155,7 @@ export function GallerySettingsForm() {
   };
 
   if (loading) {
-    return <p className="text-xs text-aera-muted italic py-10 text-center">Loading page settings...</p>;
+    return <p className="text-xs text-[var(--admin-muted)] italic py-10 text-center">Loading page settings...</p>;
   }
 
   return (
@@ -173,8 +173,8 @@ export function GallerySettingsForm() {
       )}
 
       {/* SEO Section */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           SEO Configurations
         </h3>
         <div className="grid grid-cols-1 gap-4">
@@ -197,8 +197,8 @@ export function GallerySettingsForm() {
       </div>
 
       {/* Hero Section */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Hero Section Content
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -245,7 +245,7 @@ export function GallerySettingsForm() {
             <p className="mt-1 text-xs text-rose-500">{errors.heroImage[0]}</p>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-aera-champagne/30 pt-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[var(--admin-border)] pt-4 mt-4">
           <FormField
             label="Primary Button Label"
             value={primaryButtonLabel}
@@ -278,8 +278,8 @@ export function GallerySettingsForm() {
       </div>
 
       {/* Why Choose Section */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Why Clients Love Our Designs
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -322,8 +322,8 @@ export function GallerySettingsForm() {
       </div>
 
       {/* CTA & Contact Details */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Call to Action & Contact Settings
         </h3>
         <FormField
@@ -357,7 +357,7 @@ export function GallerySettingsForm() {
             error={errors.ctaButtonHref?.[0]}
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-aera-champagne/30 pt-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[var(--admin-border)] pt-4 mt-4">
           <FormField
             label="Phone"
             value={phone}
@@ -393,7 +393,7 @@ export function GallerySettingsForm() {
         <button
           type="submit"
           disabled={saveLoading}
-          className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-full px-8 py-3 text-sm font-semibold cursor-pointer border-none shadow-md"
+          className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-full px-8 py-3 text-sm font-semibold cursor-pointer border-none shadow-md"
         >
           {saveLoading ? "Saving Settings..." : "Save Page Configurations"}
         </button>

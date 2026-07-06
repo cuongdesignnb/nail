@@ -31,47 +31,34 @@ export default function TopServicesCard({
           message="No service booking data."
         />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div className="flex flex-col gap-3.5">
           {services.map((service, i) => {
             const pct = Math.round((service.bookingCount / maxCount) * 100);
             return (
               <div key={service.id}>
                 {/* Name row */}
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'baseline',
-                    marginBottom: 6,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                <div className="flex justify-between items-baseline mb-1.5">
+                  <div className="flex items-baseline gap-1.5">
                     <span
+                      className="text-xs font-bold"
                       style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: i < 3 ? '#9b591d' : '#7f6d61',
+                        color: i < 3
+                          ? 'var(--admin-accent)'
+                          : 'var(--admin-muted)',
                       }}
                     >
                       {i + 1}.
                     </span>
                     <span
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 600,
-                        color: '#2f1c11',
-                      }}
+                      className="text-[13px] font-semibold"
+                      style={{ color: 'var(--admin-ink)' }}
                     >
                       {service.name}
                     </span>
                   </div>
                   <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: '#7f6d61',
-                      whiteSpace: 'nowrap',
-                    }}
+                    className="text-xs font-semibold whitespace-nowrap"
+                    style={{ color: 'var(--admin-muted)' }}
                   >
                     {service.bookingCount} bookings
                   </span>
@@ -79,32 +66,26 @@ export default function TopServicesCard({
 
                 {/* Progress bar */}
                 <div
+                  className="w-full h-1.5 overflow-hidden"
                   style={{
-                    width: '100%',
-                    height: 6,
-                    borderRadius: 3,
-                    background: 'rgba(155, 89, 29, 0.06)',
-                    overflow: 'hidden',
+                    borderRadius: 'var(--admin-radius-xs)',
+                    background: 'var(--admin-accent-soft)',
                   }}
                 >
                   <div
+                    className="h-full transition-[width] duration-[600ms] ease-out"
                     style={{
                       width: `${pct}%`,
-                      height: '100%',
-                      borderRadius: 3,
-                      background: 'linear-gradient(90deg, #9b591d, #a85d1e)',
-                      transition: 'width 0.6s ease-out',
+                      borderRadius: 'var(--admin-radius-xs)',
+                      background: `linear-gradient(90deg, var(--admin-accent), var(--admin-accent))`,
                     }}
                   />
                 </div>
 
                 {/* Revenue */}
                 <div
-                  style={{
-                    fontSize: 11,
-                    color: '#7f6d61',
-                    marginTop: 4,
-                  }}
+                  className="text-[11px] mt-1"
+                  style={{ color: 'var(--admin-muted)' }}
                 >
                   Revenue: {formatCurrency(service.revenue)}
                 </div>

@@ -33,67 +33,20 @@ export default function DashboardCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: 'easeOut' }}
-      className={className}
-      style={{
-        background: 'rgba(255, 253, 249, 0.95)',
-        border: '1px solid rgba(116, 55, 15, 0.08)',
-        borderRadius: 20,
-        boxShadow: '0 4px 24px rgba(77, 43, 20, 0.06)',
-        padding: '24px',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
+      className={`relative flex flex-col overflow-hidden rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-6 shadow-[var(--admin-shadow-sm)] ${className}`}
     >
       {/* Shimmer overlay when loading */}
       {loading && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'linear-gradient(90deg, transparent 0%, rgba(155,89,29,0.04) 50%, transparent 100%)',
-            animation: 'shimmer 1.8s infinite',
-            zIndex: 2,
-            pointerEvents: 'none',
-          }}
-        />
+        <div className="pointer-events-none absolute inset-0 z-[2] animate-[admin-shimmer_1.8s_infinite] bg-gradient-to-r from-transparent via-[var(--admin-accent-soft)]/20 to-transparent" />
       )}
 
       {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 16,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: 'rgba(155, 89, 29, 0.08)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <Icon size={18} color="#9b591d" strokeWidth={1.8} />
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--admin-radius-sm)] bg-[var(--admin-accent-soft)]">
+            <Icon size={18} className="text-[var(--admin-accent)]" strokeWidth={1.8} />
           </div>
-          <h3
-            style={{
-              fontFamily: 'Georgia, serif',
-              fontSize: 16,
-              fontWeight: 600,
-              color: '#2f1c11',
-              margin: 0,
-            }}
-          >
+          <h3 className="font-heading text-base font-semibold text-[var(--admin-ink)]">
             {title}
           </h3>
         </div>
@@ -103,28 +56,14 @@ export default function DashboardCard({
             {action.href ? (
               <Link
                 href={action.href}
-                style={{
-                  fontSize: 13,
-                  color: '#9b591d',
-                  textDecoration: 'none',
-                  fontWeight: 500,
-                  whiteSpace: 'nowrap',
-                }}
+                className="whitespace-nowrap text-[13px] font-medium text-[var(--admin-accent)] transition-colors hover:text-[var(--admin-accent-hover)]"
               >
                 {action.label} →
               </Link>
             ) : (
               <button
                 onClick={action.onClick}
-                style={{
-                  fontSize: 13,
-                  color: '#9b591d',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: 500,
-                  whiteSpace: 'nowrap',
-                }}
+                className="whitespace-nowrap bg-transparent text-[13px] font-medium text-[var(--admin-accent)] transition-colors hover:text-[var(--admin-accent-hover)]"
               >
                 {action.label}
               </button>
@@ -134,19 +73,7 @@ export default function DashboardCard({
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, minHeight: 0 }}>{children}</div>
-
-      {/* Shimmer keyframes */}
-      <style jsx global>{`
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-      `}</style>
+      <div className="min-h-0 flex-1">{children}</div>
     </motion.div>
   );
 }

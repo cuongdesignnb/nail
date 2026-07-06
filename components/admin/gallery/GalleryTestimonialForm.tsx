@@ -5,8 +5,10 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2, Star } from "lucide-react";
 import Image from "next/image";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
 
 export function GalleryTestimonialForm() {
+  const toast = useToast();
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -23,6 +25,9 @@ export function GalleryTestimonialForm() {
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [globalError, setGlobalError] = useState("");
   const [formLoading, setFormLoading] = useState(false);
+
+  // Delete state
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTestimonials();
@@ -49,7 +54,7 @@ export function GalleryTestimonialForm() {
     setAvatar(test.avatar || "");
     setAvatarAlt(test.avatarAlt || "");
     setRating(test.rating || 5);
-    setQuote(test.quote || "");
+    setQuote(test.quote);
     setSortOrder(test.sortOrder || 0);
     setIsActive(test.isActive !== false);
     setErrors({});
@@ -77,8 +82,8 @@ export function GalleryTestimonialForm() {
 
     const payload = {
       name,
-      avatar: avatar || null,
-      avatarAlt: avatarAlt || null,
+      avatar,
+      avatarAlt,
       rating: Number(rating),
       quote,
       sortOrder: Number(sortOrder),
@@ -117,17 +122,21 @@ export function GalleryTestimonialForm() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to deactivate this testimonial?")) return;
+  const handleDelete = async () => {
+    if (!deleteTargetId) return;
     try {
-      const res = await fetch(`/api/admin/gallery-testimonials/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/gallery-testimonials/${deleteTargetId}`, { method: "DELETE" });
       if (res.ok) {
         fetchTestimonials();
+        toast.success("Testimonial deactivated successfully.");
       } else {
-        alert("Failed to deactivate testimonial");
+        toast.error("Failed to deactivate testimonial");
       }
     } catch (err) {
       console.error(err);
+      toast.error("An error occurred while deactivating.");
+    } finally {
+      setDeleteTargetId(null);
     }
   };
 
@@ -142,139 +151,138 @@ export function GalleryTestimonialForm() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
       {/* Testimonials list */}
-      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-lg font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
-          Gallery Testimonials
+      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-lg font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
+          Design Testimonials
         </h3>
 
         {loading ? (
-          <p className="text-xs text-aera-muted italic py-4">Loading testimonials...</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">Loading testimonials...</p>
         ) : testimonials.length === 0 ? (
-          <p className="text-xs text-aera-muted italic py-4">No testimonials added yet.</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">No testimonials added yet.</p>
         ) : (
-          <div className="space-y-4">
-            {testimonials.map((test) => (
-              <div
-                key={test.id}
-                className="p-4 rounded-2xl border border-aera-champagne/40 bg-aera-champagne/5 hover:bg-aera-champagne/10 transition-colors flex gap-4 items-start"
-              >
-                {test.avatar ? (
-                  <div className="relative w-12 h-12 rounded-full overflow-hidden bg-aera-champagne/15 border border-aera-champagne/30 shrink-0">
-                    <Image src={test.avatar} alt={test.name} fill className="object-cover" />
-                  </div>
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-aera-accent/15 text-aera-accent flex items-center justify-center font-heading font-semibold shrink-0">
-                    {test.name.charAt(0)}
-                  </div>
-                )}
-
-                <div className="flex-grow">
-                  <div className="flex items-center justify-between">
-                    <h5 className="font-heading text-xs font-semibold text-aera-ink">{test.name}</h5>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleEdit(test)}
-                        className="p-1 text-aera-accent hover:bg-aera-accent/10 rounded border-none bg-transparent cursor-pointer"
-                      >
-                        <Edit size={13} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(test.id)}
-                        className="p-1 text-rose-500 hover:bg-rose-50 rounded border-none bg-transparent cursor-pointer"
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-0.5 mt-1 mb-2">
-                    {Array.from({ length: 5 }).map((_, sIdx) => (
-                      <Star
-                        key={sIdx}
-                        size={10}
-                        className={
-                          sIdx < (test.rating || 5)
-                            ? "fill-aera-gold text-aera-gold"
-                            : "text-aera-champagne"
-                        }
-                      />
-                    ))}
-                  </div>
-
-                  <p className="font-sans text-[11px] text-aera-muted leading-relaxed italic">
-                    &quot;{test.quote}&quot;
-                  </p>
-                  
-                  <div className="flex items-center gap-3 mt-3">
-                    <span className="text-[9px] text-gray-400">Order: {test.sortOrder}</span>
-                    <StatusBadge active={test.isActive} />
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs font-sans text-[var(--admin-ink)]">
+              <thead>
+                <tr className="border-b border-[var(--admin-border)]/20 text-[var(--admin-muted)]">
+                  <th className="py-2 text-left">Customer</th>
+                  <th className="py-2 text-left">Quote</th>
+                  <th className="py-2 text-center">Rating</th>
+                  <th className="py-2 text-center">Status</th>
+                  <th className="py-2 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {testimonials.map((test) => (
+                  <tr
+                    key={test.id}
+                    className="border-b border-[var(--admin-border)]/10 hover:bg-[var(--admin-surface-hover)] transition-colors"
+                  >
+                    <td className="py-3 pr-2">
+                      <div className="flex items-center gap-2">
+                        {test.avatar && (
+                          <div className="relative w-8 h-8 rounded-full overflow-hidden border border-[var(--admin-border)]/45 shrink-0">
+                            <Image src={test.avatar} alt={test.name} fill className="object-cover" />
+                          </div>
+                        )}
+                        <span className="font-semibold text-[var(--admin-ink)]">{test.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 text-[var(--admin-muted)] italic max-w-[200px] truncate">
+                      &quot;{test.quote}&quot;
+                    </td>
+                    <td className="py-3 text-center">
+                      <div className="inline-flex text-amber-500 gap-0.5">
+                        {Array.from({ length: test.rating || 5 }).map((_, i) => (
+                          <Star key={i} size={10} fill="currentColor" stroke="none" />
+                        ))}
+                      </div>
+                    </td>
+                    <td className="py-3 text-center">
+                      <StatusBadge active={test.isActive} />
+                    </td>
+                    <td className="py-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        <button
+                          onClick={() => handleEdit(test)}
+                          className="p-1.5 hover:bg-[var(--admin-surface-hover)] text-[var(--admin-muted)] hover:text-[var(--admin-accent)] rounded-full border-none bg-transparent cursor-pointer transition-colors"
+                          title="Edit"
+                        >
+                          <Edit size={13} />
+                        </button>
+                        <button
+                          onClick={() => setDeleteTargetId(test.id)}
+                          className="p-1.5 hover:bg-red-50 text-[var(--admin-muted)] hover:text-red-600 rounded-full border-none bg-transparent cursor-pointer transition-colors"
+                          title="Deactivate"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
 
       {/* Editor Form */}
-      <div className="lg:col-span-5">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury"
-        >
-          <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
-            {editingId ? "Edit Testimonial" : "Create Testimonial"}
-          </h3>
+      <div className="lg:col-span-5 bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury self-start font-sans">
+        <h3 className="font-heading text-lg font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
+          {editingId ? "Edit Testimonial" : "New Testimonial"}
+        </h3>
 
-          {globalError && (
-            <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg p-3 mb-5">
-              {globalError}
-            </div>
-          )}
+        {globalError && (
+          <div className="bg-red-50 border border-red-150 text-red-700 text-xs rounded-xl p-4 mb-4 font-semibold">
+            {globalError}
+          </div>
+        )}
 
+        <form onSubmit={handleSubmit}>
           <FormField
-            label="Client Name *"
+            label="Customer Name *"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Jessica M."
+            placeholder="e.g. Sandra M."
             error={errors.name?.[0]}
             required
           />
 
+          <MediaPickerField
+            label="Customer Avatar (Optional)"
+            value={avatar}
+            alt={avatarAlt}
+            onChange={(url) => setAvatar(url)}
+            onAltChange={(alt) => setAvatarAlt(alt)}
+            folder="avatars"
+          />
+
           <FormSelect
-            label="Rating Stars *"
+            label="Rating *"
             value={rating.toString()}
             onChange={(e) => setRating(Number(e.target.value))}
             options={ratingOptions}
             error={errors.rating?.[0]}
           />
 
-          <MediaPickerField
-            label="Avatar Image"
-            value={avatar}
-            alt={avatarAlt}
-            onChange={(url) => setAvatar(url)}
-            onAltChange={(alt) => setAvatarAlt(alt)}
-            folder="testimonials"
+          <FormTextarea
+            label="Quote Feedback *"
+            value={quote}
+            onChange={(e) => setQuote(e.target.value)}
+            placeholder="Feedback quote from customer..."
+            error={errors.quote?.[0]}
+            rows={4}
+            required
           />
-          {errors.avatar?.[0] && <p className="mb-4 text-xs text-rose-500">{errors.avatar[0]}</p>}
 
           <FormField
             label="Sort Order"
             type="number"
             value={sortOrder}
             onChange={(e) => setSortOrder(Number(e.target.value))}
+            placeholder="0"
             error={errors.sortOrder?.[0]}
-          />
-
-          <FormTextarea
-            label="Quote Text *"
-            value={quote}
-            onChange={(e) => setQuote(e.target.value)}
-            placeholder="Feedback quote from client..."
-            error={errors.quote?.[0]}
-            rows={4}
-            required
           />
 
           <label className="inline-flex items-center gap-2 cursor-pointer font-sans text-xs mt-2 mb-6">
@@ -282,17 +290,17 @@ export function GalleryTestimonialForm() {
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+              className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
             />
             <span>Active Status</span>
           </label>
 
-          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-aera-champagne/40">
+          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--admin-border)]/40">
             {editingId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="border border-aera-champagne text-aera-muted hover:bg-aera-champagne/10 rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
+                className="border border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[var(--admin-surface-muted)] rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
               >
                 Cancel
               </button>
@@ -300,13 +308,24 @@ export function GalleryTestimonialForm() {
             <button
               type="submit"
               disabled={formLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
             >
               {formLoading ? "Saving..." : editingId ? "Update Testimonial" : "Create Testimonial"}
             </button>
           </div>
         </form>
       </div>
+
+      {/* Confirm Deactivate Dialog */}
+      <AdminConfirmDialog
+        open={deleteTargetId !== null}
+        onClose={() => setDeleteTargetId(null)}
+        onConfirm={handleDelete}
+        title="Deactivate Testimonial"
+        description="Are you sure you want to deactivate this testimonial? This action will hide it from the public site."
+        confirmLabel="Deactivate"
+        variant="danger"
+      />
     </div>
   );
 }

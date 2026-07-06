@@ -54,11 +54,11 @@ export default function AdminGalleryItemsPage() {
       {/* Header */}
       <section className="admin-section-heading flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading leading-snug mb-1.5">
-            <ImageIcon size={24} className="text-aera-accent" />
+          <h1 className="text-2xl font-bold text-[var(--admin-ink)] flex items-center gap-2 font-heading leading-snug mb-1.5">
+            <ImageIcon size={24} className="text-[var(--admin-accent)]" />
             Gallery Design Items
           </h1>
-          <p className="text-xs text-aera-muted">
+          <p className="text-xs text-[var(--admin-muted)]">
             Manage individual nail designs, apply tags, and adjust highlight layouts.
           </p>
         </div>
@@ -66,7 +66,7 @@ export default function AdminGalleryItemsPage() {
         {!isEditing && (
           <button
             onClick={handleCreateNew}
-            className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-semibold px-4 py-2 rounded-full inline-flex items-center gap-1.5 border-none cursor-pointer shadow"
+            className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent)]Hover text-white text-xs font-semibold px-4 py-2 rounded-full inline-flex items-center gap-1.5 border-none cursor-pointer shadow"
           >
             <Plus size={14} />
             <span>Add Design</span>

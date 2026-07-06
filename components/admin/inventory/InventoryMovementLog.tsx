@@ -60,7 +60,7 @@ export const InventoryMovementLog: React.FC<InventoryMovementLogProps> = ({
 }) => {
   if (movements.length === 0) {
     return (
-      <p className="text-xs text-aera-muted py-4 text-center">
+      <p className="text-xs text-[var(--admin-muted)] py-4 text-center">
         No stock movements recorded yet.
       </p>
     );
@@ -78,7 +78,7 @@ export const InventoryMovementLog: React.FC<InventoryMovementLogProps> = ({
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.03, duration: 0.25 }}
-            className="flex items-center justify-between rounded-xl bg-aera-champagne/15 px-4 py-3"
+            className="flex items-center justify-between rounded-xl bg-[var(--admin-surface-muted)] px-4 py-3"
           >
             <div className="flex items-center gap-3">
               <div
@@ -88,7 +88,7 @@ export const InventoryMovementLog: React.FC<InventoryMovementLogProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-aera-ink">
+                  <span className="text-xs font-semibold text-[var(--admin-ink)]">
                     {config.label}
                   </span>
                   <span
@@ -101,17 +101,17 @@ export const InventoryMovementLog: React.FC<InventoryMovementLogProps> = ({
                   </span>
                 </div>
                 {movement.reason && (
-                  <p className="text-[11px] text-aera-muted mt-0.5">
+                  <p className="text-[11px] text-[var(--admin-muted)] mt-0.5">
                     {movement.reason}
                   </p>
                 )}
               </div>
             </div>
             <div className="text-right">
-              <p className="text-xs text-aera-muted">
+              <p className="text-xs text-[var(--admin-muted)]">
                 {movement.previousStock} → {movement.newStock}
               </p>
-              <p className="text-[10px] text-aera-muted/70 mt-0.5">
+              <p className="text-[10px] text-[var(--admin-placeholder)] mt-0.5">
                 {format(new Date(movement.createdAt), "MMM d, h:mm a")}
                 {movement.performedBy && ` · ${movement.performedBy}`}
               </p>

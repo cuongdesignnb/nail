@@ -2,8 +2,13 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { UserCircle, Search, Eye, Mail, Phone } from "lucide-react";
+import { UserCircle, Search, Eye } from "lucide-react";
 import Link from "next/link";
+import {
+  AdminPageHeader,
+  AdminLoadingState,
+  AdminEmptyState,
+} from "@/components/admin/ui";
 
 interface Customer {
   id: string;
@@ -39,51 +44,141 @@ export default function AdminCustomersPage() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   return (
-    <div style={{ padding: "0 32px 32px" }}>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#2f1c11", fontFamily: "var(--font-display)" }}>Customers</h1>
-        <p style={{ fontSize: 13, color: "#7f6d61", marginTop: 4 }}>View customer profiles, booking history & preferences</p>
+    <div className="admin-page-container">
+      <AdminPageHeader
+        eyebrow="Operations"
+        title="Customers"
+        description="View customer profiles, booking history & preferences"
+      />
+
+      {/* Search */}
+      <div className="relative mb-5 max-w-sm">
+        <Search
+          size={16}
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--admin-muted)]"
+        />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by name, email, phone..."
+          className="w-full rounded-[var(--admin-radius-md)] border border-[var(--admin-border-strong)] bg-[var(--admin-surface)] py-2.5 pl-9 pr-3 text-[13px] text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)] transition-colors focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20"
+        />
       </div>
 
-      <div style={{ marginBottom: 20, position: "relative", maxWidth: 400 }}>
-        <Search size={16} style={{ position: "absolute", left: 12, top: 11, color: "#7f6d61" }} />
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email, phone..." style={{ width: "100%", padding: "10px 12px 10px 36px", border: "1px solid rgba(116,55,15,0.12)", borderRadius: 10, fontSize: 13, background: "white" }} />
-      </div>
-
-      <div style={{ background: "white", borderRadius: 16, border: "1px solid rgba(116,55,15,0.08)", overflow: "hidden" }}>
+      {/* Table */}
+      <div className="overflow-hidden rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-[var(--admin-shadow-sm)]">
         {loading ? (
-          <div style={{ padding: 40, textAlign: "center", color: "#7f6d61" }}>Loading...</div>
-        ) : customers.length === 0 ? (
-          <div style={{ padding: 60, textAlign: "center" }}>
-            <UserCircle size={40} style={{ color: "#d9b894", marginBottom: 12 }} />
-            <p style={{ fontSize: 15, fontWeight: 600, color: "#4a2d1e" }}>No customers found</p>
+          <div className="p-8">
+            <AdminLoadingState variant="table" />
           </div>
+        ) : customers.length === 0 ? (
+          <AdminEmptyState
+            icon={UserCircle}
+            title="No customers found"
+            description="Customer records will appear here as they book."
+          />
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid rgba(116,55,15,0.08)" }}>
-                {["Name", "Email", "Phone", "Bookings", "Total Paid", "Last Payment", "Provider", ""].map((h) => (
-                  <th key={h} style={{ padding: "12px 16px", fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#7f6d61", textAlign: "left" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-[var(--admin-border)]">
+                    {["Name", "Email", "Phone", "Bookings", "Total Paid", "Last Payment", "Provider", ""].map((h) => (
+                      <th
+                        key={h}
+                        className="px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-wider text-[var(--admin-muted)]"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {customers.map((c, i) => (
+                    <motion.tr
+                      key={c.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: i * 0.02 }}
+                      className="border-b border-[var(--admin-border-muted)] transition-colors hover:bg-[var(--admin-surface-hover)]"
+                    >
+                      <td className="px-4 py-3.5 text-[13px] font-semibold text-[var(--admin-ink)]">
+                        {c.firstName} {c.lastName}
+                      </td>
+                      <td className="px-4 py-3.5 text-[13px] text-[var(--admin-ink-secondary)]">{c.email}</td>
+                      <td className="px-4 py-3.5 text-[13px] text-[var(--admin-ink-secondary)]">{c.phone || "—"}</td>
+                      <td className="px-4 py-3.5 text-[13px] font-bold text-[var(--admin-accent)]">{c.totalBookings}</td>
+                      <td className="px-4 py-3.5 text-[13px] font-bold text-[var(--admin-ink)]">${c.totalSpend?.toFixed(2)}</td>
+                      <td className="px-4 py-3.5 text-xs text-[var(--admin-muted)]">
+                        {c.lastPayment ? new Date(c.lastPayment).toLocaleDateString() : "Never"}
+                      </td>
+                      <td className="px-4 py-3.5 text-xs capitalize text-[var(--admin-ink-secondary)]">{c.paymentProvider || "—"}</td>
+                      <td className="px-4 py-3.5">
+                        <Link
+                          href={`/admin/customers/${c.id}`}
+                          className="inline-flex items-center justify-center rounded-[var(--admin-radius-sm)] p-1.5 text-[var(--admin-accent)] transition-colors hover:bg-[var(--admin-accent-soft)]"
+                          aria-label={`View customer ${c.firstName} ${c.lastName}`}
+                        >
+                          <Eye size={16} />
+                        </Link>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="flex flex-col divide-y divide-[var(--admin-border-muted)] md:hidden">
               {customers.map((c, i) => (
-                <motion.tr key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }} style={{ borderBottom: "1px solid rgba(116,55,15,0.04)" }}>
-                  <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 600, color: "#2f1c11" }}>{c.firstName} {c.lastName}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 13, color: "#4a2d1e" }}>{c.email}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 13, color: "#4a2d1e" }}>{c.phone || "—"}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, color: "#a85d1e" }}>{c.totalBookings}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, color: "#2f1c11" }}>${c.totalSpend?.toFixed(2)}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 12, color: "#7f6d61" }}>{c.lastPayment ? new Date(c.lastPayment).toLocaleDateString() : "Never"}</td>
-                  <td style={{ padding: "14px 16px", fontSize: 12, color: "#4a2d1e", textTransform: "capitalize" }}>{c.paymentProvider || "—"}</td>
-                  <td style={{ padding: "14px 16px" }}>
-                    <Link href={`/admin/customers/${c.id}`} style={{ color: "#a85d1e" }}><Eye size={16} /></Link>
-                  </td>
-                </motion.tr>
+                <motion.div
+                  key={c.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: i * 0.02 }}
+                  className="p-4"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="text-[13px] font-semibold text-[var(--admin-ink)]">
+                        {c.firstName} {c.lastName}
+                      </div>
+                      <div className="mt-0.5 text-[12px] text-[var(--admin-muted)]">{c.email}</div>
+                      {c.phone && <div className="text-[12px] text-[var(--admin-muted)]">{c.phone}</div>}
+                    </div>
+                    <Link
+                      href={`/admin/customers/${c.id}`}
+                      className="inline-flex items-center justify-center rounded-[var(--admin-radius-sm)] p-1.5 text-[var(--admin-accent)] transition-colors hover:bg-[var(--admin-accent-soft)]"
+                      aria-label={`View customer ${c.firstName} ${c.lastName}`}
+                    >
+                      <Eye size={16} />
+                    </Link>
+                  </div>
+                  <div className="mt-2 grid grid-cols-2 gap-y-1 text-[12px]">
+                    <div>
+                      <span className="text-[var(--admin-muted)]">Bookings: </span>
+                      <span className="font-bold text-[var(--admin-accent)]">{c.totalBookings}</span>
+                    </div>
+                    <div>
+                      <span className="text-[var(--admin-muted)]">Spent: </span>
+                      <span className="font-bold text-[var(--admin-ink)]">${c.totalSpend?.toFixed(2)}</span>
+                    </div>
+                    <div>
+                      <span className="text-[var(--admin-muted)]">Last paid: </span>
+                      <span className="text-[var(--admin-ink-secondary)]">
+                        {c.lastPayment ? new Date(c.lastPayment).toLocaleDateString() : "Never"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[var(--admin-muted)]">Provider: </span>
+                      <span className="capitalize text-[var(--admin-ink-secondary)]">{c.paymentProvider || "—"}</span>
+                    </div>
+                  </div>
+                </motion.div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
     </div>

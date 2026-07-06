@@ -25,16 +25,16 @@ export function MenuItemLinkEditor({ item, onChange }: { item: NavigationMenuIte
   return (
     <div className="space-y-4">
       <div>
-        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-aera-muted">Destination Type</p>
-        <div className="flex flex-wrap gap-1.5 rounded-2xl border border-aera-champagne/50 bg-aera-ivory p-1.5">
+        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-[var(--admin-muted)]">Destination Type</p>
+        <div className="flex flex-wrap gap-1.5 rounded-2xl border border-[var(--admin-border)]/50 bg-[var(--admin-canvas)] p-1.5">
           {linkTypes.map(({ type, label, icon: Icon }) => (
             <button
               type="button"
               key={type}
               onClick={() => updateType(type)}
-              className={`inline-flex min-h-10 flex-1 basis-[150px] items-center justify-center gap-2 rounded-xl px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 ${selectedType === type ? "bg-white text-aera-ink shadow-sm ring-1 ring-aera-accent/25" : "text-aera-muted hover:bg-white/70 hover:text-aera-ink"}`}
+              className={`inline-flex min-h-10 flex-1 basis-[150px] items-center justify-center gap-2 rounded-xl px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 ${selectedType === type ? "bg-white text-[var(--admin-ink)] shadow-sm ring-1 ring-[var(--admin-accent)]/25" : "text-[var(--admin-muted)] hover:bg-white/70 hover:text-[var(--admin-ink)]"}`}
             >
-              <Icon className="h-4 w-4 text-aera-accent" />
+              <Icon className="h-4 w-4 text-[var(--admin-accent)]" />
               {label}
             </button>
           ))}
@@ -55,7 +55,7 @@ export function MenuItemLinkEditor({ item, onChange }: { item: NavigationMenuIte
       {selectedType === "tel" && (
         <VisualInput
           label="Phone"
-          icon={<Phone className="h-4 w-4 text-aera-muted" />}
+          icon={<Phone className="h-4 w-4 text-[var(--admin-muted)]" />}
           value={(item.href || "").replace(/^tel:/, "")}
           placeholder="(626) 555-7800"
           hint={`Preview: tel:${(item.href || "").replace(/^tel:/, "")}`}
@@ -66,7 +66,7 @@ export function MenuItemLinkEditor({ item, onChange }: { item: NavigationMenuIte
       {selectedType === "mailto" && (
         <VisualInput
           label="Email"
-          icon={<AtSign className="h-4 w-4 text-aera-muted" />}
+          icon={<AtSign className="h-4 w-4 text-[var(--admin-muted)]" />}
           value={(item.href || "").replace(/^mailto:/, "")}
           placeholder="hello@aeranailounge.com"
           hint={`Preview: mailto:${(item.href || "").replace(/^mailto:/, "")}`}
@@ -80,12 +80,12 @@ export function MenuItemLinkEditor({ item, onChange }: { item: NavigationMenuIte
 function VisualInput({ label, value, placeholder, hint, icon, onChange }: { label: string; value: string; placeholder?: string; hint?: string; icon?: ReactNode; onChange: (value: string) => void }) {
   return (
     <label className="block">
-      <span className="text-xs font-bold uppercase tracking-wider text-aera-muted">{label}</span>
-      <span className="mt-2 flex min-h-11 items-center gap-2 rounded-xl border border-aera-champagne/60 bg-white px-3 focus-within:border-aera-accent focus-within:ring-2 focus-within:ring-aera-accent/15">
+      <span className="text-xs font-bold uppercase tracking-wider text-[var(--admin-muted)]">{label}</span>
+      <span className="mt-2 flex min-h-11 items-center gap-2 rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 focus-within:border-[var(--admin-accent)] focus-within:ring-2 focus-within:ring-[var(--admin-accent)]/15">
         {icon}
-        <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-w-0 flex-1 bg-transparent text-sm text-aera-ink outline-none" />
+        <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="min-w-0 flex-1 bg-transparent text-sm text-[var(--admin-ink)] outline-none" />
       </span>
-      {hint && <span className="mt-1 block text-[11px] text-aera-muted">{hint}</span>}
+      {hint && <span className="mt-1 block text-[11px] text-[var(--admin-muted)]">{hint}</span>}
     </label>
   );
 }

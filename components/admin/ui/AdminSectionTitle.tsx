@@ -17,17 +17,17 @@ export const AdminSectionTitle: React.FC<AdminSectionTitleProps> = ({
   return (
     <div className="flex items-start gap-3 mb-4">
       {Icon && (
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-aera-champagne/50 mt-0.5">
-          <Icon className="h-4 w-4 text-aera-accent" />
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--admin-accent-soft)] mt-0.5">
+          <Icon className="h-4 w-4 text-[var(--admin-accent)]" />
         </div>
       )}
 
       <div className="min-w-0">
-        <h2 className="text-sm font-bold text-aera-ink tracking-wide">
+        <h2 className="text-sm font-bold text-[var(--admin-ink)] tracking-wide">
           {title}
         </h2>
         {description && (
-          <p className="mt-0.5 text-xs text-aera-muted leading-relaxed">
+          <p className="mt-0.5 text-xs text-[var(--admin-muted)] leading-relaxed">
             {description}
           </p>
         )}

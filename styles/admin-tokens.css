@@ -5,40 +5,43 @@
 
 :root {
   /* ── Surfaces ────────────────────────────────────────────────────────── */
-  --admin-canvas: #FAF6F1;           /* Warm ivory page background */
+  --admin-canvas: #FAF8F5;           /* Warm ivory page background */
   --admin-surface: #FFFFFF;           /* Card / panel surface */
-  --admin-surface-muted: #F8F3ED;     /* Subtle background areas */
-  --admin-surface-hover: #F3ECE3;     /* Hover on cards or rows */
+  --admin-surface-muted: #F9F4EE;     /* Subtle background areas */
+  --admin-surface-hover: #F3EDE5;     /* Hover on cards or rows */
   --admin-surface-raised: #FFFDFB;    /* Sidebar, elevated panels */
 
+  /* ── Sidebar ─────────────────────────────────────────────────────────── */
+  --admin-sidebar-bg: #F6F0E9;        /* Sidebar background */
+
   /* ── Borders ─────────────────────────────────────────────────────────── */
-  --admin-border: rgba(116, 55, 15, 0.08);
-  --admin-border-strong: rgba(116, 55, 15, 0.15);
-  --admin-border-muted: rgba(116, 55, 15, 0.05);
+  --admin-border: #E9E0D8;
+  --admin-border-strong: #DDD3CA;
+  --admin-border-muted: #F0E9E2;
 
   /* ── Typography Colors ───────────────────────────────────────────────── */
-  --admin-ink: #2F1C11;               /* Primary text — warm dark brown */
-  --admin-ink-secondary: #4A2D1E;     /* Secondary text */
-  --admin-muted: #7F6D61;             /* Muted / helper text — taupe */
+  --admin-ink: #2D211B;               /* Primary text — warm dark brown */
+  --admin-ink-secondary: #756B63;     /* Secondary text */
+  --admin-muted: #9C9188;             /* Muted / helper text — taupe */
   --admin-placeholder: #B8A99C;       /* Input placeholders */
 
   /* ── Brand Accent — Copper/Bronze ────────────────────────────────────── */
-  --admin-accent: #A7622A;            /* Copper primary */
-  --admin-accent-hover: #8A4F1D;      /* Darker copper for hover */
-  --admin-accent-soft: rgba(167, 98, 42, 0.08);  /* Soft copper fill */
-  --admin-accent-muted: rgba(167, 98, 42, 0.12); /* Copper tint */
+  --admin-accent: #B76E45;            /* Copper primary */
+  --admin-accent-hover: #814429;      /* Darker copper for hover */
+  --admin-accent-soft: #F4E4D7;       /* Soft copper fill */
+  --admin-accent-muted: rgba(183, 110, 69, 0.15); /* Copper tint */
 
   /* ── Semantic Colors ─────────────────────────────────────────────────── */
-  --admin-success: #1A7A3A;           /* Confirmed / Paid / Active */
-  --admin-success-soft: rgba(26, 122, 58, 0.08);
-  --admin-warning: #B45309;           /* Pending / Action required */
-  --admin-warning-soft: rgba(180, 83, 9, 0.08);
-  --admin-danger: #C53030;            /* Cancelled / Failed / Destructive */
-  --admin-danger-soft: rgba(197, 48, 48, 0.08);
+  --admin-success: #2F7D62;           /* Confirmed / Paid / Active */
+  --admin-success-soft: #E7F4ED;
+  --admin-warning: #C88718;           /* Pending / Action required */
+  --admin-warning-soft: #FFF4D8;
+  --admin-danger: #C94F4F;            /* Cancelled / Failed / Destructive */
+  --admin-danger-soft: #FCE9E9;
   --admin-info: #1D6FA5;              /* Informational */
-  --admin-info-soft: rgba(29, 111, 165, 0.08);
-  --admin-neutral: #6B5E54;           /* Completed / Neutral */
-  --admin-neutral-soft: rgba(107, 94, 84, 0.08);
+  --admin-info-soft: #E3F0FA;
+  --admin-neutral: #756052;           /* Completed / Neutral */
+  --admin-neutral-soft: #EFE9E4;
 
   /* ── Radius ──────────────────────────────────────────────────────────── */
   --admin-radius-xs: 6px;
@@ -56,8 +59,8 @@
   --admin-shadow-xl: 0 18px 50px rgba(77, 43, 20, 0.1);
 
   /* ── Layout ──────────────────────────────────────────────────────────── */
-  --admin-sidebar-width: 300px;
-  --admin-sidebar-collapsed-width: 80px;
+  --admin-sidebar-width: 256px;
+  --admin-sidebar-collapsed-width: 76px;
   --admin-topbar-height: 72px;
   --admin-content-max-width: 1400px;
 

@@ -22,89 +22,35 @@ export default function InventoryAlertsCard({
       action={{ label: 'Manage Inventory', href: '/admin/inventory' }}
     >
       {alerts.length === 0 ? (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '40px 20px',
-            gap: 12,
-          }}
-        >
-          <div
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: 14,
-              background: 'rgba(63, 145, 66, 0.08)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <CheckCircle size={24} color="#3f9142" strokeWidth={1.8} />
+        <div className="flex flex-col items-center justify-center gap-3 px-5 py-10">
+          <div className="flex h-[50px] w-[50px] items-center justify-center rounded-[14px] bg-[var(--admin-success-soft)]">
+            <CheckCircle size={24} className="text-[var(--admin-success)]" strokeWidth={1.8} />
           </div>
-          <p
-            style={{
-              fontSize: 13,
-              color: '#7f6d61',
-              textAlign: 'center',
-              margin: 0,
-            }}
-          >
+          <p className="m-0 text-center text-[13px] text-[var(--admin-muted)]">
             Inventory levels are healthy.
           </p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="flex flex-col gap-2">
           {alerts.map((item) => (
             <div
               key={item.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '10px 12px',
-                borderRadius: 12,
-                background: 'rgba(197, 48, 48, 0.03)',
-                border: '1px solid rgba(197, 48, 48, 0.06)',
-              }}
+              className="flex items-center gap-2.5 rounded-[var(--admin-radius-md)] border border-[var(--admin-danger-soft)] bg-[var(--admin-danger-soft)]/30 px-3 py-2.5"
             >
               <Package
                 size={16}
-                color="#c53030"
+                className="shrink-0 text-[var(--admin-danger)]"
                 strokeWidth={1.8}
-                style={{ flexShrink: 0 }}
               />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: '#2f1c11',
-                  }}
-                >
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] font-semibold text-[var(--admin-ink)]">
                   {item.name}
                 </div>
-                <div style={{ fontSize: 11, color: '#7f6d61', marginTop: 2 }}>
+                <div className="mt-0.5 text-[11px] text-[var(--admin-muted)]">
                   {item.currentStock} / {item.reorderLevel} {item.unit}s
                 </div>
               </div>
-              <span
-                style={{
-                  display: 'inline-block',
-                  padding: '3px 8px',
-                  borderRadius: 6,
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: '#c53030',
-                  background: 'rgba(197, 48, 48, 0.10)',
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.3,
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <span className="inline-block whitespace-nowrap rounded-[var(--admin-radius-xs)] bg-[var(--admin-danger-soft)] px-2 py-[3px] text-[10px] font-bold uppercase tracking-wide text-[var(--admin-danger)]">
                 Low Stock
               </span>
             </div>

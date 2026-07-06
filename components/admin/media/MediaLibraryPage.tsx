@@ -127,11 +127,11 @@ export function MediaLibraryPage() {
     <div className="font-sans text-left">
       {/* Header */}
       <section className="mb-6">
-        <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading">
-          <ImageIcon size={24} className="text-aera-accent" />
+        <h1 className="text-2xl font-bold text-[var(--admin-ink)] flex items-center gap-2 font-heading">
+          <ImageIcon size={24} className="text-[var(--admin-accent)]" />
           Media Library
         </h1>
-        <p className="text-xs text-aera-muted mt-1">
+        <p className="text-xs text-[var(--admin-muted)] mt-1">
           Upload, organize, and manage all your images in one place.
         </p>
       </section>
@@ -165,7 +165,7 @@ export function MediaLibraryPage() {
         <div className="lg:col-span-8 xl:col-span-9">
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <div className="animate-spin h-6 w-6 border-2 border-aera-accent border-t-transparent rounded-full" />
+              <div className="animate-spin h-6 w-6 border-2 border-[var(--admin-accent)] border-t-transparent rounded-full" />
             </div>
           ) : assets.length === 0 ? (
             <MediaEmptyState />
@@ -183,17 +183,17 @@ export function MediaLibraryPage() {
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1}
-                    className="px-3 py-1.5 text-xs rounded-lg border border-aera-champagne/60 bg-white text-aera-ink hover:bg-aera-champagne/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    className="px-3 py-1.5 text-xs rounded-lg border border-[var(--admin-border-strong)] bg-white text-[var(--admin-ink)] hover:bg-[var(--admin-surface-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                   >
                     Previous
                   </button>
-                  <span className="text-xs text-aera-muted">
+                  <span className="text-xs text-[var(--admin-muted)]">
                     Page {page} of {totalPages}
                   </span>
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page >= totalPages}
-                    className="px-3 py-1.5 text-xs rounded-lg border border-aera-champagne/60 bg-white text-aera-ink hover:bg-aera-champagne/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    className="px-3 py-1.5 text-xs rounded-lg border border-[var(--admin-border-strong)] bg-white text-[var(--admin-ink)] hover:bg-[var(--admin-surface-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                   >
                     Next
                   </button>

@@ -19,17 +19,17 @@ export function ContentHubErrorState({ message, onRetry }: Props) {
         <AlertTriangle size={28} className="text-rose-500" />
       </div>
 
-      <h2 className="text-lg font-bold text-aera-ink mb-2">
+      <h2 className="text-lg font-bold text-[var(--admin-ink)] mb-2">
         Unable to Load Content Hub
       </h2>
 
-      <p className="text-sm text-aera-muted mb-6 leading-relaxed">
+      <p className="text-sm text-[var(--admin-muted)] mb-6 leading-relaxed">
         {message || "Something went wrong while fetching page data. Please try again."}
       </p>
 
       <button
         onClick={onRetry}
-        className="inline-flex items-center gap-2 bg-aera-accent text-white text-sm font-bold rounded-xl px-5 py-2.5 hover:bg-aera-accentHover transition-colors shadow-sm"
+        className="inline-flex items-center gap-2 bg-[var(--admin-accent)] text-white text-sm font-bold rounded-xl px-5 py-2.5 hover:bg-[var(--admin-accent-hover)] transition-colors shadow-sm"
       >
         <RefreshCw size={15} />
         Retry

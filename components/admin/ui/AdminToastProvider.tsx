@@ -28,6 +28,10 @@ export interface Toast {
 
 interface ToastContextValue {
   toast: (params: Omit<Toast, "id">) => void;
+  success: (title: string, description?: string) => void;
+  error: (title: string, description?: string) => void;
+  info: (title: string, description?: string) => void;
+  warning: (title: string, description?: string) => void;
   dismiss: (id: string) => void;
 }
 
@@ -89,8 +93,24 @@ export const AdminToastProvider: React.FC<{ children: React.ReactNode }> = ({
     [dismiss]
   );
 
+  const success = useCallback((title: string, description?: string) => {
+    addToast({ type: "success", title, description });
+  }, [addToast]);
+
+  const error = useCallback((title: string, description?: string) => {
+    addToast({ type: "error", title, description });
+  }, [addToast]);
+
+  const info = useCallback((title: string, description?: string) => {
+    addToast({ type: "info", title, description });
+  }, [addToast]);
+
+  const warning = useCallback((title: string, description?: string) => {
+    addToast({ type: "warning", title, description });
+  }, [addToast]);
+
   return (
-    <ToastContext.Provider value={{ toast: addToast, dismiss }}>
+    <ToastContext.Provider value={{ toast: addToast, success, error, info, warning, dismiss }}>
       {children}
 
       {/* Toast Container */}
@@ -117,11 +137,11 @@ export const AdminToastProvider: React.FC<{ children: React.ReactNode }> = ({
                 <IconComp className={clsx("h-5 w-5 shrink-0 mt-0.5", style.icon)} />
 
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-aera-ink">
+                  <p className="text-sm font-semibold text-[var(--admin-ink)]">
                     {t.title}
                   </p>
                   {t.description && (
-                    <p className="mt-0.5 text-xs text-aera-muted leading-relaxed">
+                    <p className="mt-0.5 text-xs text-[var(--admin-muted)] leading-relaxed">
                       {t.description}
                     </p>
                   )}
@@ -130,7 +150,7 @@ export const AdminToastProvider: React.FC<{ children: React.ReactNode }> = ({
                 <button
                   type="button"
                   onClick={() => dismiss(t.id)}
-                  className="shrink-0 rounded-lg p-0.5 text-aera-muted hover:text-aera-ink transition-colors"
+                  className="shrink-0 rounded-lg p-0.5 text-[var(--admin-muted)] hover:text-[var(--admin-ink)] transition-colors"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>

@@ -112,13 +112,14 @@ export default function ReviewModerationTable() {
   ];
 
   const selectClass =
-    "rounded-xl border border-aera-champagne/60 bg-white px-3 py-2 text-xs text-aera-ink focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20 w-full md:!w-[140px]";
+    "rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20 w-full md:!w-[140px]";
 
   return (
     <div className="p-6 space-y-6">
       <AdminPageHeader
+        eyebrow="Reputation"
         title="Reviews"
-        description="Moderate customer reviews — approve, hide, or delete feedback."
+        description="Moderate customer reviews and ratings."
         breadcrumbs={[
           { label: "Admin", href: "/admin" },
           { label: "Reviews" },
@@ -170,7 +171,7 @@ export default function ReviewModerationTable() {
       {loading ? (
         <AdminLoadingState variant="table" />
       ) : reviews.length === 0 ? (
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white">
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white">
           <AdminEmptyState
             icon={MessageSquare}
             title="No reviews found"
@@ -185,12 +186,12 @@ export default function ReviewModerationTable() {
         >
           <AdminTableShell columns={columns}>
             {reviews.map((review) => (
-              <tr key={review.id} className="hover:bg-aera-champagne/10 transition-colors">
-                <td className="px-5 py-3 text-xs font-semibold text-aera-ink">
+              <tr key={review.id} className="hover:bg-[var(--admin-surface-muted)] transition-colors">
+                <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">
                   {review.customer}
                 </td>
                 <td className="px-5 py-3">{renderStars(review.rating)}</td>
-                <td className="px-5 py-3 text-xs text-aera-muted max-w-xs">
+                <td className="px-5 py-3 text-xs text-[var(--admin-muted)] max-w-xs">
                   <p className="line-clamp-2">{review.text}</p>
                 </td>
                 <td className="px-5 py-3">
@@ -209,7 +210,7 @@ export default function ReviewModerationTable() {
                     {review.approved ? "Approved" : "Pending"}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-xs text-aera-muted whitespace-nowrap">
+                <td className="px-5 py-3 text-xs text-[var(--admin-muted)] whitespace-nowrap">
                   {new Date(review.createdAt).toLocaleDateString()}
                 </td>
                 <td className="px-5 py-3">

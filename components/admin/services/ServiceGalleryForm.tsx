@@ -5,11 +5,14 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
 
 export function ServiceGalleryForm() {
+  const toast = useToast();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   // Form fields
   const [title, setTitle] = useState("");
@@ -113,17 +116,21 @@ export function ServiceGalleryForm() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to deactivate this gallery item?")) return;
+  const handleDeleteClick = (id: string) => setDeleteTarget(id);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/service-gallery/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/service-gallery/${deleteTarget}`, { method: "DELETE" });
       if (res.ok) {
         fetchItems();
       } else {
-        alert("Failed to deactivate gallery item");
+        toast.toast({ type: "error", title: "Failed to deactivate gallery item" });
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -132,19 +139,19 @@ export function ServiceGalleryForm() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
       {/* Gallery list */}
-      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-lg font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-lg font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Gallery Items
         </h3>
 
         {loading ? (
-          <p className="text-xs text-aera-muted italic py-4">Loading gallery...</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">Loading gallery...</p>
         ) : items.length === 0 ? (
-          <p className="text-xs text-aera-muted italic py-4">No gallery items added yet.</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">No gallery items added yet.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {items.map((item) => (
-              <div key={item.id} className="relative group aspect-square bg-aera-champagne/10 rounded-2xl overflow-hidden border border-aera-champagne/40">
+              <div key={item.id} className="relative group aspect-square bg-[var(--admin-surface-muted)] rounded-2xl overflow-hidden border border-[var(--admin-border)]/40">
                 <Image
                   src={item.image}
                   alt={item.title || "Inspiration"}
@@ -153,9 +160,9 @@ export function ServiceGalleryForm() {
                 />
 
                 {/* Edit overlay */}
-                <div className="absolute inset-0 bg-aera-ink/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-3 flex flex-col justify-between text-white">
+                <div className="absolute inset-0 bg-[var(--admin-ink)]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-3 flex flex-col justify-between text-white">
                   <div className="flex justify-between items-start">
-                    <span className="bg-aera-accent text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className="bg-[var(--admin-accent)] text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                       {item.tag}
                     </span>
                     <StatusBadge active={item.isActive} activeLabel="A" inactiveLabel="I" />
@@ -171,7 +178,7 @@ export function ServiceGalleryForm() {
                         <Edit size={11} />
                       </button>
                       <button
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleDeleteClick(item.id)}
                         className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded p-1 cursor-pointer border-none"
                       >
                         <Trash2 size={11} />
@@ -187,8 +194,8 @@ export function ServiceGalleryForm() {
 
       {/* Editor Form */}
       <div className="lg:col-span-5">
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-          <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+          <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
             {editingId ? "Edit Item" : "Add Gallery Item"}
           </h3>
 
@@ -246,17 +253,17 @@ export function ServiceGalleryForm() {
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+              className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
             />
             <span>Active Status</span>
           </label>
 
-          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-aera-champagne/40">
+          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--admin-border)]/40">
             {editingId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="border border-aera-champagne text-aera-muted hover:bg-aera-champagne/10 rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
+                className="border border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[var(--admin-surface-muted)] rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
               >
                 Cancel
               </button>
@@ -264,13 +271,22 @@ export function ServiceGalleryForm() {
             <button
               type="submit"
               disabled={formLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
             >
               {formLoading ? "Saving..." : editingId ? "Update Item" : "Save Item"}
             </button>
           </div>
         </form>
       </div>
+      <AdminConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Deactivate Gallery Item"
+        description="Are you sure you want to deactivate this gallery item? This cannot be undone."
+        confirmLabel="Deactivate"
+        variant="danger"
+      />
     </div>
   );
 }

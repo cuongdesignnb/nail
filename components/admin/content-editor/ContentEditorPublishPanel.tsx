@@ -37,9 +37,9 @@ export function ContentEditorPublishPanel({
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: 0.1, ease: "easeOut" }}
-      className="rounded-2xl border border-aera-champagne/20 bg-white/90 p-4 space-y-3"
+      className="rounded-2xl border border-[var(--admin-border)]/20 bg-white/90 p-4 space-y-3"
     >
-      <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-aera-muted">
+      <p className="text-[10px] font-bold uppercase tracking-[1.4px] text-[var(--admin-muted)]">
         Actions
       </p>
 
@@ -57,21 +57,21 @@ export function ContentEditorPublishPanel({
 
         {/* Tooltip hint when dirty */}
         {isDirty && hasUnpublishedChanges && (
-          <span className="pointer-events-none absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-aera-ink/80 px-2 py-0.5 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100">
+          <span className="pointer-events-none absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-[var(--admin-ink)]/80 px-2 py-0.5 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100">
             Save draft first
           </span>
         )}
       </div>
 
       {/* Separator */}
-      <hr className="border-aera-champagne/30" />
+      <hr className="border-[var(--admin-border)]" />
 
       {/* Discard Draft */}
       <button
         type="button"
         onClick={onDiscard}
         disabled={!hasUnpublishedChanges}
-        className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-aera-champagne/50 bg-transparent px-4 py-2 text-[11px] font-bold text-aera-muted transition-colors hover:border-amber-300 hover:text-amber-700 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-aera-champagne/50 disabled:hover:text-aera-muted"
+        className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--admin-border)]/50 bg-transparent px-4 py-2 text-[11px] font-bold text-[var(--admin-muted)] transition-colors hover:border-amber-300 hover:text-amber-700 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-[var(--admin-border)]/50 disabled:hover:text-[var(--admin-muted)]"
       >
         <Undo2 size={13} />
         Discard Draft
@@ -81,7 +81,7 @@ export function ContentEditorPublishPanel({
       <button
         type="button"
         onClick={onRestore}
-        className="w-full inline-flex items-center justify-center gap-2 bg-transparent px-4 py-1.5 text-[10px] font-bold text-aera-muted transition-colors hover:text-red-600"
+        className="w-full inline-flex items-center justify-center gap-2 bg-transparent px-4 py-1.5 text-[10px] font-bold text-[var(--admin-muted)] transition-colors hover:text-red-600"
       >
         <RotateCcw size={12} />
         Restore Default Content

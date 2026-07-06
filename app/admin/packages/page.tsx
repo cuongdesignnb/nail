@@ -4,6 +4,7 @@ import { AdminPackagesNavTabs } from "@/components/admin/packages/AdminPackagesN
 import { Gift, Layers, ClipboardList, Gem, Compass, Plus, Star } from "lucide-react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { AdminPageHeader } from "@/components/admin/ui";
 
 export default function AdminPackagesDashboard() {
   const [loading, setLoading] = useState(false);
@@ -69,32 +70,25 @@ export default function AdminPackagesDashboard() {
   };
 
   const statCards = [
-    { label: "Total Packages", count: stats.packages, icon: Gift, color: "text-aera-accent bg-aera-accent/10" },
+    { label: "Total Packages", count: stats.packages, icon: Gift, color: "text-[var(--admin-accent)] bg-[var(--admin-accent)]/10" },
     { label: "Category Tabs", count: stats.categories, icon: Layers, color: "text-amber-600 bg-amber-50" },
     { label: "Loyalty Perks", count: stats.rewards, icon: Gem, color: "text-emerald-600 bg-emerald-50" },
     { label: "Occasion Cards", count: stats.occasions, icon: Compass, color: "text-indigo-600 bg-indigo-50" },
   ];
 
   return (
-    <div className="admin-page font-sans text-left p-6">
-      {/* Header */}
-      <section className="admin-section-heading flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading leading-snug mb-1.5">
-            <Gift size={24} className="text-aera-accent" />
-            Nail Packages Manager
-          </h1>
-          <p className="text-xs text-aera-muted">
-            Configure premium nail combo packages, compare layouts, and manage custom membership perks.
-          </p>
-        </div>
-      </section>
+    <div className="admin-page-container">
+      <AdminPageHeader
+        eyebrow="Catalog"
+        title="Nail Packages Manager"
+        description="Configure premium nail combo packages, compare layouts, and manage custom membership perks."
+      />
 
       {/* Nav tabs */}
       <AdminPackagesNavTabs />
 
       {loading ? (
-        <p className="text-xs text-aera-muted italic py-10 text-center">Loading dashboard metrics...</p>
+        <p className="text-xs text-[var(--admin-muted)] italic py-10 text-center">Loading dashboard metrics...</p>
       ) : (
         <div className="space-y-8 mt-4">
           {/* Quick Stats Grid */}
@@ -104,16 +98,16 @@ export default function AdminPackagesDashboard() {
               return (
                 <div
                   key={idx}
-                  className="bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-sm flex items-center gap-4 hover:shadow-luxury transition-all duration-300"
+                  className="bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-sm flex items-center gap-4 hover:shadow-luxury transition-all duration-300"
                 >
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${card.color}`}>
                     <IconComp size={20} />
                   </div>
                   <div>
-                    <h4 className="text-[10px] text-aera-muted uppercase tracking-wider font-semibold">
+                    <h4 className="text-[10px] text-[var(--admin-muted)] uppercase tracking-wider font-semibold">
                       {card.label}
                     </h4>
-                    <span className="text-xl font-bold text-aera-ink block mt-0.5">{card.count}</span>
+                    <span className="text-xl font-bold text-[var(--admin-ink)] block mt-0.5">{card.count}</span>
                   </div>
                 </div>
               );
@@ -122,12 +116,12 @@ export default function AdminPackagesDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Recent list */}
-            <div className="lg:col-span-8 bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury">
-              <div className="flex justify-between items-center mb-6 border-b border-aera-champagne/30 pb-3">
-                <h3 className="font-heading text-sm font-normal text-aera-ink">Recent Packages</h3>
+            <div className="lg:col-span-8 bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury">
+              <div className="flex justify-between items-center mb-6 border-b border-[var(--admin-border)] pb-3">
+                <h3 className="font-heading text-sm font-normal text-[var(--admin-ink)]">Recent Packages</h3>
                 <Link
                   href="/admin/packages/items"
-                  className="text-[10px] font-bold text-aera-accent hover:underline uppercase tracking-wider decoration-none"
+                  className="text-[10px] font-bold text-[var(--admin-accent)] hover:underline uppercase tracking-wider decoration-none"
                 >
                   View All
                 </Link>
@@ -135,43 +129,43 @@ export default function AdminPackagesDashboard() {
 
               <div className="space-y-4">
                 {recent.map((pkg) => (
-                  <div key={pkg.id} className="flex justify-between items-center py-2 border-b border-aera-champagne/10 last:border-none">
+                  <div key={pkg.id} className="flex justify-between items-center py-2 border-b border-[var(--admin-border)]/10 last:border-none">
                     <div className="text-left">
-                      <h4 className="font-semibold text-xs text-aera-ink">{pkg.name}</h4>
-                      <span className="text-[9px] text-aera-muted uppercase tracking-wider">
+                      <h4 className="font-semibold text-xs text-[var(--admin-ink)]">{pkg.name}</h4>
+                      <span className="text-[9px] text-[var(--admin-muted)] uppercase tracking-wider">
                         {pkg.category?.name || "Uncategorized"} • {pkg.durationLabel || pkg.visitCountLabel || "no duration"}
                       </span>
                     </div>
                     <div className="flex gap-4 items-center">
-                      <span className="text-xs font-bold text-aera-accent">{pkg.priceLabel}</span>
+                      <span className="text-xs font-bold text-[var(--admin-accent)]">{pkg.priceLabel}</span>
                       <StatusBadge active={pkg.isActive} />
                     </div>
                   </div>
                 ))}
                 {recent.length === 0 && (
-                  <p className="text-xs text-aera-muted italic py-6 text-center">No packages added yet.</p>
+                  <p className="text-xs text-[var(--admin-muted)] italic py-6 text-center">No packages added yet.</p>
                 )}
               </div>
             </div>
 
             {/* Quick action shortcuts */}
-            <div className="lg:col-span-4 bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury self-start">
-              <h3 className="font-heading text-sm font-normal text-aera-ink mb-6 border-b border-aera-champagne/30 pb-3">
+            <div className="lg:col-span-4 bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury self-start">
+              <h3 className="font-heading text-sm font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border)] pb-3">
                 Quick Shortcuts
               </h3>
               <div className="flex flex-col gap-3">
                 <Link
                   href="/admin/packages/items?action=new"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-aera-accent hover:bg-aera-accentHover text-white py-2.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-300 decoration-none shadow-sm"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-[var(--admin-accent)] hover:bg-[var(--admin-accent)]Hover text-white py-2.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-300 decoration-none shadow-sm"
                 >
                   <Plus size={14} />
                   <span>Create Package</span>
                 </Link>
                 <Link
                   href="/admin/content-settings?pageKey=packages"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-white hover:bg-aera-cream text-aera-muted border border-aera-champagne/60 py-2.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-300 decoration-none"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-white hover:bg-[var(--admin-surface-hover)] text-[var(--admin-muted)] border border-[var(--admin-border-strong)] py-2.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-300 decoration-none"
                 >
-                  <Star size={14} className="text-aera-accent" />
+                  <Star size={14} className="text-[var(--admin-accent)]" />
                   <span>Manage FAQs & Reviews</span>
                 </Link>
               </div>

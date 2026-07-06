@@ -34,7 +34,7 @@ export const AdminTableShell: React.FC<AdminTableShellProps> = ({
 
   if (empty) {
     return (
-      <div className="rounded-2xl border border-aera-champagne/30 bg-white">
+      <div className="rounded-2xl border border-[var(--admin-border)] bg-[var(--admin-surface)]">
         <AdminEmptyState
           icon={Inbox}
           title={emptyTitle}
@@ -45,15 +45,15 @@ export const AdminTableShell: React.FC<AdminTableShellProps> = ({
   }
 
   return (
-    <div className="rounded-2xl border border-aera-champagne/30 bg-white overflow-hidden">
+    <div className="rounded-2xl border border-[var(--admin-border)] bg-[var(--admin-surface)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-aera-champagne/30 bg-aera-champagne/10">
+          <thead className="bg-[var(--admin-surface)]">
+            <tr className="sticky top-0 z-10 border-b border-[var(--admin-border)] bg-[var(--admin-sidebar-bg)]">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="sticky top-0 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-aera-muted whitespace-nowrap"
+                  className="px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)] whitespace-nowrap"
                   style={col.width ? { width: col.width } : undefined}
                 >
                   {col.label}
@@ -61,7 +61,7 @@ export const AdminTableShell: React.FC<AdminTableShellProps> = ({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-aera-champagne/20">
+          <tbody className="divide-y divide-[var(--admin-border-muted)]">
             {children}
           </tbody>
         </table>

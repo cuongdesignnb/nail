@@ -13,13 +13,13 @@ const robotsOptions = [
 export function SeoRobotsControl({ value, onChange }: SeoRobotsControlProps) {
   return (
     <div>
-      <label className="mb-1.5 block text-sm font-medium text-aera-ink">
+      <label className="mb-1.5 block text-sm font-medium text-[var(--admin-ink)]">
         Robots Directive
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-aera-ink focus:border-aera-accent focus:outline-none"
+        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none"
       >
         {robotsOptions.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -27,7 +27,7 @@ export function SeoRobotsControl({ value, onChange }: SeoRobotsControlProps) {
           </option>
         ))}
       </select>
-      <p className="mt-1 text-xs text-aera-muted">
+      <p className="mt-1 text-xs text-[var(--admin-muted)]">
         Controls whether search engines index and follow links on this page
       </p>
     </div>

@@ -13,17 +13,17 @@ export function FooterMenuAssignments({ menus }: { menus: any[] }) {
   const footerMenus = menus.filter((menu) => menu.location.startsWith("footer_"));
   return (
     <AdminSectionCard title="Footer Menu Assignments">
-      <div className="divide-y divide-aera-champagne/30 rounded-xl border border-aera-champagne/40">
+      <div className="divide-y divide-[var(--admin-border)] rounded-xl border border-[var(--admin-border)]/40">
         {footerMenus.map((menu) => (
           <div key={menu.key} className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">{labels[menu.location] || menu.location}</p>
-              <h3 className="text-sm font-bold text-aera-ink">{menu.name}</h3>
-              <p className="text-xs text-aera-muted">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">{labels[menu.location] || menu.location}</p>
+              <h3 className="text-sm font-bold text-[var(--admin-ink)]">{menu.name}</h3>
+              <p className="text-xs text-[var(--admin-muted)]">
                 Assigned Menu: {menu.key} - Items: {menu.draftItemCount} - Status: {menu.hasDraftChanges ? "Draft changes" : "Published"}
               </p>
             </div>
-            <Link href={`/admin/menus/${menu.key}`} className="rounded-full bg-aera-ink px-4 py-2 text-xs font-bold uppercase tracking-wider text-white">
+            <Link href={`/admin/menus/${menu.key}`} className="rounded-full bg-[var(--admin-ink)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white">
               Open Menu Editor
             </Link>
           </div>

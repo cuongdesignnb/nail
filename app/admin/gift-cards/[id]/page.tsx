@@ -14,7 +14,7 @@ export default async function AdminGiftCardDetailPage({ params }: { params: { id
   return (
     <div className="space-y-6">
       <div>
-        <Link className="text-sm font-semibold text-aera-accent" href="/admin/gift-cards">Back to Gift Cards</Link>
+        <Link className="text-sm font-semibold text-[var(--admin-accent)]" href="/admin/gift-cards">Back to Gift Cards</Link>
         <h1 className="mt-2 font-heading text-3xl font-bold">Gift Card {card.codeSuffix}</h1>
         <div className="mt-3 flex flex-wrap gap-2"><GiftCardStatusBadge value={card.status} /><GiftCardStatusBadge value={card.emailStatus} /></div>
       </div>

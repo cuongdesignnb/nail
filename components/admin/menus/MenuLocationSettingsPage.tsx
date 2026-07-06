@@ -73,7 +73,7 @@ export function MenuLocationSettingsPage() {
         title="Menu Location Settings"
         description="Configure mobile navigation inheritance and Footer layout without editing menu trees here."
         breadcrumbs={[{ label: "Menus", href: "/admin/menus" }, { label: "Settings" }]}
-        actions={<Link href="/admin/menus" className="rounded-full border border-aera-champagne px-4 py-2 text-xs font-bold uppercase tracking-wider text-aera-ink">Back to Menus</Link>}
+        actions={<Link href="/admin/menus" className="rounded-full border border-[var(--admin-border)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--admin-ink)]">Back to Menus</Link>}
       />
 
       {loading && <AdminLoadingState variant="form" />}
@@ -87,7 +87,7 @@ export function MenuLocationSettingsPage() {
 
           <AdminSectionCard title="Save Location Settings">
             <div className="flex flex-wrap items-center gap-3">
-              <button disabled={saving} onClick={save} className="rounded-full bg-aera-accent px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white disabled:opacity-60">
+              <button disabled={saving} onClick={save} className="rounded-full bg-[var(--admin-accent)] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white disabled:opacity-60">
                 {saving ? "Saving..." : "Save Settings"}
               </button>
               {message && <p className="text-xs font-semibold text-emerald-700">{message}</p>}

@@ -27,7 +27,7 @@ interface UserFormProps {
 const ROLES = ["Owner", "Manager", "Receptionist", "Technician"];
 
 const inputClass =
-  "w-full rounded-xl border border-aera-champagne/60 bg-white px-3.5 py-2.5 text-xs text-aera-ink placeholder:text-aera-muted/50 transition-colors focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20";
+  "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3.5 py-2.5 text-xs text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)] transition-colors focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
 
 export const UserForm: React.FC<UserFormProps> = ({
   initialData,
@@ -138,7 +138,7 @@ export const UserForm: React.FC<UserFormProps> = ({
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center gap-2 rounded-full bg-aera-accent px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
+          className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2"
         >
           <Save className="h-3.5 w-3.5" />
           {submitting ? "Saving…" : isEdit ? "Update User" : "Create User"}
@@ -146,7 +146,7 @@ export const UserForm: React.FC<UserFormProps> = ({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-full border border-aera-champagne/60 bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-aera-ink transition-colors hover:bg-aera-champagne/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
+          className="rounded-full border border-[var(--admin-border-strong)] bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[var(--admin-ink)] transition-colors hover:bg-[var(--admin-surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2"
         >
           <span className="flex items-center gap-1.5">
             <X className="h-3.5 w-3.5" />

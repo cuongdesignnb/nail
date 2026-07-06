@@ -3,11 +3,14 @@ import React, { useState, useEffect } from "react";
 import { FormField, FormTextarea } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2 } from "lucide-react";
+import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
 
 export function ServiceFaqForm() {
+  const toast = useToast();
   const [faqs, setFaqs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   // Form fields
   const [question, setQuestion] = useState("");
@@ -101,54 +104,58 @@ export function ServiceFaqForm() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to deactivate this FAQ?")) return;
+  const handleDeleteClick = (id: string) => setDeleteTarget(id);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/service-faqs/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/service-faqs/${deleteTarget}`, { method: "DELETE" });
       if (res.ok) {
         fetchFaqs();
       } else {
-        alert("Failed to deactivate FAQ");
+        toast.toast({ type: "error", title: "Failed to deactivate FAQ" });
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
       {/* FAQ list */}
-      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-lg font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-lg font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           FAQs
         </h3>
 
         {loading ? (
-          <p className="text-xs text-aera-muted italic py-4">Loading FAQs...</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">Loading FAQs...</p>
         ) : faqs.length === 0 ? (
-          <p className="text-xs text-aera-muted italic py-4">No FAQs added yet.</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">No FAQs added yet.</p>
         ) : (
           <div className="space-y-4">
             {faqs.map((faq) => (
-              <div key={faq.id} className="p-4 border border-aera-champagne/30 rounded-xl bg-aera-champagne/5 hover:bg-white transition-all duration-200">
+              <div key={faq.id} className="p-4 border border-[var(--admin-border)] rounded-xl bg-[var(--admin-surface-muted)] hover:bg-white transition-all duration-200">
                 <div className="flex justify-between items-start gap-4">
                   <div>
-                    <h4 className="font-heading text-xs font-semibold text-aera-ink mb-1">{faq.question}</h4>
-                    <p className="font-sans text-[11px] text-aera-muted mt-2 leading-relaxed">{faq.answer}</p>
+                    <h4 className="font-heading text-xs font-semibold text-[var(--admin-ink)] mb-1">{faq.question}</h4>
+                    <p className="font-sans text-[11px] text-[var(--admin-muted)] mt-2 leading-relaxed">{faq.answer}</p>
                     <div className="flex items-center gap-3 mt-3">
-                      <span className="text-[10px] text-aera-muted">Order: {faq.sortOrder}</span>
+                      <span className="text-[10px] text-[var(--admin-muted)]">Order: {faq.sortOrder}</span>
                       <StatusBadge active={faq.isActive} />
                     </div>
                   </div>
                   <div className="flex gap-1 shrink-0">
                     <button
                       onClick={() => handleEdit(faq)}
-                      className="p-1 text-aera-accent hover:bg-aera-accent/10 rounded border-none bg-transparent cursor-pointer"
+                      className="p-1 text-[var(--admin-accent)] hover:bg-[var(--admin-accent)]/10 rounded border-none bg-transparent cursor-pointer"
                     >
                       <Edit size={14} />
                     </button>
                     <button
-                      onClick={() => handleDelete(faq.id)}
+                      onClick={() => handleDeleteClick(faq.id)}
                       className="p-1 text-rose-500 hover:bg-rose-50 rounded border-none bg-transparent cursor-pointer"
                     >
                       <Trash2 size={14} />
@@ -163,8 +170,8 @@ export function ServiceFaqForm() {
 
       {/* Editor Form */}
       <div className="lg:col-span-5">
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-          <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+          <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
             {editingId ? "Edit FAQ" : "Add FAQ"}
           </h3>
 
@@ -206,17 +213,17 @@ export function ServiceFaqForm() {
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+              className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
             />
             <span>Active Status</span>
           </label>
 
-          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-aera-champagne/40">
+          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--admin-border)]/40">
             {editingId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="border border-aera-champagne text-aera-muted hover:bg-aera-champagne/10 rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
+                className="border border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[var(--admin-surface-muted)] rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
               >
                 Cancel
               </button>
@@ -224,13 +231,22 @@ export function ServiceFaqForm() {
             <button
               type="submit"
               disabled={formLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
             >
               {formLoading ? "Saving..." : editingId ? "Update FAQ" : "Save FAQ"}
             </button>
           </div>
         </form>
       </div>
+      <AdminConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Deactivate FAQ"
+        description="Are you sure you want to deactivate this FAQ? This cannot be undone."
+        confirmLabel="Deactivate"
+        variant="danger"
+      />
     </div>
   );
 }

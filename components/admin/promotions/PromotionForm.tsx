@@ -112,7 +112,7 @@ export default function PromotionForm({ promotionId, initialData }: PromotionFor
   };
 
   const inputClass =
-    "w-full rounded-xl border border-aera-champagne/60 bg-white px-3 py-2.5 text-xs text-aera-ink placeholder:text-aera-muted/50 focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20";
+    "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2.5 text-xs text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
 
   return (
     <div className="p-6 max-w-4xl">
@@ -128,7 +128,7 @@ export default function PromotionForm({ promotionId, initialData }: PromotionFor
           <button
             type="button"
             onClick={() => router.push("/admin/promotions")}
-            className="inline-flex items-center gap-1.5 rounded-full border border-aera-champagne/60 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-aera-ink hover:bg-aera-champagne/20 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--admin-border-strong)] bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--admin-ink)] hover:bg-[var(--admin-surface-hover)] transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back
@@ -204,7 +204,7 @@ export default function PromotionForm({ promotionId, initialData }: PromotionFor
                     onChange={(e) => update("amount", Number(e.target.value))}
                     className={inputClass}
                   />
-                  <span className="text-xs text-aera-muted shrink-0">
+                  <span className="text-xs text-[var(--admin-muted)] shrink-0">
                     {form.type === "percentage" ? "%" : "$"}
                   </span>
                 </div>
@@ -261,7 +261,7 @@ export default function PromotionForm({ promotionId, initialData }: PromotionFor
           <button
             type="submit"
             disabled={saving || !form.code || !form.title}
-            className="inline-flex items-center gap-2 rounded-full bg-aera-accent px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Save className="h-3.5 w-3.5" />
             {saving ? "Saving..." : isEdit ? "Update Promotion" : "Create Promotion"}

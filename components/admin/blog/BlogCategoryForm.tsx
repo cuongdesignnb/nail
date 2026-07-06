@@ -148,18 +148,18 @@ export function BlogCategoryForm() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left font-sans">
       {/* Categories table list side */}
-      <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Available Categories
         </h3>
 
         {loading ? (
-          <p className="text-xs text-aera-muted italic py-6 text-center">Loading categories list...</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-6 text-center">Loading categories list...</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-aera-champagne/20 text-aera-muted">
+                <tr className="border-b border-[var(--admin-border)]/20 text-[var(--admin-muted)]">
                   <th className="py-3 text-left">Category</th>
                   <th className="py-3 text-center">Order</th>
                   <th className="py-3 text-center">Posts Count</th>
@@ -169,8 +169,8 @@ export function BlogCategoryForm() {
               </thead>
               <tbody>
                 {list.map((cat) => (
-                  <tr key={cat.id} className="border-b border-aera-champagne/10 hover:bg-aera-cream/10">
-                    <td className="py-3 font-semibold text-aera-ink">
+                  <tr key={cat.id} className="border-b border-[var(--admin-border)]/10 hover:bg-[var(--admin-surface-hover)]">
+                    <td className="py-3 font-semibold text-[var(--admin-ink)]">
                       <div className="flex items-center gap-3">
                         {cat.image && (
                           <div className="relative w-8 h-8 rounded-lg overflow-hidden border">
@@ -179,12 +179,12 @@ export function BlogCategoryForm() {
                         )}
                         <div>
                           <p>{cat.name}</p>
-                          <span className="text-[9px] text-aera-muted">slug: {cat.slug}</span>
+                          <span className="text-[9px] text-[var(--admin-muted)]">slug: {cat.slug}</span>
                         </div>
                       </div>
                     </td>
                     <td className="py-3 text-center">{cat.sortOrder}</td>
-                    <td className="py-3 text-center font-bold text-aera-accent">{cat.postCount ?? 0}</td>
+                    <td className="py-3 text-center font-bold text-[var(--admin-accent)]">{cat.postCount ?? 0}</td>
                     <td className="py-3 text-center">
                       <StatusBadge active={cat.isActive} />
                     </td>
@@ -192,7 +192,7 @@ export function BlogCategoryForm() {
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => handleEdit(cat)}
-                          className="p-1.5 text-gray-500 hover:text-aera-accent bg-transparent border-none cursor-pointer"
+                          className="p-1.5 text-gray-500 hover:text-[var(--admin-accent)] bg-transparent border-none cursor-pointer"
                         >
                           <Edit2 size={13} />
                         </button>
@@ -213,8 +213,8 @@ export function BlogCategoryForm() {
       </div>
 
       {/* Categories editor form side */}
-      <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-aera-champagne/45 shadow-luxury self-start">
-        <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3 flex justify-between items-center">
+      <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-[var(--admin-border)]/45 shadow-luxury self-start">
+        <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3 flex justify-between items-center">
           <span>{editId ? "Edit Category" : "Add New Category"}</span>
           {editId && (
             <button onClick={handleCancel} className="text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer">
@@ -257,19 +257,19 @@ export function BlogCategoryForm() {
 
           {/* Category Image Picker */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-aera-ink uppercase tracking-wider">Category Cover Image</label>
+            <label className="block text-xs font-semibold text-[var(--admin-ink)] uppercase tracking-wider">Category Cover Image</label>
             <div className="flex gap-2">
               <input
                 type="text"
                 readOnly
                 placeholder="No image chosen"
                 value={image}
-                className="flex-grow rounded-xl border border-aera-champagne/60 px-3 py-2 text-xs outline-none bg-gray-50"
+                className="flex-grow rounded-xl border border-[var(--admin-border-strong)] px-3 py-2 text-xs outline-none bg-gray-50"
               />
               <button
                 type="button"
                 onClick={() => setShowPicker(true)}
-                className="bg-aera-cream hover:bg-aera-champagne/30 text-aera-accent border border-aera-champagne px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                className="bg-[var(--admin-surface-muted)] hover:bg-[var(--admin-surface-hover)] text-[var(--admin-accent)] border border-[var(--admin-border)] px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
               >
                 <ImageIcon size={13} />
                 <span>Browse</span>
@@ -320,7 +320,7 @@ export function BlogCategoryForm() {
             <button
               type="submit"
               disabled={saveLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
             >
               {editId ? <Save size={13} /> : <Plus size={13} />}
               <span>{saveLoading ? "Saving..." : editId ? "Save Category" : "Create Category"}</span>

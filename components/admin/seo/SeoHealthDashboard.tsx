@@ -20,8 +20,8 @@ export function SeoHealthDashboard({ rows }: { rows: SeoAuditRow[] }) {
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
       {metrics.map(([label, value]) => (
         <div key={label} className="rounded-xl border border-gray-200 bg-white p-4">
-          <div className="text-xs font-semibold uppercase tracking-wide text-aera-muted">{label}</div>
-          <div className="mt-2 text-2xl font-bold text-aera-ink">{value}</div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--admin-muted)]">{label}</div>
+          <div className="mt-2 text-2xl font-bold text-[var(--admin-ink)]">{value}</div>
         </div>
       ))}
     </div>

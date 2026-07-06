@@ -26,9 +26,9 @@ export const AdminErrorState: React.FC<AdminErrorStateProps> = ({
         <AlertTriangle className="h-7 w-7 text-red-500" />
       </div>
 
-      <h3 className="text-sm font-bold text-aera-ink mb-1">{title}</h3>
+      <h3 className="text-sm font-bold text-[var(--admin-ink)] mb-1">{title}</h3>
 
-      <p className="text-xs text-aera-muted max-w-xs leading-relaxed">
+      <p className="text-xs text-[var(--admin-muted)] max-w-xs leading-relaxed">
         {description}
       </p>
 
@@ -36,7 +36,7 @@ export const AdminErrorState: React.FC<AdminErrorStateProps> = ({
         <button
           type="button"
           onClick={onRetry}
-          className="mt-5 inline-flex items-center gap-2 rounded-full border border-aera-champagne/60 bg-white px-5 py-2 text-xs font-bold uppercase tracking-wider text-aera-ink shadow-sm transition-colors hover:bg-aera-champagne/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
+          className="mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--admin-border-strong)] bg-white px-5 py-2 text-xs font-bold uppercase tracking-wider text-[var(--admin-ink)] shadow-sm transition-colors hover:bg-[var(--admin-surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2"
         >
           <RotateCcw className="h-3.5 w-3.5" />
           Retry

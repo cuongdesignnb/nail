@@ -133,20 +133,20 @@ export function GalleryCategoryForm() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
       {/* Category List */}
-      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-lg font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-lg font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Gallery Categories
         </h3>
 
         {loading ? (
-          <p className="text-xs text-aera-muted italic py-4">Loading categories...</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">Loading categories...</p>
         ) : categories.length === 0 ? (
-          <p className="text-xs text-aera-muted italic py-4">No categories added yet.</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">No categories added yet.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-sans text-aera-ink">
+            <table className="w-full text-left text-xs font-sans text-[var(--admin-ink)]">
               <thead>
-                <tr className="bg-aera-champagne/10 border-b border-aera-champagne/60 text-aera-ink font-semibold">
+                <tr className="bg-[var(--admin-surface-muted)] border-b border-[var(--admin-border-strong)] text-[var(--admin-ink)] font-semibold">
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Slug</th>
                   <th className="px-4 py-3">Order</th>
@@ -158,18 +158,18 @@ export function GalleryCategoryForm() {
                 {categories.map((cat) => (
                   <tr
                     key={cat.id}
-                    className="border-b border-aera-champagne/30 hover:bg-aera-champagne/5 transition-colors"
+                    className="border-b border-[var(--admin-border)] hover:bg-[var(--admin-surface-hover)] transition-colors"
                   >
                     <td className="px-4 py-3">
                       <div>
-                        <div className="font-semibold text-aera-ink">{cat.name}</div>
+                        <div className="font-semibold text-[var(--admin-ink)]">{cat.name}</div>
                         {cat.description && (
-                          <div className="text-[10px] text-aera-muted mt-0.5">{cat.description}</div>
+                          <div className="text-[10px] text-[var(--admin-muted)] mt-0.5">{cat.description}</div>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-aera-muted">{cat.slug}</td>
-                    <td className="px-4 py-3 text-aera-muted">{cat.sortOrder}</td>
+                    <td className="px-4 py-3 text-[var(--admin-muted)]">{cat.slug}</td>
+                    <td className="px-4 py-3 text-[var(--admin-muted)]">{cat.sortOrder}</td>
                     <td className="px-4 py-3">
                       <StatusBadge active={cat.isActive} />
                     </td>
@@ -177,7 +177,7 @@ export function GalleryCategoryForm() {
                       <div className="flex justify-end gap-1">
                         <button
                           onClick={() => handleEdit(cat)}
-                          className="p-1 text-aera-accent hover:bg-aera-accent/10 rounded border-none bg-transparent cursor-pointer"
+                          className="p-1 text-[var(--admin-accent)] hover:bg-[var(--admin-accent)]/10 rounded border-none bg-transparent cursor-pointer"
                         >
                           <Edit size={14} />
                         </button>
@@ -201,9 +201,9 @@ export function GalleryCategoryForm() {
       <div className="lg:col-span-5">
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury"
+          className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury"
         >
-          <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+          <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
             {editingId ? "Edit Category" : "Create Gallery Category"}
           </h3>
 
@@ -262,17 +262,17 @@ export function GalleryCategoryForm() {
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+              className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
             />
             <span>Active Status</span>
           </label>
 
-          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-aera-champagne/40">
+          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--admin-border)]/40">
             {editingId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="border border-aera-champagne text-aera-muted hover:bg-aera-champagne/10 rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
+                className="border border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[var(--admin-surface-muted)] rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
               >
                 Cancel
               </button>
@@ -280,7 +280,7 @@ export function GalleryCategoryForm() {
             <button
               type="submit"
               disabled={formLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
             >
               {formLoading ? "Saving..." : editingId ? "Update Category" : "Create Category"}
             </button>

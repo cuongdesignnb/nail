@@ -8,6 +8,7 @@ import { SeoEntityList, type SeoEntityListItem } from "@/components/admin/seo/Se
 import { SeoHealthDashboard } from "@/components/admin/seo/SeoHealthDashboard";
 import { SeoSitemapPanel } from "@/components/admin/seo/SeoSitemapPanel";
 import type { SeoAuditRow } from "@/lib/seo/seo.types";
+import { AdminPageHeader } from "@/components/admin/ui";
 
 const STATIC_PAGES = [
   ["Home", "home", "/"],
@@ -62,28 +63,33 @@ export default function SeoManagerPage() {
   );
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-aera-ink">SEO Manager</h1>
-        <p className="text-sm text-aera-muted">Static page SEO is managed in Content Hub. Entity-level overrides live here.</p>
-      </div>
+    <div className="admin-page-container">
+      <AdminPageHeader
+        title="SEO Manager"
+        eyebrow="Website"
+        description="Static page SEO is managed in Content Hub. Entity-level overrides live here."
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "SEO" },
+        ]}
+      />
 
       {loading ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-sm text-aera-muted">Loading SEO audit...</div>
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-sm text-[var(--admin-muted)]">Loading SEO audit...</div>
       ) : (
         <>
           <SeoHealthDashboard rows={rows} />
 
           <section className="rounded-xl border border-gray-200 bg-white p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-aera-muted">
+            <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-[var(--admin-muted)]">
               <Search size={15} /> Static Pages
             </h2>
             <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
               {STATIC_PAGES.map(([label, pageKey, path]) => (
-                <a key={pageKey} href={`/admin/content/${pageKey}?tab=seo`} className="rounded-lg border border-gray-100 p-4 transition hover:border-aera-accent/40 hover:bg-aera-champagne/20">
-                  <div className="text-sm font-semibold text-aera-ink">{label}</div>
-                  <div className="mt-1 text-xs text-aera-muted">{path}</div>
-                  <div className="mt-3 text-xs font-bold text-aera-accent">Managed in Content Hub</div>
+                <a key={pageKey} href={`/admin/content/${pageKey}?tab=seo`} className="rounded-lg border border-gray-100 p-4 transition hover:border-[var(--admin-accent)]/40 hover:bg-[var(--admin-surface-hover)]">
+                  <div className="text-sm font-semibold text-[var(--admin-ink)]">{label}</div>
+                  <div className="mt-1 text-xs text-[var(--admin-muted)]">{path}</div>
+                  <div className="mt-3 text-xs font-bold text-[var(--admin-accent)]">Managed in Content Hub</div>
                 </a>
               ))}
             </div>
@@ -91,7 +97,7 @@ export default function SeoManagerPage() {
 
           <section className="grid gap-6 lg:grid-cols-[340px_1fr]">
             <div>
-              <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-aera-muted">Dynamic Content</h2>
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-[var(--admin-muted)]">Dynamic Content</h2>
               <SeoEntityList entities={entities} selected={selected} onSelect={setSelected} />
             </div>
             <div>
@@ -99,14 +105,14 @@ export default function SeoManagerPage() {
                 <div>
                   {selectedEntity && (
                     <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
-                      <div className="text-sm font-bold text-aera-ink">{selectedEntity.label}</div>
-                      <div className="text-xs text-aera-muted">{selectedEntity.type} · {selectedEntity.path}</div>
+                      <div className="text-sm font-bold text-[var(--admin-ink)]">{selectedEntity.label}</div>
+                      <div className="text-xs text-[var(--admin-muted)]">{selectedEntity.type} · {selectedEntity.path}</div>
                     </div>
                   )}
                   <SeoEntityEditor scopeKey={selected} initialData={selectedData} onSaved={setSelectedData} />
                 </div>
               ) : (
-                <div className="rounded-xl border border-gray-200 bg-white p-8 text-sm text-aera-muted">Select a public entity to edit SEO overrides.</div>
+                <div className="rounded-xl border border-gray-200 bg-white p-8 text-sm text-[var(--admin-muted)]">Select a public entity to edit SEO overrides.</div>
               )}
             </div>
           </section>

@@ -43,7 +43,7 @@ export function SectionMediaField({
           </label>
           <input
             type="text"
-            className="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm outline-none transition-colors focus:border-aera-accent"
+            className="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm outline-none transition-colors focus:border-[var(--admin-accent)]"
             placeholder="Describe this image for screen readers..."
             value={altValue}
             onChange={(e) => onAltChange(e.target.value)}

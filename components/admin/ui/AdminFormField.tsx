@@ -25,7 +25,7 @@ export const AdminFormField: React.FC<AdminFormFieldProps> = ({
       {label && (
         <label
           htmlFor={htmlFor}
-          className="block text-xs font-semibold text-aera-ink"
+          className="block text-xs font-semibold text-[var(--admin-ink)]"
         >
           {label}
           {required && (
@@ -50,7 +50,7 @@ export const AdminFormField: React.FC<AdminFormFieldProps> = ({
       )}
 
       {helpText && !error && (
-        <p className="text-[11px] text-aera-muted leading-tight">{helpText}</p>
+        <p className="text-[11px] text-[var(--admin-muted)] leading-tight">{helpText}</p>
       )}
     </div>
   );

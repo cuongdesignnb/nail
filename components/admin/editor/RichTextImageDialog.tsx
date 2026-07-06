@@ -42,14 +42,14 @@ export function RichTextImageDialog({
       {/* Dialog */}
       <div className="relative w-full max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-heading text-lg font-semibold text-aera-ink">
-            <ImageIcon size={18} className="mr-2 inline text-aera-accent" />
+          <h3 className="font-heading text-lg font-semibold text-[var(--admin-ink)]">
+            <ImageIcon size={18} className="mr-2 inline text-[var(--admin-accent)]" />
             Insert Image
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1 text-aera-muted hover:bg-aera-champagne"
+            className="rounded-lg p-1 text-[var(--admin-muted)] hover:bg-[var(--admin-accent-soft)]"
           >
             <X size={18} />
           </button>
@@ -65,7 +65,7 @@ export function RichTextImageDialog({
               onAltChange={(nextAlt) => setAlt(nextAlt)}
               folder="rich-text"
             />
-            <p className="mt-1 text-xs text-aera-muted">
+            <p className="mt-1 text-xs text-[var(--admin-muted)]">
               Alt text helps with accessibility and SEO
             </p>
           </div>
@@ -74,14 +74,14 @@ export function RichTextImageDialog({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm text-aera-muted hover:bg-aera-champagne"
+              className="rounded-lg px-4 py-2 text-sm text-[var(--admin-muted)] hover:bg-[var(--admin-accent-soft)]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!src.trim()}
-              className="rounded-lg bg-aera-accent px-4 py-2 text-sm font-medium text-white hover:bg-aera-accentHover disabled:opacity-40 disabled:cursor-not-allowed"
+              className="rounded-lg bg-[var(--admin-accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--admin-accent-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Insert
             </button>

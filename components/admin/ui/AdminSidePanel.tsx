@@ -47,7 +47,7 @@ export const AdminSidePanel: React.FC<AdminSidePanelProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="absolute inset-0 bg-aera-ink/25 backdrop-blur-sm"
+            className="absolute inset-0 bg-[var(--admin-ink)]/25 backdrop-blur-sm"
             onClick={onClose}
           />
 
@@ -57,23 +57,23 @@ export const AdminSidePanel: React.FC<AdminSidePanelProps> = ({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="absolute right-0 top-0 bottom-0 flex flex-col bg-white border-l border-aera-champagne/30 shadow-luxury overflow-hidden"
+            className="absolute right-0 top-0 bottom-0 flex flex-col bg-white border-l border-[var(--admin-border)] shadow-luxury overflow-hidden"
             style={{ width, maxWidth: "100vw" }}
             role="dialog"
             aria-modal="true"
             aria-label={title ?? "Side panel"}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-aera-champagne/30 px-6 py-4 shrink-0">
+            <div className="flex items-center justify-between border-b border-[var(--admin-border)] px-6 py-4 shrink-0">
               {title && (
-                <h2 className="text-sm font-bold text-aera-ink truncate">
+                <h2 className="text-sm font-bold text-[var(--admin-ink)] truncate">
                   {title}
                 </h2>
               )}
               <button
                 type="button"
                 onClick={onClose}
-                className="ml-auto rounded-lg p-1.5 text-aera-muted hover:text-aera-ink hover:bg-aera-champagne/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40"
+                className="ml-auto rounded-lg p-1.5 text-[var(--admin-muted)] hover:text-[var(--admin-ink)] hover:bg-[var(--admin-surface-hover)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40"
               >
                 <X className="h-4 w-4" />
               </button>

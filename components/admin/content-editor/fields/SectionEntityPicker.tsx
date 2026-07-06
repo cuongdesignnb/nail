@@ -157,7 +157,7 @@ export function SectionEntityPicker({
               placeholder={`Search ${entityType}s...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-md border border-neutral-300 bg-white pl-9 pr-4 py-2 text-sm outline-none transition-colors focus:border-aera-accent"
+              className="w-full rounded-md border border-neutral-300 bg-white pl-9 pr-4 py-2 text-sm outline-none transition-colors focus:border-[var(--admin-accent)]"
             />
           </div>
 

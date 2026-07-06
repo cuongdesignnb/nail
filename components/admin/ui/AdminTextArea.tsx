@@ -47,11 +47,11 @@ export const AdminTextArea: React.FC<AdminTextAreaProps> = ({
           maxLength={maxLength}
           required={required}
           className={clsx(
-            "w-full rounded-xl border bg-white px-3.5 py-2.5 text-xs text-aera-ink placeholder:text-aera-muted/50 resize-y min-h-[80px]",
+            "w-full rounded-xl border bg-white px-3.5 py-2.5 text-xs text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)] resize-y min-h-[80px]",
             "transition-colors focus:outline-none focus:ring-2",
             error
               ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-              : "border-aera-champagne/60 focus:border-aera-accent focus:ring-aera-accent/20"
+              : "border-[var(--admin-border-strong)] focus:border-[var(--admin-accent)] focus:ring-[var(--admin-accent)]/20"
           )}
         />
 
@@ -62,7 +62,7 @@ export const AdminTextArea: React.FC<AdminTextAreaProps> = ({
                 "text-[10px] font-medium tabular-nums",
                 value.length > maxLength * 0.9
                   ? "text-amber-600"
-                  : "text-aera-muted/60"
+                  : "text-[var(--admin-placeholder)]"
               )}
             >
               {value.length}/{maxLength}

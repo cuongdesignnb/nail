@@ -3,11 +3,14 @@ import React, { useState, useEffect } from "react";
 import { FormField } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2 } from "lucide-react";
+import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
 
 export function ServiceAddonForm() {
+  const toast = useToast();
   const [addons, setAddons] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   // Form fields
   const [name, setName] = useState("");
@@ -109,37 +112,41 @@ export function ServiceAddonForm() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to deactivate this addon?")) return;
+  const handleDeleteClick = (id: string) => setDeleteTarget(id);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/service-addons/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/service-addons/${deleteTarget}`, { method: "DELETE" });
       if (res.ok) {
         fetchAddons();
       } else {
-        alert("Failed to deactivate addon");
+        toast.toast({ type: "error", title: "Failed to deactivate addon" });
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
       {/* Addons List */}
-      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h3 className="font-heading text-lg font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h3 className="font-heading text-lg font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Service Add-Ons
         </h3>
 
         {loading ? (
-          <p className="text-xs text-aera-muted italic py-4">Loading addons...</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">Loading addons...</p>
         ) : addons.length === 0 ? (
-          <p className="text-xs text-aera-muted italic py-4">No addons added yet.</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">No addons added yet.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-sans text-aera-ink">
+            <table className="w-full text-left text-xs font-sans text-[var(--admin-ink)]">
               <thead>
-                <tr className="bg-aera-champagne/10 border-b border-aera-champagne/60 text-aera-ink font-semibold">
+                <tr className="bg-[var(--admin-surface-muted)] border-b border-[var(--admin-border-strong)] text-[var(--admin-ink)] font-semibold">
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Price Label</th>
                   <th className="px-4 py-3">Order</th>
@@ -149,15 +156,15 @@ export function ServiceAddonForm() {
               </thead>
               <tbody>
                 {addons.map((add) => (
-                  <tr key={add.id} className="border-b border-aera-champagne/30 hover:bg-aera-champagne/5 transition-colors">
+                  <tr key={add.id} className="border-b border-[var(--admin-border)] hover:bg-[var(--admin-surface-muted)] transition-colors">
                     <td className="px-4 py-3">
                       <div>
-                        <div className="font-semibold text-aera-ink">{add.name}</div>
-                        {add.description && <div className="text-[10px] text-aera-muted mt-0.5">{add.description}</div>}
+                        <div className="font-semibold text-[var(--admin-ink)]">{add.name}</div>
+                        {add.description && <div className="text-[10px] text-[var(--admin-muted)] mt-0.5">{add.description}</div>}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-aera-accent font-medium">{add.priceLabel || `$${add.price}`}</td>
-                    <td className="px-4 py-3 text-aera-muted">{add.sortOrder}</td>
+                    <td className="px-4 py-3 text-[var(--admin-accent)] font-medium">{add.priceLabel || `$${add.price}`}</td>
+                    <td className="px-4 py-3 text-[var(--admin-muted)]">{add.sortOrder}</td>
                     <td className="px-4 py-3">
                       <StatusBadge active={add.isActive} />
                     </td>
@@ -165,12 +172,12 @@ export function ServiceAddonForm() {
                       <div className="flex justify-end gap-1">
                         <button
                           onClick={() => handleEdit(add)}
-                          className="p-1 text-aera-accent hover:bg-aera-accent/10 rounded border-none bg-transparent cursor-pointer"
+                          className="p-1 text-[var(--admin-accent)] hover:bg-[var(--admin-accent)]/10 rounded border-none bg-transparent cursor-pointer"
                         >
                           <Edit size={14} />
                         </button>
                         <button
-                          onClick={() => handleDelete(add.id)}
+                          onClick={() => handleDeleteClick(add.id)}
                           className="p-1 text-rose-500 hover:bg-rose-50 rounded border-none bg-transparent cursor-pointer"
                         >
                           <Trash2 size={14} />
@@ -187,8 +194,8 @@ export function ServiceAddonForm() {
 
       {/* Editor Form */}
       <div className="lg:col-span-5">
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-          <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+          <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
             {editingId ? "Edit Addon" : "Create New Addon"}
           </h3>
 
@@ -247,17 +254,17 @@ export function ServiceAddonForm() {
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+              className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
             />
             <span>Active Status</span>
           </label>
 
-          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-aera-champagne/40">
+          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--admin-border)]/40">
             {editingId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="border border-aera-champagne text-aera-muted hover:bg-aera-champagne/10 rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
+                className="border border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[var(--admin-surface-muted)] rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
               >
                 Cancel
               </button>
@@ -265,13 +272,22 @@ export function ServiceAddonForm() {
             <button
               type="submit"
               disabled={formLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
             >
               {formLoading ? "Saving..." : editingId ? "Update Addon" : "Create Addon"}
             </button>
           </div>
         </form>
       </div>
+      <AdminConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Deactivate Addon"
+        description="Are you sure you want to deactivate this addon? This cannot be undone."
+        confirmLabel="Deactivate"
+        variant="danger"
+      />
     </div>
   );
 }

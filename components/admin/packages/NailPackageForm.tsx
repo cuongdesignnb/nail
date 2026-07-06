@@ -143,13 +143,13 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
   ];
 
   return (
-    <div className="p-6 bg-white rounded-xl border border-aera-champagne/20">
-      <h3 className="text-sm font-bold text-aera-ink uppercase tracking-wide flex justify-between items-center mb-6">
+    <div className="p-6 bg-white rounded-xl border border-[var(--admin-border)]/20">
+      <h3 className="text-sm font-bold text-[var(--admin-ink)] uppercase tracking-wide flex justify-between items-center mb-6">
         {initialData ? "Edit Nail Package" : "Create New Nail Package"}
         <button
           type="button"
           onClick={onCancel}
-          className="text-aera-muted hover:text-aera-ink cursor-pointer border-none bg-transparent p-1"
+          className="text-[var(--admin-muted)] hover:text-[var(--admin-ink)] cursor-pointer border-none bg-transparent p-1"
         >
           <X size={16} />
         </button>
@@ -262,7 +262,7 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
         />
 
         <div className="mb-6 font-sans">
-          <label className="text-[11px] font-semibold text-aera-ink uppercase tracking-wide block mb-2">
+          <label className="text-[11px] font-semibold text-[var(--admin-ink)] uppercase tracking-wide block mb-2">
             Detailed Description
           </label>
           <RichTextEditor
@@ -276,8 +276,8 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
         </div>
 
         {/* Dynamic feature checklist list */}
-        <div className="border border-aera-champagne/30 rounded-2xl p-4 md:p-6 bg-aera-cream/10">
-          <label className="block text-xs font-semibold text-aera-ink tracking-wide mb-3">
+        <div className="border border-[var(--admin-border)] rounded-2xl p-4 md:p-6 bg-[var(--admin-surface-muted)]">
+          <label className="block text-xs font-semibold text-[var(--admin-ink)] tracking-wide mb-3">
             Package Features / inclusions
           </label>
           <div className="flex gap-2 mb-4">
@@ -287,12 +287,12 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
               onChange={(e) => setFeatureInput(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="e.g. Exfoliating sugar scrub"
-              className="flex-grow rounded-lg border border-aera-champagne/60 px-3 py-2 text-xs font-sans text-aera-ink outline-none focus:border-aera-accent bg-white"
+              className="flex-grow rounded-lg border border-[var(--admin-border-strong)] px-3 py-2 text-xs font-sans text-[var(--admin-ink)] outline-none focus:border-[var(--admin-accent)] bg-white"
             />
             <button
               type="button"
               onClick={addFeature}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs px-4 rounded-lg flex items-center gap-1 cursor-pointer border-none"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs px-4 rounded-lg flex items-center gap-1 cursor-pointer border-none"
             >
               <Plus size={14} />
               <span>Add</span>
@@ -303,7 +303,7 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
             {features.map((feat, fIdx) => (
               <span
                 key={fIdx}
-                className="bg-white border border-aera-champagne/50 px-3 py-1.5 rounded-full text-xs text-aera-ink inline-flex items-center gap-1.5 shadow-sm"
+                className="bg-white border border-[var(--admin-border)]/50 px-3 py-1.5 rounded-full text-xs text-[var(--admin-ink)] inline-flex items-center gap-1.5 shadow-sm"
               >
                 <span>{feat}</span>
                 <button
@@ -316,12 +316,12 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
               </span>
             ))}
             {features.length === 0 && (
-              <span className="text-[10px] text-aera-muted italic">No features added yet.</span>
+              <span className="text-[10px] text-[var(--admin-muted)] italic">No features added yet.</span>
             )}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-aera-champagne/20 pt-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-[var(--admin-border)]/20 pt-4">
           <FormField
             label="Is Popular"
             type="checkbox"
@@ -349,7 +349,7 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
           />
         </div>
 
-        <div className="flex justify-end gap-3 pt-6 border-t border-aera-champagne/20">
+        <div className="flex justify-end gap-3 pt-6 border-t border-[var(--admin-border)]/20">
           <button
             type="button"
             onClick={onCancel}
@@ -360,7 +360,7 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
           <button
             type="submit"
             disabled={saveLoading}
-            className="bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-bold px-6 py-3 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
+            className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs font-bold px-6 py-3 rounded-full cursor-pointer border-none shadow-sm flex items-center gap-1.5"
           >
             <Save size={14} />
             <span>{saveLoading ? "Saving package..." : "Save Package"}</span>

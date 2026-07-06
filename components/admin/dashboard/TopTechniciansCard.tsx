@@ -29,34 +29,20 @@ export default function TopTechniciansCard({
           message="No technician data available."
         />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="flex flex-col gap-2.5">
           {technicians.map((tech, i) => (
             <div
               key={tech.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '10px 12px',
-                borderRadius: 12,
-                transition: 'background 0.15s',
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = 'rgba(155, 89, 29, 0.04)')
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = 'transparent')
-              }
+              className="flex items-center gap-3 px-3 py-2.5 transition-colors duration-150 hover:bg-[var(--admin-surface-hover)]"
+              style={{ borderRadius: 'var(--admin-radius-md)' }}
             >
               {/* Rank */}
               <span
+                className="text-[13px] font-bold w-5 text-center shrink-0"
                 style={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: i < 3 ? '#9b591d' : '#7f6d61',
-                  width: 20,
-                  textAlign: 'center',
-                  flexShrink: 0,
+                  color: i < 3
+                    ? 'var(--admin-accent)'
+                    : 'var(--admin-muted)',
                 }}
               >
                 {i + 1}.
@@ -67,28 +53,16 @@ export default function TopTechniciansCard({
                 <img
                   src={tech.avatar}
                   alt={tech.name}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                  }}
+                  className="w-9 h-9 object-cover shrink-0"
+                  style={{ borderRadius: 'var(--admin-radius-sm)' }}
                 />
               ) : (
                 <div
+                  className="w-9 h-9 flex items-center justify-center text-sm font-bold shrink-0"
                   style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 10,
-                    background: 'rgba(155, 89, 29, 0.10)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: '#9b591d',
-                    flexShrink: 0,
+                    borderRadius: 'var(--admin-radius-sm)',
+                    background: 'var(--admin-accent-muted)',
+                    color: 'var(--admin-accent)',
                   }}
                 >
                   {tech.name
@@ -100,30 +74,25 @@ export default function TopTechniciansCard({
               )}
 
               {/* Info */}
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="flex-1 min-w-0">
                 <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: '#2f1c11',
-                    lineHeight: 1.3,
-                  }}
+                  className="text-[13px] font-semibold leading-tight"
+                  style={{ color: 'var(--admin-ink)' }}
                 >
                   {tech.name}
                 </div>
-                <div style={{ fontSize: 12, color: '#7f6d61', marginTop: 1 }}>
+                <div
+                  className="text-xs mt-px"
+                  style={{ color: 'var(--admin-muted)' }}
+                >
                   {tech.completedAppointments} appointments
                 </div>
               </div>
 
               {/* Revenue */}
               <div
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: '#9b591d',
-                  whiteSpace: 'nowrap',
-                }}
+                className="text-xs font-semibold whitespace-nowrap"
+                style={{ color: 'var(--admin-accent)' }}
               >
                 {formatCurrency(tech.bookedValue)}
               </div>

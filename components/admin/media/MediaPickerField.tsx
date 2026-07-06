@@ -89,7 +89,7 @@ export function MediaPickerField({
 
   return (
     <div className="space-y-1.5">
-      <label className="text-[11px] font-semibold text-aera-ink uppercase tracking-wide block">
+      <label className="text-[11px] font-semibold text-[var(--admin-ink)] uppercase tracking-wide block">
         {label}
         {required && <span className="text-rose-400 ml-0.5">*</span>}
       </label>
@@ -98,7 +98,7 @@ export function MediaPickerField({
         <div className="space-y-2">
           {/* Preview */}
           <div
-            className="relative rounded-xl overflow-hidden border border-aera-champagne/40 bg-aera-cream/20 group cursor-pointer"
+            className="relative rounded-xl overflow-hidden border border-[var(--admin-border)]/40 bg-[var(--admin-surface-muted)] group cursor-pointer"
             style={{ aspectRatio }}
             onClick={() => setPickerOpen(true)}
           >
@@ -110,7 +110,7 @@ export function MediaPickerField({
             />
             {/* Hover overlay */}
             <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-              <span className="bg-white/90 text-aera-ink text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
+              <span className="bg-white/90 text-[var(--admin-ink)] text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
                 <Replace size={11} /> Replace
               </span>
             </div>
@@ -121,7 +121,7 @@ export function MediaPickerField({
             <button
               type="button"
               onClick={() => setPickerOpen(true)}
-              className="text-[11px] text-aera-accent hover:text-aera-accentHover font-medium transition-colors cursor-pointer"
+              className="text-[11px] text-[var(--admin-accent)] hover:text-[var(--admin-accent)]Hover font-medium transition-colors cursor-pointer"
             >
               Change
             </button>
@@ -129,7 +129,7 @@ export function MediaPickerField({
               <button
                 type="button"
                 onClick={handleRemove}
-                className="text-[11px] text-aera-muted hover:text-rose-500 font-medium transition-colors cursor-pointer flex items-center gap-0.5"
+                className="text-[11px] text-[var(--admin-muted)] hover:text-rose-500 font-medium transition-colors cursor-pointer flex items-center gap-0.5"
               >
                 <X size={11} /> Remove
               </button>
@@ -139,7 +139,7 @@ export function MediaPickerField({
           {/* Alt text input */}
           {allowAltOverride && (onAltChange || isMediaReference) && (
             <div>
-              <label className="text-[10px] text-aera-muted block mb-1">
+              <label className="text-[10px] text-[var(--admin-muted)] block mb-1">
                 Alt Text
               </label>
               <input
@@ -147,7 +147,7 @@ export function MediaPickerField({
                 value={effectiveAlt}
                 onChange={(e) => handleAltChange(e.target.value)}
                 placeholder="Describe this image..."
-                className="w-full rounded-lg border border-aera-champagne/60 px-3 py-1.5 text-xs outline-none focus:border-aera-accent bg-white transition-colors"
+                className="w-full rounded-lg border border-[var(--admin-border-strong)] px-3 py-1.5 text-xs outline-none focus:border-[var(--admin-accent)] bg-white transition-colors"
               />
             </div>
           )}
@@ -157,11 +157,11 @@ export function MediaPickerField({
         <button
           type="button"
           onClick={() => setPickerOpen(true)}
-          className="w-full rounded-xl border-2 border-dashed border-aera-champagne/60 hover:border-aera-accent/40 bg-aera-cream/10 hover:bg-aera-cream/30 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 py-8"
+          className="w-full rounded-xl border-2 border-dashed border-[var(--admin-border-strong)] hover:border-[var(--admin-accent)]/40 bg-[var(--admin-surface-muted)] hover:bg-[var(--admin-surface-hover)]/30 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 py-8"
           style={{ aspectRatio }}
         >
-          <ImagePlus size={24} className="text-aera-muted/50" />
-          <span className="text-[11px] text-aera-muted font-medium">
+          <ImagePlus size={24} className="text-[var(--admin-placeholder)]" />
+          <span className="text-[11px] text-[var(--admin-muted)] font-medium">
             Click to select image
           </span>
         </button>

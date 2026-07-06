@@ -9,11 +9,11 @@ export default function AdminCollectionsPage() {
     <div className="admin-page font-sans text-left p-6">
       {/* Header */}
       <section className="admin-section-heading mb-6">
-        <h1 className="text-2xl font-bold text-aera-ink flex items-center gap-2 font-heading leading-snug mb-1.5">
-          <Layers size={24} className="text-aera-accent" />
+        <h1 className="text-2xl font-bold text-[var(--admin-ink)] flex items-center gap-2 font-heading leading-snug mb-1.5">
+          <Layers size={24} className="text-[var(--admin-accent)]" />
           Featured Nail Collections
         </h1>
-        <p className="text-xs text-aera-muted">
+        <p className="text-xs text-[var(--admin-muted)]">
           Group nail designs into curated collections showing at the top of the gallery page.
         </p>
       </section>

@@ -46,28 +46,28 @@ const items: GlanceItem[] = [
   },
 ];
 
-function getHighlightStyles(
+function getHighlightClasses(
   highlight: 'amber' | 'red' | undefined,
   value: number
 ) {
   if (!highlight || value === 0) {
     return {
-      iconColor: '#9b591d',
-      iconBg: 'rgba(155, 89, 29, 0.08)',
-      valueColor: '#2f1c11',
+      iconColor: 'text-[var(--admin-accent)]',
+      iconBg: 'bg-[var(--admin-accent-soft)]',
+      valueColor: 'text-[var(--admin-ink)]',
     };
   }
   if (highlight === 'red') {
     return {
-      iconColor: '#c53030',
-      iconBg: 'rgba(197, 48, 48, 0.08)',
-      valueColor: '#c53030',
+      iconColor: 'text-[var(--admin-danger)]',
+      iconBg: 'bg-[var(--admin-danger-soft)]',
+      valueColor: 'text-[var(--admin-danger)]',
     };
   }
   return {
-    iconColor: '#e6a023',
-    iconBg: 'rgba(230, 160, 35, 0.10)',
-    valueColor: '#e6a023',
+    iconColor: 'text-[var(--admin-warning)]',
+    iconBg: 'bg-[var(--admin-warning-soft)]',
+    valueColor: 'text-[var(--admin-warning)]',
   };
 }
 
@@ -77,74 +77,32 @@ export default function AtAGlanceCard({
 }: AtAGlanceCardProps) {
   return (
     <DashboardCard title="At a Glance" icon={LayoutGrid} loading={loading}>
-      <div
-        className="glance-grid"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: 10,
-        }}
-      >
+      <div className="grid grid-cols-2 gap-2.5">
         {items.map((item) => {
           const ItemIcon = item.icon;
           const value = data[item.key];
-          const styles = getHighlightStyles(item.highlight, value);
+          const cls = getHighlightClasses(item.highlight, value);
 
           return (
             <div
               key={item.key}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '10px 12px',
-                borderRadius: 12,
-                transition: 'background 0.15s',
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = 'rgba(155, 89, 29, 0.03)')
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = 'transparent')
-              }
+              className="group flex items-center gap-2.5 rounded-[var(--admin-radius-md)] px-3 py-2.5 transition-colors duration-150 hover:bg-[var(--admin-surface-hover)]"
             >
               <div
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 10,
-                  background: styles.iconBg,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
+                className={`flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[10px] ${cls.iconBg}`}
               >
                 <ItemIcon
                   size={16}
-                  color={styles.iconColor}
+                  className={cls.iconColor}
                   strokeWidth={1.8}
                 />
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: '#7f6d61',
-                    lineHeight: 1.3,
-                    marginBottom: 1,
-                  }}
-                >
+              <div className="min-w-0 flex-1">
+                <div className="mb-px text-[11px] leading-tight text-[var(--admin-muted)]">
                   {item.label}
                 </div>
                 <div
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 700,
-                    color: styles.valueColor,
-                    fontFamily: 'Georgia, serif',
-                    lineHeight: 1.1,
-                  }}
+                  className={`font-heading text-lg font-bold leading-none ${cls.valueColor}`}
                 >
                   {value}
                 </div>

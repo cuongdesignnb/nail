@@ -19,7 +19,7 @@ type PayPalSettings = {
 };
 
 const inputClass =
-  "w-full rounded-xl border border-aera-champagne/60 bg-white px-3 py-2.5 text-xs text-aera-ink focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20";
+  "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2.5 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
 
 export default function PaymentSettings() {
   const [settings, setSettings] = React.useState<PayPalSettings | null>(null);
@@ -93,16 +93,16 @@ export default function PaymentSettings() {
   }
 
   if (!settings) {
-    return <p className="text-xs text-aera-muted">Loading payment settings...</p>;
+    return <p className="text-xs text-[var(--admin-muted)]">Loading payment settings...</p>;
   }
 
   return (
     <div className="max-w-3xl space-y-6">
-      <div className="rounded-2xl border border-aera-champagne/30 bg-white p-6 space-y-5">
+      <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-6 space-y-5">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm font-bold text-aera-ink">PayPal Payments</h3>
-            <p className="mt-1 text-xs text-aera-muted">Configure secure PayPal checkout for Gift Card purchases only.</p>
+            <h3 className="text-sm font-bold text-[var(--admin-ink)]">PayPal Payments</h3>
+            <p className="mt-1 text-xs text-[var(--admin-muted)]">Configure secure PayPal checkout for Gift Card purchases only.</p>
           </div>
           <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold ${settings.ready ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
             {settings.ready ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
@@ -113,7 +113,7 @@ export default function PaymentSettings() {
         {message && <p className="rounded-xl bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">{message}</p>}
         {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">{error}</p>}
 
-        <label className="flex items-center gap-2 text-xs font-semibold text-aera-ink">
+        <label className="flex items-center gap-2 text-xs font-semibold text-[var(--admin-ink)]">
           <input
             type="checkbox"
             checked={settings.isEnabled}
@@ -123,49 +123,49 @@ export default function PaymentSettings() {
         </label>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <label className="space-y-1.5 text-xs font-semibold text-aera-ink">
+          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
             Environment
             <select className={inputClass} value={settings.environment} onChange={(e) => setSettings({ ...settings, environment: e.target.value as "sandbox" | "live" })}>
               <option value="sandbox">Sandbox</option>
               <option value="live">Live</option>
             </select>
           </label>
-          <label className="space-y-1.5 text-xs font-semibold text-aera-ink">
+          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
             Currency
             <input className={inputClass} value={settings.currency} onChange={(e) => setSettings({ ...settings, currency: e.target.value.toUpperCase() })} />
           </label>
-          <label className="space-y-1.5 text-xs font-semibold text-aera-ink">
+          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
             PayPal Client ID
             <input className={inputClass} value={settings.clientId || ""} onChange={(e) => setSettings({ ...settings, clientId: e.target.value })} />
-            {settings.maskedClientId && <span className="text-[10px] text-aera-muted">Saved: {settings.maskedClientId}</span>}
+            {settings.maskedClientId && <span className="text-[10px] text-[var(--admin-muted)]">Saved: {settings.maskedClientId}</span>}
           </label>
-          <label className="space-y-1.5 text-xs font-semibold text-aera-ink">
+          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
             PayPal Client Secret
             <input className={inputClass} type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} placeholder={settings.clientSecretConfigured ? "Secret configured - leave blank to keep" : "Paste client secret"} />
-            <span className="flex items-center gap-1 text-[10px] text-aera-muted"><EyeOff size={11} /> Secret is write-only and encrypted at rest.</span>
+            <span className="flex items-center gap-1 text-[10px] text-[var(--admin-muted)]"><EyeOff size={11} /> Secret is write-only and encrypted at rest.</span>
           </label>
-          <label className="space-y-1.5 text-xs font-semibold text-aera-ink">
+          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
             Webhook ID
             <input className={inputClass} value={settings.webhookId || ""} onChange={(e) => setSettings({ ...settings, webhookId: e.target.value })} />
           </label>
-          <label className="space-y-1.5 text-xs font-semibold text-aera-ink">
+          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
             Charge Mode
             <select className={inputClass} value={settings.chargeMode} onChange={(e) => setSettings({ ...settings, chargeMode: e.target.value as "deposit" | "full" })}>
               <option value="deposit">Deposit</option>
               <option value="full">Full Payment</option>
             </select>
           </label>
-          <label className="space-y-1.5 text-xs font-semibold text-aera-ink">
+          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
             Deposit Percentage
             <input className={inputClass} type="number" min={1} max={100} value={settings.depositPercentage} onChange={(e) => setSettings({ ...settings, depositPercentage: Number(e.target.value) })} disabled={settings.chargeMode === "full"} />
           </label>
-          <label className="space-y-1.5 text-xs font-semibold text-aera-ink">
+          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
             Booking Hold Minutes
             <input className={inputClass} type="number" min={5} max={120} value={settings.bookingHoldMinutes} onChange={(e) => setSettings({ ...settings, bookingHoldMinutes: Number(e.target.value) })} />
           </label>
         </div>
 
-        <label className="flex items-center gap-2 text-xs font-semibold text-aera-ink">
+        <label className="flex items-center gap-2 text-xs font-semibold text-[var(--admin-ink)]">
           <input
             type="checkbox"
             checked={settings.autoConfirmAfterPayment}
@@ -174,7 +174,7 @@ export default function PaymentSettings() {
           Gift Card orders are issued after successful payment
         </label>
 
-        <div className="rounded-xl border border-aera-champagne/40 bg-aera-cream/20 p-4 text-xs text-aera-ink">
+        <div className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] p-4 text-xs text-[var(--admin-ink)]">
           <div className="mb-2 flex items-center gap-2 font-bold"><ShieldCheck size={14} /> Webhook Setup</div>
           <div className="flex items-center gap-2">
             <code className="flex-1 rounded-lg bg-white px-2 py-1 text-[11px]">{webhookEndpoint}</code>
@@ -182,14 +182,14 @@ export default function PaymentSettings() {
               <Copy size={13} />
             </button>
           </div>
-          <p className="mt-2 text-[11px] text-aera-muted">Required events: PAYMENT.CAPTURE.COMPLETED, DENIED, REFUNDED, REVERSED.</p>
+          <p className="mt-2 text-[11px] text-[var(--admin-muted)]">Required events: PAYMENT.CAPTURE.COMPLETED, DENIED, REFUNDED, REVERSED.</p>
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button type="button" onClick={save} disabled={saving} className="rounded-full bg-aera-accent px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-aera-accentHover disabled:opacity-40">
+          <button type="button" onClick={save} disabled={saving} className="rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[var(--admin-accent-hover)] disabled:opacity-40">
             {saving ? "Saving..." : "Save Payments"}
           </button>
-          <button type="button" onClick={testConnection} disabled={testing} className="inline-flex items-center gap-1.5 rounded-full border border-aera-champagne px-5 py-2 text-xs font-bold text-aera-ink hover:border-aera-accent disabled:opacity-40">
+          <button type="button" onClick={testConnection} disabled={testing} className="inline-flex items-center gap-1.5 rounded-full border border-[var(--admin-border)] px-5 py-2 text-xs font-bold text-[var(--admin-ink)] hover:border-[var(--admin-accent)] disabled:opacity-40">
             <TestTube2 size={13} /> {testing ? "Testing..." : "Test Connection"}
           </button>
           <button type="button" onClick={disableAndRemoveSecret} disabled={saving} className="rounded-full border border-rose-200 px-5 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 disabled:opacity-40">

@@ -27,7 +27,7 @@ export default function ReportDashboard() {
   });
 
   const inputClass =
-    "rounded-xl border border-aera-champagne/60 bg-white px-3 py-2 text-xs text-aera-ink focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20";
+    "rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
 
   return (
     <div className="p-6 space-y-6">
@@ -43,7 +43,7 @@ export default function ReportDashboard() {
       {/* Date Range Filter */}
       {activeTab !== "inventory" && (
         <div className="flex items-center gap-3 flex-wrap">
-          <label className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">
+          <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">
             Date Range
           </label>
           <input
@@ -52,7 +52,7 @@ export default function ReportDashboard() {
             onChange={(e) => setDateRange((prev) => ({ ...prev, from: e.target.value }))}
             className={inputClass}
           />
-          <span className="text-xs text-aera-muted">to</span>
+          <span className="text-xs text-[var(--admin-muted)]">to</span>
           <input
             type="date"
             value={dateRange.to}

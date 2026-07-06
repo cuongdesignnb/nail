@@ -3,11 +3,14 @@ import React, { useState, useEffect } from "react";
 import { FormField, FormSelect } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2, Plus, Trash, Sparkles } from "lucide-react";
+import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
 
 export function ServicePackageForm() {
+  const toast = useToast();
   const [packages, setPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   // Form fields
   const [name, setName] = useState("");
@@ -136,52 +139,56 @@ export function ServicePackageForm() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to deactivate this package?")) return;
+  const handleDeleteClick = (id: string) => setDeleteTarget(id);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/service-packages/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/service-packages/${deleteTarget}`, { method: "DELETE" });
       if (res.ok) {
         fetchPackages();
       } else {
-        alert("Failed to deactivate package");
+        toast.toast({ type: "error", title: "Failed to deactivate package" });
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-sans">
       {/* Packages List Panel */}
-      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-        <h2 className="font-heading text-lg font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+      <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+        <h2 className="font-heading text-lg font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
           Service Membership Packages
         </h2>
 
         {loading ? (
-          <p className="text-xs text-aera-muted italic py-4">Loading packages...</p>
+          <p className="text-xs text-[var(--admin-muted)] italic py-4">Loading packages...</p>
         ) : packages.length === 0 ? (
-          <div className="text-center py-8 text-aera-muted italic">
+          <div className="text-center py-8 text-[var(--admin-muted)] italic">
             <p className="text-xs">No packages created yet.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {packages.map((pkg) => (
-              <div key={pkg.id} className="p-5 border border-aera-champagne/40 rounded-2xl bg-aera-champagne/5 hover:shadow-luxury hover:bg-white transition-all duration-300 flex justify-between items-start gap-4">
+              <div key={pkg.id} className="p-5 border border-[var(--admin-border)]/40 rounded-2xl bg-[var(--admin-surface-muted)] hover:shadow-luxury hover:bg-white transition-all duration-300 flex justify-between items-start gap-4">
                 <div className="text-left">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h3 className="font-heading text-base font-semibold text-aera-ink leading-none">{pkg.name}</h3>
-                    {pkg.isPopular && <span className="bg-aera-accent text-white font-sans text-[8px] font-bold py-0.5 px-2 rounded-full">POPULAR</span>}
+                    <h3 className="font-heading text-base font-semibold text-[var(--admin-ink)] leading-none">{pkg.name}</h3>
+                    {pkg.isPopular && <span className="bg-[var(--admin-accent)] text-white font-sans text-[8px] font-bold py-0.5 px-2 rounded-full">POPULAR</span>}
                     <StatusBadge active={pkg.isActive} />
                   </div>
-                  <p className="text-[10px] text-aera-muted mb-2">{pkg.subtitle}</p>
-                  <div className="font-heading text-sm font-bold text-aera-accent mb-3">{pkg.priceLabel || `$${pkg.price}`}</div>
+                  <p className="text-[10px] text-[var(--admin-muted)] mb-2">{pkg.subtitle}</p>
+                  <div className="font-heading text-sm font-bold text-[var(--admin-accent)] mb-3">{pkg.priceLabel || `$${pkg.price}`}</div>
                   
                   {/* Features display */}
                   {pkg.features && pkg.features.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 max-w-lg">
                       {pkg.features.map((feat: string, fIdx: number) => (
-                        <span key={fIdx} className="bg-aera-champagne/20 text-[9px] text-aera-muted border border-aera-champagne/40 rounded-full px-2 py-0.5 font-sans">
+                        <span key={fIdx} className="bg-[var(--admin-surface-hover)] text-[9px] text-[var(--admin-muted)] border border-[var(--admin-border)]/40 rounded-full px-2 py-0.5 font-sans">
                           {feat}
                         </span>
                       ))}
@@ -192,12 +199,12 @@ export function ServicePackageForm() {
                 <div className="flex gap-1 shrink-0">
                   <button
                     onClick={() => handleEdit(pkg)}
-                    className="p-1 text-aera-accent hover:bg-aera-accent/10 rounded border-none bg-transparent cursor-pointer"
+                    className="p-1 text-[var(--admin-accent)] hover:bg-[var(--admin-accent)]/10 rounded border-none bg-transparent cursor-pointer"
                   >
                     <Edit size={14} />
                   </button>
                   <button
-                    onClick={() => handleDelete(pkg.id)}
+                    onClick={() => handleDeleteClick(pkg.id)}
                     className="p-1 text-rose-500 hover:bg-rose-50 rounded border-none bg-transparent cursor-pointer"
                   >
                     <Trash2 size={14} />
@@ -211,8 +218,8 @@ export function ServicePackageForm() {
 
       {/* Editor Form Panel */}
       <div className="lg:col-span-5">
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury">
-          <h3 className="font-heading text-base font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury">
+          <h3 className="font-heading text-base font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
             {editingId ? "Edit Package" : "Create New Package"}
           </h3>
 
@@ -278,7 +285,7 @@ export function ServicePackageForm() {
 
           {/* Package Features List */}
           <div className="mb-4 font-sans text-left">
-            <label className="text-xs font-semibold text-aera-ink tracking-wide block mb-1">
+            <label className="text-xs font-semibold text-[var(--admin-ink)] tracking-wide block mb-1">
               Included Services / Features
             </label>
             
@@ -288,13 +295,13 @@ export function ServicePackageForm() {
                 value={newFeature}
                 onChange={(e) => setNewFeature(e.target.value)}
                 placeholder="Include service/detail..."
-                className="flex-grow rounded-lg border border-aera-champagne/60 px-3 py-1.5 text-xs font-sans text-aera-ink outline-none focus:border-aera-accent bg-white"
+                className="flex-grow rounded-lg border border-[var(--admin-border-strong)] px-3 py-1.5 text-xs font-sans text-[var(--admin-ink)] outline-none focus:border-[var(--admin-accent)] bg-white"
                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addFeature(); } }}
               />
               <button
                 type="button"
                 onClick={addFeature}
-                className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-lg px-3 py-1.5 flex items-center justify-center border-none cursor-pointer"
+                className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-lg px-3 py-1.5 flex items-center justify-center border-none cursor-pointer"
               >
                 <Plus size={14} />
               </button>
@@ -302,8 +309,8 @@ export function ServicePackageForm() {
 
             <ul className="space-y-1 pl-0">
               {features.map((feature, idx) => (
-                <li key={idx} className="flex items-center justify-between bg-aera-champagne/10 px-2 py-1 rounded border border-aera-champagne/20 text-xs">
-                  <span className="text-aera-muted text-[11px]">{feature}</span>
+                <li key={idx} className="flex items-center justify-between bg-[var(--admin-surface-muted)] px-2 py-1 rounded border border-[var(--admin-border)]/20 text-xs">
+                  <span className="text-[var(--admin-muted)] text-[11px]">{feature}</span>
                   <button
                     type="button"
                     onClick={() => removeFeature(idx)}
@@ -316,13 +323,13 @@ export function ServicePackageForm() {
             </ul>
           </div>
 
-          <div className="flex gap-4 border-t border-aera-champagne/40 pt-4 mt-4 mb-6">
+          <div className="flex gap-4 border-t border-[var(--admin-border)]/40 pt-4 mt-4 mb-6">
             <label className="inline-flex items-center gap-2 cursor-pointer font-sans text-xs">
               <input
                 type="checkbox"
                 checked={isPopular}
                 onChange={(e) => setIsPopular(e.target.checked)}
-                className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+                className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
               />
               <span>Popular Plan Badge</span>
             </label>
@@ -332,18 +339,18 @@ export function ServicePackageForm() {
                 type="checkbox"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+                className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
               />
               <span>Active Status</span>
             </label>
           </div>
 
-          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-aera-champagne/40">
+          <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--admin-border)]/40">
             {editingId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="border border-aera-champagne text-aera-muted hover:bg-aera-champagne/10 rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
+                className="border border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[var(--admin-surface-muted)] rounded-full px-4 py-2 text-xs font-semibold cursor-pointer"
               >
                 Cancel
               </button>
@@ -351,13 +358,22 @@ export function ServicePackageForm() {
             <button
               type="submit"
               disabled={formLoading}
-              className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
+              className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-full px-5 py-2 text-xs font-semibold cursor-pointer border-none"
             >
               {formLoading ? "Saving..." : editingId ? "Update Package" : "Create Package"}
             </button>
           </div>
         </form>
       </div>
+      <AdminConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Deactivate Package"
+        description="Are you sure you want to deactivate this package? This cannot be undone."
+        confirmLabel="Deactivate"
+        variant="danger"
+      />
     </div>
   );
 }

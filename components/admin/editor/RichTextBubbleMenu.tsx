@@ -58,8 +58,8 @@ export function RichTextBubbleMenu({ editor }: RichTextBubbleMenuProps) {
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
             editor.isActive('bold')
-              ? 'bg-aera-champagne text-aera-accent'
-              : 'text-aera-muted hover:bg-aera-champagne/50'
+              ? 'bg-[var(--admin-accent-soft)] text-[var(--admin-accent)]'
+              : 'text-[var(--admin-muted)] hover:bg-[var(--admin-accent-soft)]'
           }`}
           title="Bold"
         >
@@ -70,8 +70,8 @@ export function RichTextBubbleMenu({ editor }: RichTextBubbleMenuProps) {
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
             editor.isActive('italic')
-              ? 'bg-aera-champagne text-aera-accent'
-              : 'text-aera-muted hover:bg-aera-champagne/50'
+              ? 'bg-[var(--admin-accent-soft)] text-[var(--admin-accent)]'
+              : 'text-[var(--admin-muted)] hover:bg-[var(--admin-accent-soft)]'
           }`}
           title="Italic"
         >
@@ -82,8 +82,8 @@ export function RichTextBubbleMenu({ editor }: RichTextBubbleMenuProps) {
           onClick={() => setLinkDialogOpen(true)}
           className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
             editor.isActive('link')
-              ? 'bg-aera-champagne text-aera-accent'
-              : 'text-aera-muted hover:bg-aera-champagne/50'
+              ? 'bg-[var(--admin-accent-soft)] text-[var(--admin-accent)]'
+              : 'text-[var(--admin-muted)] hover:bg-[var(--admin-accent-soft)]'
           }`}
           title="Link"
         >

@@ -36,15 +36,8 @@ export default function UpcomingAppointmentsCard({
           message="No upcoming appointments."
         />
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'separate',
-              borderSpacing: '0 4px',
-              fontSize: 13,
-            }}
-          >
+        <div className="overflow-x-auto">
+          <table className="w-full border-separate text-[13px]" style={{ borderSpacing: '0 4px' }}>
             <thead>
               <tr>
                 {[
@@ -58,17 +51,7 @@ export default function UpcomingAppointmentsCard({
                 ].map((h) => (
                   <th
                     key={h}
-                    style={{
-                      textAlign: 'left',
-                      padding: '6px 8px',
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: '#7f6d61',
-                      textTransform: 'uppercase',
-                      letterSpacing: 0.5,
-                      borderBottom: '1px solid rgba(116, 55, 15, 0.06)',
-                      whiteSpace: 'nowrap',
-                    }}
+                    className="whitespace-nowrap border-b border-[var(--admin-border-muted)] px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wide text-[var(--admin-muted)]"
                   >
                     {h}
                   </th>
@@ -79,97 +62,42 @@ export default function UpcomingAppointmentsCard({
               {appointments.map((apt) => (
                 <tr
                   key={apt.id}
-                  style={{ transition: 'background 0.15s' }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background =
-                      'rgba(155, 89, 29, 0.03)')
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = 'transparent')
-                  }
+                  className="transition-colors duration-150 hover:bg-[var(--admin-surface-hover)]"
                 >
-                  <td
-                    style={{
-                      padding: '10px 8px',
-                      fontFamily: 'monospace',
-                      fontSize: 12,
-                      color: '#9b591d',
-                      fontWeight: 600,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  <td className="whitespace-nowrap px-2 py-2.5 font-mono text-xs font-semibold text-[var(--admin-accent)]">
                     {apt.bookingCode}
                   </td>
-                  <td
-                    style={{
-                      padding: '10px 8px',
-                      color: '#2f1c11',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  <td className="whitespace-nowrap px-2 py-2.5 text-[var(--admin-ink)]">
                     {apt.customerName}
                   </td>
-                  <td
-                    style={{
-                      padding: '10px 8px',
-                      color: '#7f6d61',
-                      maxWidth: 160,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  <td className="max-w-[160px] truncate whitespace-nowrap px-2 py-2.5 text-[var(--admin-muted)]">
                     {apt.services.join(', ')}
                   </td>
-                  <td
-                    style={{
-                      padding: '10px 8px',
-                      color: '#2f1c11',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  <td className="whitespace-nowrap px-2 py-2.5 text-[var(--admin-ink)]">
                     {apt.technicianName}
                   </td>
-                  <td
-                    style={{
-                      padding: '10px 8px',
-                      color: '#2f1c11',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    <span style={{ fontWeight: 600 }}>
+                  <td className="whitespace-nowrap px-2 py-2.5 text-[var(--admin-ink)]">
+                    <span className="font-semibold">
                       {formatShortDate(apt.scheduledStartAt)}
                     </span>
-                    <span style={{ color: '#7f6d61', marginLeft: 6 }}>
+                    <span className="ml-1.5 text-[var(--admin-muted)]">
                       {formatTime(apt.scheduledStartAt)}
                     </span>
                   </td>
-                  <td style={{ padding: '10px 8px' }}>
+                  <td className="px-2 py-2.5">
                     <span
+                      className="inline-block whitespace-nowrap rounded-[var(--admin-radius-sm)] px-2.5 py-0.5 text-[11px] font-semibold"
                       style={{
-                        display: 'inline-block',
-                        padding: '3px 10px',
-                        borderRadius: 8,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: STATUS_COLORS[apt.status] || '#7f6d61',
+                        color: STATUS_COLORS[apt.status] || 'var(--admin-muted)',
                         background:
                           STATUS_BG_COLORS[apt.status] ||
-                          'rgba(127, 109, 97, 0.10)',
-                        whiteSpace: 'nowrap',
+                          'var(--admin-neutral-soft)',
                       }}
                     >
                       {apt.status}
                     </span>
                   </td>
-                  <td
-                    style={{
-                      padding: '10px 8px',
-                      fontWeight: 600,
-                      color: '#2f1c11',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  <td className="whitespace-nowrap px-2 py-2.5 font-semibold text-[var(--admin-ink)]">
                     {formatCurrency(apt.totalAmount)}
                   </td>
                 </tr>

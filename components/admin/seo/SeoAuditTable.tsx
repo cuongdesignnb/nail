@@ -7,7 +7,7 @@ export function SeoAuditTable({ rows }: { rows: SeoAuditRow[] }) {
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-xs">
-          <thead className="bg-aera-champagne/30 text-aera-muted">
+          <thead className="bg-[var(--admin-surface-muted)] text-[var(--admin-muted)]">
             <tr>
               {["URL", "Type", "Source", "Title", "Description", "Canonical", "OG", "Schema", "Sitemap", "Action"].map((header) => (
                 <th key={header} className="px-3 py-2 font-bold uppercase tracking-wide">{header}</th>
@@ -27,7 +27,7 @@ export function SeoAuditTable({ rows }: { rows: SeoAuditRow[] }) {
                 <td className="px-3 py-2">{row.schemaStatus}</td>
                 <td className="px-3 py-2">{row.sitemapStatus}</td>
                 <td className="px-3 py-2">
-                  <a className="font-semibold text-aera-accent hover:underline" href={row.action}>Open</a>
+                  <a className="font-semibold text-[var(--admin-accent)] hover:underline" href={row.action}>Open</a>
                 </td>
               </tr>
             ))}

@@ -50,7 +50,7 @@ export const AdminSearchInput: React.FC<AdminSearchInputProps> = ({
 
   return (
     <div className="relative w-full max-w-xs">
-      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-aera-muted/60 pointer-events-none" />
+      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--admin-placeholder)] pointer-events-none" />
 
       <input
         type="text"
@@ -58,8 +58,8 @@ export const AdminSearchInput: React.FC<AdminSearchInputProps> = ({
         onChange={(e) => setInternal(e.target.value)}
         placeholder={placeholder}
         className={clsx(
-          "w-full rounded-xl border border-aera-champagne/60 bg-white py-2 pl-9 pr-8 text-xs text-aera-ink placeholder:text-aera-muted/50",
-          "transition-colors focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20"
+          "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white py-2 pl-9 pr-8 text-xs text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)]",
+          "transition-colors focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20"
         )}
       />
 
@@ -67,7 +67,7 @@ export const AdminSearchInput: React.FC<AdminSearchInputProps> = ({
         <button
           type="button"
           onClick={handleClear}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-aera-muted hover:text-aera-ink transition-colors"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-[var(--admin-muted)] hover:text-[var(--admin-ink)] transition-colors"
         >
           <X className="h-3.5 w-3.5" />
         </button>

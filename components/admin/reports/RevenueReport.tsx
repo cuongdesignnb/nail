@@ -49,7 +49,7 @@ export default function RevenueReport({ from, to }: RevenueReportProps) {
   }, [from, to]);
 
   if (loading) return <AdminLoadingState variant="card" />;
-  if (!data) return <div className="text-sm text-aera-muted p-8 text-center">No revenue data available</div>;
+  if (!data) return <div className="text-sm text-[var(--admin-muted)] p-8 text-center">No revenue data available</div>;
 
   return (
     <motion.div
@@ -67,19 +67,19 @@ export default function RevenueReport({ from, to }: RevenueReportProps) {
         ].map((stat) => (
           <div
             key={stat.label}
-            className="rounded-2xl border border-aera-champagne/30 bg-white p-5"
+            className="rounded-2xl border border-[var(--admin-border)] bg-white p-5"
           >
-            <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">{stat.label}</p>
-            <p className="mt-1 text-2xl font-bold text-aera-ink">{stat.value}</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">{stat.label}</p>
+            <p className="mt-1 text-2xl font-bold text-[var(--admin-ink)]">{stat.value}</p>
           </div>
         ))}
       </div>
 
       {/* Revenue Over Time */}
-      <div className="rounded-2xl border border-aera-champagne/30 bg-white p-5">
+      <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-aera-ink flex items-center gap-2">
-            <DollarSign className="h-4 w-4 text-aera-accent" />
+          <h3 className="text-sm font-bold text-[var(--admin-ink)] flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-[var(--admin-accent)]" />
             Revenue Over Time
           </h3>
           <ExportControls data={data.dailyRevenue} filename="revenue-daily" />
@@ -114,14 +114,14 @@ export default function RevenueReport({ from, to }: RevenueReportProps) {
             </AreaChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-sm text-aera-muted py-8 text-center">No data for the selected range</p>
+          <p className="text-sm text-[var(--admin-muted)] py-8 text-center">No data for the selected range</p>
         )}
       </div>
 
       {/* Payment Methods */}
       {data.paymentMethods.length > 0 && (
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white p-5">
-          <h3 className="text-sm font-bold text-aera-ink mb-4">Revenue by Payment Method</h3>
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-5">
+          <h3 className="text-sm font-bold text-[var(--admin-ink)] mb-4">Revenue by Payment Method</h3>
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <ResponsiveContainer width={200} height={200}>
               <PieChart>
@@ -155,8 +155,8 @@ export default function RevenueReport({ from, to }: RevenueReportProps) {
                     className="h-3 w-3 rounded-full shrink-0"
                     style={{ backgroundColor: COLORS[i % COLORS.length] }}
                   />
-                  <span className="font-semibold text-aera-ink capitalize">{pm.method}</span>
-                  <span className="text-aera-muted">${pm.total.toLocaleString()}</span>
+                  <span className="font-semibold text-[var(--admin-ink)] capitalize">{pm.method}</span>
+                  <span className="text-[var(--admin-muted)]">${pm.total.toLocaleString()}</span>
                 </div>
               ))}
             </div>

@@ -47,7 +47,7 @@ export default function AdminTopbar({
           aria-label="Open search"
         >
           <Search size={16} aria-hidden="true" />
-          <span>Search…</span>
+          <span>Search bookings, clients, gift cards…</span>
           <kbd>⌘K</kbd>
         </button>
       </div>

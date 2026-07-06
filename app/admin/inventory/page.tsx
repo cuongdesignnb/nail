@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Package, Search, AlertTriangle, Eye } from "lucide-react";
 import Link from "next/link";
+import { AdminPageHeader } from "@/components/admin/ui";
 
 interface InventoryItem {
   id: string;
@@ -39,11 +40,12 @@ export default function AdminInventoryPage() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   return (
-    <div style={{ padding: "0 32px 32px" }}>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#2f1c11", fontFamily: "var(--font-display)" }}>Inventory</h1>
-        <p style={{ fontSize: 13, color: "#7f6d61", marginTop: 4 }}>Track stock levels, suppliers & reorder alerts</p>
-      </div>
+    <div className="admin-page-container">
+      <AdminPageHeader
+        eyebrow="Catalog"
+        title="Inventory"
+        description="Track stock levels, suppliers & reorder alerts"
+      />
 
       <div style={{ marginBottom: 20, position: "relative", maxWidth: 400 }}>
         <Search size={16} style={{ position: "absolute", left: 12, top: 11, color: "#7f6d61" }} />

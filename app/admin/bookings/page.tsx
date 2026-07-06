@@ -3,8 +3,15 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-import { Calendar, Search, Filter, Plus, Eye } from "lucide-react";
+import { Calendar, Search, Plus, Eye } from "lucide-react";
 import Link from "next/link";
+import {
+  AdminPageHeader,
+  AdminLoadingState,
+  AdminEmptyState,
+  AdminStatusChip,
+  AdminButton,
+} from "@/components/admin/ui";
 
 interface Booking {
   id: string;
@@ -22,15 +29,16 @@ interface Booking {
   totalAmount: number;
 }
 
-const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
-  Pending: { bg: "rgba(234, 179, 8, 0.1)", color: "#b45309" },
-  Confirmed: { bg: "rgba(59, 130, 246, 0.1)", color: "#1d4ed8" },
-  "Checked In": { bg: "rgba(168, 93, 30, 0.1)", color: "#a85d1e" },
-  "In Service": { bg: "rgba(168, 93, 30, 0.15)", color: "#8a4b19" },
-  Completed: { bg: "rgba(34, 197, 94, 0.1)", color: "#15803d" },
-  Cancelled: { bg: "rgba(239, 68, 68, 0.08)", color: "#dc2626" },
-  "No Show": { bg: "rgba(107, 114, 128, 0.1)", color: "#4b5563" },
-};
+const STATUS_OPTIONS = [
+  { value: "all", label: "All Status" },
+  { value: "Pending", label: "Pending" },
+  { value: "Confirmed", label: "Confirmed" },
+  { value: "Checked In", label: "Checked In" },
+  { value: "In Service", label: "In Service" },
+  { value: "Completed", label: "Completed" },
+  { value: "Cancelled", label: "Cancelled" },
+  { value: "No Show", label: "No Show" },
+];
 
 export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -58,95 +66,200 @@ export default function AdminBookingsPage() {
   useEffect(() => { fetchBookings(); }, [fetchBookings]);
 
   return (
-    <div style={{ padding: "0 32px 32px" }}>
+    <div className="admin-page-container">
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: "#2f1c11", fontFamily: "var(--font-display)" }}>Bookings</h1>
-          <p style={{ fontSize: 13, color: "#7f6d61", marginTop: 4 }}>Manage appointments, track status & payments</p>
-        </div>
-        <Link href="/booking" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 20px", background: "linear-gradient(135deg, #a85d1e, #c4803e)", color: "white", borderRadius: 12, fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
-          <Plus size={16} /> New Booking
-        </Link>
-      </div>
+      <AdminPageHeader
+        eyebrow="Operations"
+        title="Bookings"
+        description="Manage appointments, track status & payments"
+        actions={
+          <Link href="/booking">
+            <AdminButton variant="primary" size="lg" icon={<Plus size={16} />}>
+              New Booking
+            </AdminButton>
+          </Link>
+        }
+      />
 
       {/* Filters */}
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-        <div style={{ flex: 1, position: "relative" }}>
-          <Search size={16} style={{ position: "absolute", left: 12, top: 11, color: "#7f6d61" }} />
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1 sm:max-w-xs">
+          <Search
+            size={16}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--admin-muted)]"
+          />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name, code, email..."
-            style={{ width: "100%", padding: "10px 12px 10px 36px", border: "1px solid rgba(116,55,15,0.12)", borderRadius: 10, fontSize: 13, background: "white", outline: "none" }}
+            className="w-full rounded-[var(--admin-radius-md)] border border-[var(--admin-border-strong)] bg-[var(--admin-surface)] py-2.5 pl-9 pr-3 text-[13px] text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)] transition-colors focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          style={{ padding: "10px 14px", border: "1px solid rgba(116,55,15,0.12)", borderRadius: 10, fontSize: 13, background: "white", color: "#4a2d1e" }}
+          className="appearance-none rounded-[var(--admin-radius-md)] border border-[var(--admin-border-strong)] bg-[var(--admin-surface)] px-3.5 py-2.5 text-[13px] text-[var(--admin-ink-secondary)] transition-colors focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20"
         >
-          <option value="all">All Status</option>
-          <option value="Pending">Pending</option>
-          <option value="Confirmed">Confirmed</option>
-          <option value="Checked In">Checked In</option>
-          <option value="In Service">In Service</option>
-          <option value="Completed">Completed</option>
-          <option value="Cancelled">Cancelled</option>
-          <option value="No Show">No Show</option>
+          {STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
         </select>
       </div>
 
-      {/* Table */}
-      <div style={{ background: "white", borderRadius: 16, border: "1px solid rgba(116,55,15,0.08)", overflow: "hidden" }}>
+      {/* Table / Content */}
+      <div className="overflow-hidden rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] shadow-[var(--admin-shadow-sm)]">
         {loading ? (
-          <div style={{ padding: 40, textAlign: "center", color: "#7f6d61" }}>Loading bookings...</div>
-        ) : bookings.length === 0 ? (
-          <div style={{ padding: 60, textAlign: "center" }}>
-            <Calendar size={40} style={{ color: "#d9b894", marginBottom: 12 }} />
-            <p style={{ fontSize: 15, fontWeight: 600, color: "#4a2d1e" }}>No bookings found</p>
-            <p style={{ fontSize: 13, color: "#7f6d61", marginTop: 4 }}>Bookings will appear here once created.</p>
+          <div className="p-8">
+            <AdminLoadingState variant="table" />
           </div>
+        ) : bookings.length === 0 ? (
+          <AdminEmptyState
+            icon={Calendar}
+            title="No bookings found"
+            description="Bookings will appear here once created."
+          />
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid rgba(116,55,15,0.08)" }}>
-                {["Code", "Client", "Services", "Technician", "Scheduled", "Status", "Payment", "Paid", ""].map((h) => (
-                  <th key={h} style={{ padding: "12px 16px", fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#7f6d61", textAlign: "left" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {bookings.map((b, i) => {
-                const sc = STATUS_COLORS[b.status] || STATUS_COLORS.Pending;
-                return (
-                  <motion.tr key={b.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }} style={{ borderBottom: "1px solid rgba(116,55,15,0.04)" }}>
-                    <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, color: "#a85d1e" }}>{b.bookingCode}</td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#2f1c11" }}>{b.customerName}</div>
-                      <div style={{ fontSize: 11, color: "#7f6d61" }}>{b.customerEmail}</div>
-                    </td>
-                    <td style={{ padding: "14px 16px", fontSize: 13, color: "#4a2d1e" }}>{b.services?.join(", ") || "—"}</td>
-                    <td style={{ padding: "14px 16px", fontSize: 13, color: "#4a2d1e" }}>{b.technician || "Any"}</td>
-                    <td style={{ padding: "14px 16px", fontSize: 13, color: "#4a2d1e" }}>{format(new Date(b.scheduledStartAt), "MMM d, h:mm a")}</td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <span style={{ padding: "4px 10px", borderRadius: 8, fontSize: 11, fontWeight: 700, background: sc.bg, color: sc.color }}>{b.status}</span>
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: ["Paid", "Deposit Paid"].includes(b.paymentStatus) ? "#15803d" : "#b45309" }}>{b.paymentStatus}</div>
-                      <div style={{ fontSize: 10, color: "#7f6d61", marginTop: 2 }}>{b.paymentProvider}{b.chargeMode ? ` · ${b.chargeMode}` : ""}</div>
-                    </td>
-                    <td style={{ padding: "14px 16px", fontSize: 13, fontWeight: 700, color: "#2f1c11" }}>
-                      ${Number(b.paidAmount || 0).toFixed(2)}
-                    </td>
-                    <td style={{ padding: "14px 16px" }}>
-                      <Link href={`/admin/bookings/${b.id}`} style={{ color: "#a85d1e" }}><Eye size={16} /></Link>
-                    </td>
-                  </motion.tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <>
+            {/* Desktop table — hidden on mobile */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-[var(--admin-border)]">
+                    {["Code", "Client", "Services", "Technician", "Scheduled", "Status", "Payment", "Paid", ""].map((h) => (
+                      <th
+                        key={h}
+                        className="px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-wider text-[var(--admin-muted)]"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map((b, i) => (
+                    <motion.tr
+                      key={b.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: i * 0.02 }}
+                      className="border-b border-[var(--admin-border-muted)] transition-colors hover:bg-[var(--admin-surface-hover)]"
+                    >
+                      <td className="px-4 py-3.5 text-[13px] font-bold text-[var(--admin-accent)]">
+                        {b.bookingCode}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <div className="text-[13px] font-semibold text-[var(--admin-ink)]">{b.customerName}</div>
+                        <div className="text-[11px] text-[var(--admin-muted)]">{b.customerEmail}</div>
+                      </td>
+                      <td className="px-4 py-3.5 text-[13px] text-[var(--admin-ink-secondary)]">
+                        {b.services?.join(", ") || "—"}
+                      </td>
+                      <td className="px-4 py-3.5 text-[13px] text-[var(--admin-ink-secondary)]">
+                        {b.technician || "Any"}
+                      </td>
+                      <td className="px-4 py-3.5 text-[13px] text-[var(--admin-ink-secondary)]">
+                        {format(new Date(b.scheduledStartAt), "MMM d, h:mm a")}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <AdminStatusChip status={b.status} size="sm" />
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <div
+                          className={`text-xs font-bold ${
+                            ["Paid", "Deposit Paid"].includes(b.paymentStatus)
+                              ? "text-[var(--admin-success)]"
+                              : "text-[var(--admin-warning)]"
+                          }`}
+                        >
+                          {b.paymentStatus}
+                        </div>
+                        <div className="mt-0.5 text-[10px] text-[var(--admin-muted)]">
+                          {b.paymentProvider}{b.chargeMode ? ` · ${b.chargeMode}` : ""}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 text-[13px] font-bold text-[var(--admin-ink)]">
+                        ${Number(b.paidAmount || 0).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <Link
+                          href={`/admin/bookings/${b.id}`}
+                          className="inline-flex items-center justify-center rounded-[var(--admin-radius-sm)] p-1.5 text-[var(--admin-accent)] transition-colors hover:bg-[var(--admin-accent-soft)]"
+                          aria-label={`View booking ${b.bookingCode}`}
+                        >
+                          <Eye size={16} />
+                        </Link>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards — shown only on mobile */}
+            <div className="flex flex-col divide-y divide-[var(--admin-border-muted)] md:hidden">
+              {bookings.map((b, i) => (
+                <motion.div
+                  key={b.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: i * 0.02 }}
+                  className="p-4"
+                >
+                  <div className="mb-2 flex items-start justify-between">
+                    <div>
+                      <span className="text-[13px] font-bold text-[var(--admin-accent)]">{b.bookingCode}</span>
+                      <div className="mt-0.5 text-[13px] font-semibold text-[var(--admin-ink)]">{b.customerName}</div>
+                      <div className="text-[11px] text-[var(--admin-muted)]">{b.customerEmail}</div>
+                    </div>
+                    <AdminStatusChip status={b.status} size="sm" />
+                  </div>
+
+                  <div className="mt-2 grid grid-cols-2 gap-y-1.5 text-[12px]">
+                    <div>
+                      <span className="text-[var(--admin-muted)]">Services: </span>
+                      <span className="text-[var(--admin-ink-secondary)]">{b.services?.join(", ") || "—"}</span>
+                    </div>
+                    <div>
+                      <span className="text-[var(--admin-muted)]">Tech: </span>
+                      <span className="text-[var(--admin-ink-secondary)]">{b.technician || "Any"}</span>
+                    </div>
+                    <div>
+                      <span className="text-[var(--admin-muted)]">Scheduled: </span>
+                      <span className="text-[var(--admin-ink-secondary)]">{format(new Date(b.scheduledStartAt), "MMM d, h:mm a")}</span>
+                    </div>
+                    <div>
+                      <span className="text-[var(--admin-muted)]">Paid: </span>
+                      <span className="font-bold text-[var(--admin-ink)]">${Number(b.paidAmount || 0).toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between">
+                    <div
+                      className={`text-xs font-bold ${
+                        ["Paid", "Deposit Paid"].includes(b.paymentStatus)
+                          ? "text-[var(--admin-success)]"
+                          : "text-[var(--admin-warning)]"
+                      }`}
+                    >
+                      {b.paymentStatus}
+                      <span className="ml-1 font-normal text-[var(--admin-muted)]">
+                        {b.paymentProvider}{b.chargeMode ? ` · ${b.chargeMode}` : ""}
+                      </span>
+                    </div>
+                    <Link
+                      href={`/admin/bookings/${b.id}`}
+                      className="inline-flex items-center justify-center rounded-[var(--admin-radius-sm)] p-1.5 text-[var(--admin-accent)] transition-colors hover:bg-[var(--admin-accent-soft)]"
+                      aria-label={`View booking ${b.bookingCode}`}
+                    >
+                      <Eye size={16} />
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

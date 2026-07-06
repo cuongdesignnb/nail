@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { BarChart3, Download, Calendar } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { AdminPageHeader, AdminButton } from "@/components/admin/ui";
 
 type TabKey = "revenue" | "bookings" | "technicians" | "services" | "inventory";
 
@@ -47,53 +48,75 @@ export default function AdminReportsPage() {
   };
 
   return (
-    <div style={{ padding: "0 32px 32px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: "#2f1c11", fontFamily: "var(--font-display)" }}>Reports</h1>
-          <p style={{ fontSize: 13, color: "#7f6d61", marginTop: 4 }}>Business analytics & insights</p>
-        </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <select value={range} onChange={(e) => setRange(e.target.value)} style={{ padding: "8px 14px", border: "1px solid rgba(116,55,15,0.12)", borderRadius: 10, fontSize: 13, background: "white" }}>
-            <option value="last7">Last 7 days</option>
-            <option value="last30">Last 30 days</option>
-            <option value="thisMonth">This Month</option>
-            <option value="thisYear">This Year</option>
-          </select>
-          <button onClick={exportCsv} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", border: "1px solid rgba(116,55,15,0.12)", borderRadius: 10, fontSize: 13, fontWeight: 600, background: "white", color: "#4a2d1e", cursor: "pointer" }}>
-            <Download size={14} /> Export CSV
-          </button>
-        </div>
-      </div>
+    <div className="admin-page-container">
+      <AdminPageHeader
+        eyebrow="Analytics"
+        title="Reports"
+        description="Business analytics & insights"
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Reports" },
+        ]}
+        actions={
+          <div className="flex gap-2">
+            <select
+              value={range}
+              onChange={(e) => setRange(e.target.value)}
+              className="px-3.5 py-2 border border-[var(--admin-border)] rounded-[var(--admin-radius-md)] text-[13px] bg-white text-[var(--admin-ink)] focus:outline-none focus:border-[var(--admin-accent)] focus:ring-2 focus:ring-[var(--admin-accent)]/20"
+            >
+              <option value="last7">Last 7 days</option>
+              <option value="last30">Last 30 days</option>
+              <option value="thisMonth">This Month</option>
+              <option value="thisYear">This Year</option>
+            </select>
+            <AdminButton
+              variant="secondary"
+              size="md"
+              icon={<Download size={14} />}
+              onClick={exportCsv}
+            >
+              Export CSV
+            </AdminButton>
+          </div>
+        }
+      />
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 24, borderBottom: "1px solid rgba(116,55,15,0.08)", paddingBottom: 0 }}>
+      <div className="flex gap-1 mb-6 border-b border-[var(--admin-border)]">
         {TABS.map((t) => (
-          <button key={t.key} onClick={() => setTab(t.key)} style={{ padding: "10px 18px", fontSize: 13, fontWeight: tab === t.key ? 700 : 500, color: tab === t.key ? "#a85d1e" : "#7f6d61", background: "transparent", border: "none", borderBottom: tab === t.key ? "2px solid #a85d1e" : "2px solid transparent", cursor: "pointer", transition: "all 0.15s" }}>
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`px-4 py-2.5 text-[13px] transition-all duration-[var(--admin-transition-fast)] border-b-2 bg-transparent cursor-pointer ${
+              tab === t.key
+                ? "font-bold text-[var(--admin-accent)] border-[var(--admin-accent)]"
+                : "font-medium text-[var(--admin-muted)] border-transparent hover:text-[var(--admin-ink)]"
+            }`}
+          >
             {t.label}
           </button>
         ))}
       </div>
 
       {/* Content */}
-      <div style={{ background: "white", borderRadius: 16, border: "1px solid rgba(116,55,15,0.08)", padding: 24 }}>
+      <div className="bg-[var(--admin-surface)] rounded-[var(--admin-radius-xl)] border border-[var(--admin-border)] p-6 shadow-[var(--admin-shadow-sm)]">
         {loading ? (
-          <div style={{ padding: 40, textAlign: "center", color: "#7f6d61" }}>Loading report...</div>
+          <div className="py-10 text-center text-[var(--admin-muted)] text-sm">Loading report...</div>
         ) : !data ? (
-          <div style={{ padding: 60, textAlign: "center" }}>
-            <BarChart3 size={40} style={{ color: "#d9b894", marginBottom: 12 }} />
-            <p style={{ fontSize: 15, fontWeight: 600, color: "#4a2d1e" }}>No data available</p>
-            <p style={{ fontSize: 13, color: "#7f6d61" }}>Report data will appear here once you have business activity.</p>
+          <div className="py-16 text-center">
+            <BarChart3 size={40} className="text-[var(--admin-border-strong)] mb-3 mx-auto" />
+            <p className="text-[15px] font-semibold text-[var(--admin-ink)]">No data available</p>
+            <p className="text-[13px] text-[var(--admin-muted)] mt-1">Report data will appear here once you have business activity.</p>
           </div>
         ) : (
           <div>
             {/* Summary Cards */}
             {data.summary && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 24 }}>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 mb-6">
                 {Object.entries(data.summary).map(([key, value]) => (
-                  <div key={key} style={{ padding: 16, background: "#faf7f3", borderRadius: 12 }}>
-                    <div style={{ fontSize: 11, color: "#7f6d61", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>{key.replace(/([A-Z])/g, " $1").trim()}</div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: "#2f1c11", marginTop: 4 }}>{String(value)}</div>
+                  <div key={key} className="p-4 bg-[var(--admin-surface-muted)] rounded-[var(--admin-radius-lg)]">
+                    <div className="text-[11px] text-[var(--admin-muted)] uppercase tracking-wider font-bold">{key.replace(/([A-Z])/g, " $1").trim()}</div>
+                    <div className="text-[22px] font-extrabold text-[var(--admin-ink)] mt-1">{String(value)}</div>
                   </div>
                 ))}
               </div>
@@ -101,7 +124,7 @@ export default function AdminReportsPage() {
 
             {/* Chart */}
             {data.chart && data.chart.length > 0 && (
-              <div style={{ height: 300, marginBottom: 24 }}>
+              <div className="h-[300px] mb-6">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={data.chart}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(116,55,15,0.06)" />
@@ -116,19 +139,19 @@ export default function AdminReportsPage() {
 
             {/* Table */}
             {data.rows && data.rows.length > 0 && (
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid rgba(116,55,15,0.08)" }}>
+                  <tr className="border-b border-[var(--admin-border)]">
                     {Object.keys(data.rows[0]).map((h) => (
-                      <th key={h} style={{ padding: "10px 14px", fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#7f6d61", textAlign: "left" }}>{h}</th>
+                      <th key={h} className="px-3.5 py-2.5 text-[11px] font-extrabold tracking-wider uppercase text-[var(--admin-muted)] text-left">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {data.rows.map((row: any, i: number) => (
-                    <tr key={i} style={{ borderBottom: "1px solid rgba(116,55,15,0.04)" }}>
+                    <tr key={i} className="border-b border-[var(--admin-border)]/30 hover:bg-[var(--admin-surface-hover)] transition-colors">
                       {Object.values(row).map((v, j) => (
-                        <td key={j} style={{ padding: "10px 14px", fontSize: 13, color: "#4a2d1e" }}>{String(v)}</td>
+                        <td key={j} className="px-3.5 py-2.5 text-[13px] text-[var(--admin-ink)]">{String(v)}</td>
                       ))}
                     </tr>
                   ))}

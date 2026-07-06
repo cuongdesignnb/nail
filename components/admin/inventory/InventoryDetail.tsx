@@ -24,7 +24,7 @@ interface InventoryDetailProps {
 }
 
 const inputClass =
-  "w-full rounded-xl border border-aera-champagne/60 bg-white px-3.5 py-2.5 text-xs text-aera-ink placeholder:text-aera-muted/50 transition-colors focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20";
+  "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3.5 py-2.5 text-xs text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)] transition-colors focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
 
 export const InventoryDetail: React.FC<InventoryDetailProps> = ({
   item,
@@ -65,22 +65,22 @@ export const InventoryDetail: React.FC<InventoryDetailProps> = ({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="rounded-2xl border border-aera-champagne/30 bg-white p-6 shadow-sm"
+        className="rounded-2xl border border-[var(--admin-border)] bg-white p-6 shadow-sm"
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-aera-champagne/50">
-              <Package className="h-7 w-7 text-aera-accent" />
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[var(--admin-accent-soft)]">
+              <Package className="h-7 w-7 text-[var(--admin-accent)]" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-aera-ink font-heading">
+              <h2 className="text-xl font-bold text-[var(--admin-ink)] font-heading">
                 {item.name}
               </h2>
               <div className="mt-1 flex items-center gap-3">
-                <span className="text-xs text-aera-muted font-mono">
+                <span className="text-xs text-[var(--admin-muted)] font-mono">
                   SKU: {item.sku}
                 </span>
-                <span className="rounded-full bg-aera-champagne/40 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-aera-ink">
+                <span className="rounded-full bg-[var(--admin-surface-muted)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--admin-ink)]">
                   {item.category}
                 </span>
                 <span
@@ -119,18 +119,18 @@ export const InventoryDetail: React.FC<InventoryDetailProps> = ({
         transition={{ delay: 0.1, duration: 0.3 }}
         className="grid grid-cols-2 gap-4 lg:grid-cols-4"
       >
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50">
               <Hash className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">
                 Current Stock
               </p>
               <p
                 className={`text-lg font-bold ${
-                  isLowStock ? "text-red-600" : "text-aera-ink"
+                  isLowStock ? "text-red-600" : "text-[var(--admin-ink)]"
                 }`}
               >
                 {item.currentStock} {item.unit}
@@ -139,48 +139,48 @@ export const InventoryDetail: React.FC<InventoryDetailProps> = ({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50">
               <Layers className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">
                 Reorder Level
               </p>
-              <p className="text-lg font-bold text-aera-ink">
+              <p className="text-lg font-bold text-[var(--admin-ink)]">
                 {item.reorderLevel} {item.unit}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
               <DollarSign className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">
                 Cost/Unit
               </p>
-              <p className="text-lg font-bold text-aera-ink">
+              <p className="text-lg font-bold text-[var(--admin-ink)]">
                 ${Number(item.costPerUnit).toFixed(2)}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50">
               <Truck className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-aera-muted">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--admin-muted)]">
                 Supplier
               </p>
-              <p className="text-sm font-bold text-aera-ink truncate">
+              <p className="text-sm font-bold text-[var(--admin-ink)] truncate">
                 {item.supplier || "—"}
               </p>
             </div>
@@ -195,7 +195,7 @@ export const InventoryDetail: React.FC<InventoryDetailProps> = ({
             title="Stock Movement History"
             icon={Layers}
             badge={
-              <span className="rounded-full bg-aera-champagne/50 px-2 py-0.5 text-[10px] font-bold text-aera-muted">
+              <span className="rounded-full bg-[var(--admin-accent-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--admin-muted)]">
                 {item.movements?.length || 0}
               </span>
             }
@@ -256,7 +256,7 @@ export const InventoryDetail: React.FC<InventoryDetailProps> = ({
               <button
                 type="submit"
                 disabled={adjusting || !adjustQty}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-aera-accent px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-aera-accentHover disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aera-accent/40 focus-visible:ring-offset-2"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2"
               >
                 <Save className="h-3.5 w-3.5" />
                 {adjusting ? "Saving…" : "Submit Adjustment"}

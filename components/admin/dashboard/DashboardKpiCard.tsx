@@ -15,10 +15,26 @@ interface DashboardKpiCardProps {
 }
 
 const trendConfig = {
-  up: { color: '#3f9142', bg: 'rgba(63, 145, 66, 0.10)', Icon: TrendingUp },
-  down: { color: '#c53030', bg: 'rgba(197, 48, 48, 0.10)', Icon: TrendingDown },
-  neutral: { color: '#7f6d61', bg: 'rgba(127, 109, 97, 0.10)', Icon: Minus },
-  new: { color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.10)', Icon: Sparkles },
+  up: {
+    textClass: 'text-[var(--admin-success)]',
+    bgClass: 'bg-[var(--admin-success-soft)]',
+    Icon: TrendingUp,
+  },
+  down: {
+    textClass: 'text-[var(--admin-danger)]',
+    bgClass: 'bg-[var(--admin-danger-soft)]',
+    Icon: TrendingDown,
+  },
+  neutral: {
+    textClass: 'text-[var(--admin-muted)]',
+    bgClass: 'bg-[var(--admin-neutral-soft)]',
+    Icon: Minus,
+  },
+  new: {
+    textClass: 'text-[var(--admin-info)]',
+    bgClass: 'bg-[var(--admin-info-soft)]',
+    Icon: Sparkles,
+  },
 };
 
 export default function DashboardKpiCard({
@@ -40,82 +56,29 @@ export default function DashboardKpiCard({
         ease: 'easeOut',
         delay: index * 0.08,
       }}
-      style={{
-        background: 'rgba(255, 253, 249, 0.95)',
-        border: '1px solid rgba(116, 55, 15, 0.08)',
-        borderRadius: 20,
-        boxShadow: '0 4px 24px rgba(77, 43, 20, 0.06)',
-        padding: '22px 24px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 14,
-      }}
+      className="flex min-h-[132px] flex-col gap-3.5 rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-5 shadow-[var(--admin-shadow-sm)] transition-all duration-200 hover:shadow-[var(--admin-shadow-md)] hover:border-[var(--admin-border-strong)]"
     >
       {/* Top row: icon + label */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            background: 'rgba(155, 89, 29, 0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <Icon size={20} color="#9b591d" strokeWidth={1.8} />
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--admin-radius-md)] bg-[var(--admin-accent-soft)]">
+          <Icon size={20} className="text-[var(--admin-accent)]" strokeWidth={1.8} />
         </div>
-        <span
-          style={{
-            fontSize: 13,
-            fontWeight: 500,
-            color: '#7f6d61',
-            letterSpacing: 0.2,
-          }}
-        >
+        <span className="text-[13px] font-medium text-[var(--admin-muted)] tracking-wide">
           {label}
         </span>
       </div>
 
-      {/* Value */}
-      <div
-        style={{
-          fontFamily: 'Georgia, serif',
-          fontSize: 28,
-          fontWeight: 700,
-          color: '#2f1c11',
-          lineHeight: 1.1,
-        }}
-      >
+      {/* Value — using Inter (font-sans), NOT Playfair */}
+      <div className="text-[28px] font-bold leading-tight text-[var(--admin-ink)]">
         {formattedValue}
       </div>
 
       {/* Trend badge */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-        }}
-      >
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-            padding: '3px 8px',
-            borderRadius: 8,
-            background: t.bg,
-            fontSize: 12,
-            fontWeight: 600,
-            color: t.color,
-          }}
-        >
+      <div className="flex items-center gap-1.5">
+        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${t.bgClass} ${t.textClass}`}>
           <t.Icon size={13} strokeWidth={2.2} />
           {changeLabel}
-        </div>
+        </span>
       </div>
     </motion.div>
   );

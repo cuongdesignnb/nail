@@ -36,7 +36,7 @@ export default async function AboutPreviewPage() {
         <Link href="/admin/settings/about">Back to Editor</Link>
         <Link href="/about">Open Public About Page</Link>
       </div>
-      <main className="min-h-screen bg-aera-bg pb-0 about-preview-page">
+      <main className="min-h-screen bg-[#FFFDF8] pb-0 about-preview-page">
         <AboutHero data={content.hero} />
         <OurStory data={content.story} />
         <MissionVisionValues items={content.missionVisionValues} />

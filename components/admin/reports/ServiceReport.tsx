@@ -66,8 +66,8 @@ export default function ServiceReport({ from, to }: ServiceReportProps) {
       className="space-y-6"
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-aera-ink flex items-center gap-2">
-          <Scissors className="h-4 w-4 text-aera-accent" />
+        <h3 className="text-sm font-bold text-[var(--admin-ink)] flex items-center gap-2">
+          <Scissors className="h-4 w-4 text-[var(--admin-accent)]" />
           Service Performance
         </h3>
         <ExportControls
@@ -83,8 +83,8 @@ export default function ServiceReport({ from, to }: ServiceReportProps) {
 
       {/* Top by Bookings Chart */}
       {topByBookings.length > 0 && (
-        <div className="rounded-2xl border border-aera-champagne/30 bg-white p-5">
-          <h4 className="text-xs font-bold text-aera-ink mb-4 uppercase tracking-wider">
+        <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-5">
+          <h4 className="text-xs font-bold text-[var(--admin-ink)] mb-4 uppercase tracking-wider">
             Top Services by Bookings
           </h4>
           <ResponsiveContainer width="100%" height={260}>
@@ -119,11 +119,11 @@ export default function ServiceReport({ from, to }: ServiceReportProps) {
         emptyDescription="No completed bookings with services in the selected range."
       >
         {topByRevenue.map((svc) => (
-          <tr key={svc.id} className="hover:bg-aera-champagne/10 transition-colors">
-            <td className="px-5 py-3 text-xs font-semibold text-aera-ink">{svc.name}</td>
-            <td className="px-5 py-3 text-xs text-aera-muted">${svc.price}</td>
-            <td className="px-5 py-3 text-xs font-semibold text-aera-ink">{svc.bookings}</td>
-            <td className="px-5 py-3 text-xs font-semibold text-aera-ink">
+          <tr key={svc.id} className="hover:bg-[var(--admin-surface-muted)] transition-colors">
+            <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">{svc.name}</td>
+            <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">${svc.price}</td>
+            <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">{svc.bookings}</td>
+            <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">
               ${svc.revenue.toLocaleString()}
             </td>
           </tr>

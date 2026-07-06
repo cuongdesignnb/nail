@@ -11,6 +11,7 @@ export interface BreadcrumbItem {
 
 export interface AdminPageHeaderProps {
   title: string;
+  eyebrow?: string;
   description?: string;
   breadcrumbs?: BreadcrumbItem[];
   actions?: React.ReactNode;
@@ -18,6 +19,7 @@ export interface AdminPageHeaderProps {
 
 export const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
   title,
+  eyebrow,
   description,
   breadcrumbs,
   actions,
@@ -37,11 +39,16 @@ export const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 flex-1">
-          <h1 className="font-heading text-2xl font-bold tracking-tight text-aera-ink sm:text-3xl">
+          {eyebrow && (
+            <p className="mb-1 text-[11px] font-bold uppercase tracking-[1.2px] text-[var(--admin-muted)]">
+              {eyebrow}
+            </p>
+          )}
+          <h1 className="font-heading text-2xl font-bold tracking-tight text-[var(--admin-ink)] sm:text-3xl">
             {title}
           </h1>
           {description && (
-            <p className="mt-1.5 text-sm text-aera-muted leading-relaxed max-w-2xl">
+            <p className="mt-1.5 text-sm text-[var(--admin-muted)] leading-relaxed max-w-2xl">
               {description}
             </p>
           )}

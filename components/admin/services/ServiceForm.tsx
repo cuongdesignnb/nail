@@ -140,8 +140,8 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
   }));
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-aera-champagne/45 shadow-luxury w-full max-w-4xl font-sans">
-      <h2 className="font-heading text-xl font-normal text-aera-ink mb-6 border-b border-aera-champagne/60 pb-3">
+    <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury w-full max-w-4xl font-sans">
+      <h2 className="font-heading text-xl font-normal text-[var(--admin-ink)] mb-6 border-b border-[var(--admin-border-strong)] pb-3">
         {initialData ? "Edit Service" : "Add New Service"}
       </h2>
 
@@ -198,7 +198,7 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
       />
 
       <div className="mb-6 font-sans">
-        <label className="text-[11px] font-semibold text-aera-ink uppercase tracking-wide block mb-2">
+        <label className="text-[11px] font-semibold text-[var(--admin-ink)] uppercase tracking-wide block mb-2">
           Full Description
         </label>
         <RichTextEditor
@@ -265,7 +265,7 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
 
       {/* Feature Tags Editor */}
       <div className="mb-6 font-sans">
-        <label className="text-xs font-semibold text-aera-ink tracking-wide block mb-2">
+        <label className="text-xs font-semibold text-[var(--admin-ink)] tracking-wide block mb-2">
           Features / Key Highlights
         </label>
         
@@ -275,13 +275,13 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
             value={newFeature}
             onChange={(e) => setNewFeature(e.target.value)}
             placeholder="Add key service item (e.g. Cuticle care)"
-            className="flex-grow rounded-lg border border-aera-champagne/60 px-3 py-2 text-xs font-sans text-aera-ink outline-none focus:border-aera-accent bg-white"
+            className="flex-grow rounded-lg border border-[var(--admin-border-strong)] px-3 py-2 text-xs font-sans text-[var(--admin-ink)] outline-none focus:border-[var(--admin-accent)] bg-white"
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addFeature(); } }}
           />
           <button
             type="button"
             onClick={addFeature}
-            className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-lg px-3 py-2 flex items-center justify-center border-none cursor-pointer"
+            className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-lg px-3 py-2 flex items-center justify-center border-none cursor-pointer"
           >
             <Plus size={16} />
           </button>
@@ -289,8 +289,8 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
 
         <ul className="space-y-1.5 pl-0">
           {features.map((feature, idx) => (
-            <li key={idx} className="flex items-center justify-between bg-aera-champagne/15 px-3 py-1.5 rounded-lg border border-aera-champagne/30 text-xs">
-              <span className="text-aera-muted">{feature}</span>
+            <li key={idx} className="flex items-center justify-between bg-[var(--admin-surface-muted)] px-3 py-1.5 rounded-lg border border-[var(--admin-border)] text-xs">
+              <span className="text-[var(--admin-muted)]">{feature}</span>
               <button
                 type="button"
                 onClick={() => removeFeature(idx)}
@@ -301,18 +301,18 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
             </li>
           ))}
           {features.length === 0 && (
-            <p className="text-[10px] text-aera-muted italic">No features added yet.</p>
+            <p className="text-[10px] text-[var(--admin-muted)] italic">No features added yet.</p>
           )}
         </ul>
       </div>
 
-      <div className="flex gap-4 border-t border-aera-champagne/40 pt-5 mt-5">
+      <div className="flex gap-4 border-t border-[var(--admin-border)]/40 pt-5 mt-5">
         <label className="inline-flex items-center gap-2 cursor-pointer font-sans text-xs">
           <input
             type="checkbox"
             checked={isFeatured}
             onChange={(e) => setIsFeatured(e.target.checked)}
-            className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+            className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
           />
           <span>Featured Service</span>
         </label>
@@ -322,25 +322,25 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
             type="checkbox"
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
-            className="w-4 h-4 rounded border-aera-champagne accent-aera-accent cursor-pointer"
+            className="w-4 h-4 rounded border-[var(--admin-border)] accent-[var(--admin-accent)] cursor-pointer"
           />
           <span>Active Status</span>
         </label>
       </div>
 
-      <div className="flex justify-end gap-3 mt-8 border-t border-aera-champagne/40 pt-4">
+      <div className="flex justify-end gap-3 mt-8 border-t border-[var(--admin-border)]/40 pt-4">
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="border border-aera-champagne text-aera-muted hover:bg-aera-champagne/10 rounded-full px-5 py-2 text-xs font-semibold cursor-pointer font-sans"
+          className="border border-[var(--admin-border)] text-[var(--admin-muted)] hover:bg-[var(--admin-surface-muted)] rounded-full px-5 py-2 text-xs font-semibold cursor-pointer font-sans"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="bg-aera-accent hover:bg-aera-accentHover text-white rounded-full px-6 py-2 text-xs font-semibold cursor-pointer border-none font-sans"
+          className="bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white rounded-full px-6 py-2 text-xs font-semibold cursor-pointer border-none font-sans"
         >
           {loading ? "Saving..." : "Save Service"}
         </button>

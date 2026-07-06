@@ -86,12 +86,12 @@ export function MediaDetailsPanel({
 
   if (!asset) {
     return (
-      <div className="bg-white rounded-2xl p-6 border border-aera-champagne/50 shadow-luxury sticky top-6">
-        <h3 className="font-heading text-sm text-aera-ink mb-4 border-b border-aera-champagne/40 pb-3 flex items-center gap-1.5">
-          <Folder size={16} className="text-aera-accent" />
+      <div className="bg-white rounded-2xl p-6 border border-[var(--admin-border)]/50 shadow-luxury sticky top-6">
+        <h3 className="font-heading text-sm text-[var(--admin-ink)] mb-4 border-b border-[var(--admin-border)]/40 pb-3 flex items-center gap-1.5">
+          <Folder size={16} className="text-[var(--admin-accent)]" />
           Asset Details
         </h3>
-        <p className="text-xs text-aera-muted italic py-8 text-center">
+        <p className="text-xs text-[var(--admin-muted)] italic py-8 text-center">
           Select an asset to view its properties.
         </p>
       </div>
@@ -122,14 +122,14 @@ export function MediaDetailsPanel({
 
   return (
     <>
-      <div className="bg-white rounded-2xl p-5 border border-aera-champagne/50 shadow-luxury sticky top-6">
-        <h3 className="font-heading text-sm text-aera-ink mb-4 border-b border-aera-champagne/40 pb-3 flex items-center gap-1.5">
-          <Folder size={16} className="text-aera-accent" />
+      <div className="bg-white rounded-2xl p-5 border border-[var(--admin-border)]/50 shadow-luxury sticky top-6">
+        <h3 className="font-heading text-sm text-[var(--admin-ink)] mb-4 border-b border-[var(--admin-border)]/40 pb-3 flex items-center gap-1.5">
+          <Folder size={16} className="text-[var(--admin-accent)]" />
           Asset Details
         </h3>
 
         {/* Preview */}
-        <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-aera-champagne/30 bg-aera-cream/20 mb-4">
+        <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] mb-4">
           <Image
             src={asset.url}
             alt={asset.alt || asset.fileName}
@@ -142,17 +142,17 @@ export function MediaDetailsPanel({
         <div className="space-y-3 text-xs">
           {/* Filename */}
           <div>
-            <span className="text-[10px] text-aera-muted uppercase font-semibold block mb-0.5">
+            <span className="text-[10px] text-[var(--admin-muted)] uppercase font-semibold block mb-0.5">
               File Name
             </span>
-            <p className="font-medium text-aera-ink break-all">
+            <p className="font-medium text-[var(--admin-ink)] break-all">
               {asset.originalName || asset.fileName}
             </p>
           </div>
 
           {/* URL with copy */}
           <div>
-            <span className="text-[10px] text-aera-muted uppercase font-semibold block mb-0.5">
+            <span className="text-[10px] text-[var(--admin-muted)] uppercase font-semibold block mb-0.5">
               URL
             </span>
             <div className="flex items-center gap-1.5">
@@ -160,11 +160,11 @@ export function MediaDetailsPanel({
                 type="text"
                 readOnly
                 value={asset.url}
-                className="flex-grow rounded-lg border border-aera-champagne/60 px-2.5 py-1.5 text-[10px] bg-gray-50 text-aera-ink truncate outline-none"
+                className="flex-grow rounded-lg border border-[var(--admin-border-strong)] px-2.5 py-1.5 text-[10px] bg-gray-50 text-[var(--admin-ink)] truncate outline-none"
               />
               <button
                 onClick={handleCopyUrl}
-                className="p-1.5 border border-aera-champagne/60 rounded-lg bg-white text-aera-muted hover:text-aera-accent hover:border-aera-accent transition-colors cursor-pointer"
+                className="p-1.5 border border-[var(--admin-border-strong)] rounded-lg bg-white text-[var(--admin-muted)] hover:text-[var(--admin-accent)] hover:border-[var(--admin-accent)] transition-colors cursor-pointer"
                 title="Copy URL"
               >
                 {copied ? (
@@ -177,7 +177,7 @@ export function MediaDetailsPanel({
                 href={asset.url}
                 target="_blank"
                 rel="noreferrer"
-                className="p-1.5 border border-aera-champagne/60 rounded-lg bg-white text-aera-muted hover:text-aera-accent hover:border-aera-accent transition-colors"
+                className="p-1.5 border border-[var(--admin-border-strong)] rounded-lg bg-white text-[var(--admin-muted)] hover:text-[var(--admin-accent)] hover:border-[var(--admin-accent)] transition-colors"
               >
                 <ExternalLink size={12} />
               </a>
@@ -187,12 +187,12 @@ export function MediaDetailsPanel({
           {/* Quick stats */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-center gap-1.5">
-              <FileImage size={12} className="text-aera-accent" />
+              <FileImage size={12} className="text-[var(--admin-accent)]" />
               <div>
-                <span className="text-[10px] text-aera-muted block">
+                <span className="text-[10px] text-[var(--admin-muted)] block">
                   Dimensions
                 </span>
-                <span className="text-aera-ink font-medium">
+                <span className="text-[var(--admin-ink)] font-medium">
                   {asset.width && asset.height
                     ? `${asset.width}×${asset.height}`
                     : "—"}
@@ -200,30 +200,30 @@ export function MediaDetailsPanel({
               </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <HardDrive size={12} className="text-aera-accent" />
+              <HardDrive size={12} className="text-[var(--admin-accent)]" />
               <div>
-                <span className="text-[10px] text-aera-muted block">Size</span>
-                <span className="text-aera-ink font-medium">
+                <span className="text-[10px] text-[var(--admin-muted)] block">Size</span>
+                <span className="text-[var(--admin-ink)] font-medium">
                   {formatSize(asset.size)}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <FileImage size={12} className="text-aera-accent" />
+              <FileImage size={12} className="text-[var(--admin-accent)]" />
               <div>
-                <span className="text-[10px] text-aera-muted block">Type</span>
-                <span className="text-aera-ink font-medium">
+                <span className="text-[10px] text-[var(--admin-muted)] block">Type</span>
+                <span className="text-[var(--admin-ink)] font-medium">
                   {asset.mimeType || "—"}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <Clock size={12} className="text-aera-accent" />
+              <Clock size={12} className="text-[var(--admin-accent)]" />
               <div>
-                <span className="text-[10px] text-aera-muted block">
+                <span className="text-[10px] text-[var(--admin-muted)] block">
                   Uploaded
                 </span>
-                <span className="text-aera-ink font-medium">
+                <span className="text-[var(--admin-ink)] font-medium">
                   {formatDate(asset.createdAt)}
                 </span>
               </div>
@@ -231,9 +231,9 @@ export function MediaDetailsPanel({
           </div>
 
           {/* Editable fields */}
-          <div className="border-t border-aera-champagne/30 pt-3 space-y-3">
+          <div className="border-t border-[var(--admin-border)] pt-3 space-y-3">
             <div>
-              <label className="text-[10px] text-aera-muted uppercase font-semibold block mb-1">
+              <label className="text-[10px] text-[var(--admin-muted)] uppercase font-semibold block mb-1">
                 Alt Text
               </label>
               <input
@@ -241,12 +241,12 @@ export function MediaDetailsPanel({
                 value={alt}
                 onChange={(e) => setAlt(e.target.value)}
                 placeholder="Describe this image..."
-                className="w-full rounded-lg border border-aera-champagne/60 px-3 py-2 text-xs outline-none focus:border-aera-accent bg-white transition-colors"
+                className="w-full rounded-lg border border-[var(--admin-border-strong)] px-3 py-2 text-xs outline-none focus:border-[var(--admin-accent)] bg-white transition-colors"
               />
             </div>
 
             <div>
-              <label className="text-[10px] text-aera-muted uppercase font-semibold block mb-1">
+              <label className="text-[10px] text-[var(--admin-muted)] uppercase font-semibold block mb-1">
                 Title
               </label>
               <input
@@ -254,19 +254,19 @@ export function MediaDetailsPanel({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Image title..."
-                className="w-full rounded-lg border border-aera-champagne/60 px-3 py-2 text-xs outline-none focus:border-aera-accent bg-white transition-colors"
+                className="w-full rounded-lg border border-[var(--admin-border-strong)] px-3 py-2 text-xs outline-none focus:border-[var(--admin-accent)] bg-white transition-colors"
               />
             </div>
 
             <div>
-              <label className="text-[10px] text-aera-muted uppercase font-semibold block mb-1">
+              <label className="text-[10px] text-[var(--admin-muted)] uppercase font-semibold block mb-1">
                 Folder
               </label>
               {folders.length > 0 ? (
                 <select
                   value={folder}
                   onChange={(e) => setFolder(e.target.value)}
-                  className="w-full rounded-lg border border-aera-champagne/60 px-3 py-2 text-xs outline-none focus:border-aera-accent bg-white transition-colors"
+                  className="w-full rounded-lg border border-[var(--admin-border-strong)] px-3 py-2 text-xs outline-none focus:border-[var(--admin-accent)] bg-white transition-colors"
                 >
                   <option value="">No folder</option>
                   {folders.map((f) => (
@@ -281,19 +281,19 @@ export function MediaDetailsPanel({
                   value={folder}
                   onChange={(e) => setFolder(e.target.value)}
                   placeholder="e.g. uploads"
-                  className="w-full rounded-lg border border-aera-champagne/60 px-3 py-2 text-xs outline-none focus:border-aera-accent bg-white transition-colors"
+                  className="w-full rounded-lg border border-[var(--admin-border-strong)] px-3 py-2 text-xs outline-none focus:border-[var(--admin-accent)] bg-white transition-colors"
                 />
               )}
             </div>
           </div>
 
           {/* Actions */}
-          <div className="border-t border-aera-champagne/30 pt-3 flex items-center gap-2">
+          <div className="border-t border-[var(--admin-border)] pt-3 flex items-center gap-2">
             {hasChanges && (
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center gap-1.5 bg-aera-accent hover:bg-aera-accentHover text-white text-xs font-bold px-4 py-2 rounded-full cursor-pointer border-none shadow-sm transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 bg-[var(--admin-accent)] hover:bg-[var(--admin-accent-hover)] text-white text-xs font-bold px-4 py-2 rounded-full cursor-pointer border-none shadow-sm transition-colors disabled:opacity-50"
               >
                 <Save size={12} />
                 {saving ? "Saving..." : "Save"}
@@ -301,7 +301,7 @@ export function MediaDetailsPanel({
             )}
             <button
               onClick={() => setShowDeleteDialog(true)}
-              className="flex items-center gap-1.5 bg-transparent hover:bg-rose-50 text-aera-muted hover:text-rose-600 border border-transparent hover:border-rose-200 px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ml-auto"
+              className="flex items-center gap-1.5 bg-transparent hover:bg-rose-50 text-[var(--admin-muted)] hover:text-rose-600 border border-transparent hover:border-rose-200 px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ml-auto"
             >
               <Trash2 size={12} />
               Delete

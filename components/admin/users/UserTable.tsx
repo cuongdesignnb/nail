@@ -71,7 +71,7 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onEdit }) => {
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="rounded-xl border border-aera-champagne/60 bg-white px-3 py-2 text-xs text-aera-ink transition-colors focus:border-aera-accent focus:outline-none focus:ring-2 focus:ring-aera-accent/20"
+          className="rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2 text-xs text-[var(--admin-ink)] transition-colors focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20"
         >
           {ROLES.map((r) => (
             <option key={r} value={r}>
@@ -96,20 +96,20 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onEdit }) => {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.03, duration: 0.25 }}
-              className="cursor-pointer transition-colors hover:bg-aera-champagne/10"
+              className="cursor-pointer transition-colors hover:bg-[var(--admin-surface-muted)]"
               onClick={() => onEdit(user)}
             >
               <td className="px-5 py-3.5">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-aera-champagne/50">
-                    <Users className="h-3.5 w-3.5 text-aera-accent" />
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--admin-accent-soft)]">
+                    <Users className="h-3.5 w-3.5 text-[var(--admin-accent)]" />
                   </div>
-                  <span className="text-xs font-semibold text-aera-ink">
+                  <span className="text-xs font-semibold text-[var(--admin-ink)]">
                     {user.name}
                   </span>
                 </div>
               </td>
-              <td className="px-5 py-3.5 text-xs text-aera-muted">
+              <td className="px-5 py-3.5 text-xs text-[var(--admin-muted)]">
                 {user.email}
               </td>
               <td className="px-5 py-3.5">
@@ -122,7 +122,7 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onEdit }) => {
                   {user.role}
                 </span>
               </td>
-              <td className="px-5 py-3.5 text-xs text-aera-muted">
+              <td className="px-5 py-3.5 text-xs text-[var(--admin-muted)]">
                 {format(new Date(user.createdAt), "MMM d, yyyy")}
               </td>
               <td className="px-5 py-3.5">
@@ -132,7 +132,7 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onEdit }) => {
                     e.stopPropagation();
                     onEdit(user);
                   }}
-                  className="rounded-lg p-1.5 text-aera-muted transition-colors hover:bg-aera-champagne/30 hover:text-aera-ink"
+                  className="rounded-lg p-1.5 text-[var(--admin-muted)] transition-colors hover:bg-[var(--admin-surface-hover)] hover:text-[var(--admin-ink)]"
                 >
                   <Edit2 className="h-3.5 w-3.5" />
                 </button>
@@ -142,7 +142,7 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onEdit }) => {
         })}
       </AdminTableShell>
 
-      <div className="flex items-center gap-2 text-[10px] text-aera-muted px-1">
+      <div className="flex items-center gap-2 text-[10px] text-[var(--admin-muted)] px-1">
         <Shield className="h-3 w-3" />
         <span>
           {filtered.length} user{filtered.length !== 1 ? "s" : ""} total

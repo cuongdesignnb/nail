@@ -49,11 +49,11 @@ export const AdminPagination: React.FC<AdminPaginationProps> = ({
 
   return (
     <div className="flex flex-col items-center gap-3 py-4 sm:flex-row sm:justify-between">
-      <p className="text-xs text-aera-muted">
+      <p className="text-xs text-[var(--admin-muted)]">
         Showing{" "}
-        <span className="font-semibold text-aera-ink">{start}</span>–
-        <span className="font-semibold text-aera-ink">{end}</span> of{" "}
-        <span className="font-semibold text-aera-ink">{total}</span>
+        <span className="font-semibold text-[var(--admin-ink)]">{start}</span>–
+        <span className="font-semibold text-[var(--admin-ink)]">{end}</span> of{" "}
+        <span className="font-semibold text-[var(--admin-ink)]">{total}</span>
       </p>
 
       <div className="flex items-center gap-1">
@@ -62,7 +62,7 @@ export const AdminPagination: React.FC<AdminPaginationProps> = ({
           type="button"
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-aera-muted transition-colors hover:bg-aera-champagne/30 hover:text-aera-ink disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--admin-muted)] transition-colors hover:bg-[var(--admin-surface-hover)] hover:text-[var(--admin-ink)] disabled:opacity-40 disabled:cursor-not-allowed"
           aria-label="Previous page"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -73,7 +73,7 @@ export const AdminPagination: React.FC<AdminPaginationProps> = ({
           p === "..." ? (
             <span
               key={`ellipsis-${idx}`}
-              className="flex h-8 w-8 items-center justify-center text-xs text-aera-muted"
+              className="flex h-8 w-8 items-center justify-center text-xs text-[var(--admin-muted)]"
             >
               …
             </span>
@@ -85,8 +85,8 @@ export const AdminPagination: React.FC<AdminPaginationProps> = ({
               className={clsx(
                 "flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold transition-colors",
                 p === page
-                  ? "bg-aera-accent text-white shadow-sm"
-                  : "text-aera-muted hover:bg-aera-champagne/30 hover:text-aera-ink"
+                  ? "bg-[var(--admin-accent)] text-white shadow-sm"
+                  : "text-[var(--admin-muted)] hover:bg-[var(--admin-surface-hover)] hover:text-[var(--admin-ink)]"
               )}
             >
               {p}
@@ -99,7 +99,7 @@ export const AdminPagination: React.FC<AdminPaginationProps> = ({
           type="button"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-aera-muted transition-colors hover:bg-aera-champagne/30 hover:text-aera-ink disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--admin-muted)] transition-colors hover:bg-[var(--admin-surface-hover)] hover:text-[var(--admin-ink)] disabled:opacity-40 disabled:cursor-not-allowed"
           aria-label="Next page"
         >
           <ChevronRight className="h-4 w-4" />
