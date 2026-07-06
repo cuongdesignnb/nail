@@ -6,19 +6,28 @@ import { getGiftCardCatalog } from "@/lib/gift-cards/gift-card.service";
 
 export const dynamic = "force-dynamic";
 
+type GiftCardCatalog = Awaited<ReturnType<typeof getGiftCardCatalog>>;
+
+const fallbackCatalog: GiftCardCatalog = {
+  settings: {
+    currency: "USD",
+    amountPresetValues: [25, 50, 75, 100, 150, 200],
+    minCustomAmount: 25,
+    maxCustomAmount: 500,
+    allowCustomAmount: true,
+    giftCardsEnabled: true,
+  },
+  categories: [],
+  paypal: { enabled: false, clientId: null, currency: "USD" },
+};
+
 export default async function NewGiftCardPage() {
-  const catalog = await getGiftCardCatalog().catch(() => ({
-    settings: {
-      currency: "USD",
-      amountPresetValues: [25, 50, 75, 100, 150, 200],
-      minCustomAmount: 25,
-      maxCustomAmount: 500,
-      allowCustomAmount: true,
-      giftCardsEnabled: true,
-    },
-    categories: [],
-    paypal: { enabled: false, clientId: null, currency: "USD" },
-  }));
+  let catalog: GiftCardCatalog = fallbackCatalog;
+  try {
+    catalog = await getGiftCardCatalog();
+  } catch {
+    catalog = fallbackCatalog;
+  }
 
   return (
     <div className="admin-page-container">
