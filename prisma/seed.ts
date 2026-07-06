@@ -17,6 +17,7 @@ const navigationMenus = [
       { id: "nav-services", label: "Services", href: "/services", type: "internal", target: "_self", isEnabled: true, children: [] },
       { id: "nav-gallery", label: "Gallery", href: "/gallery", type: "internal", target: "_self", isEnabled: true, children: [] },
       { id: "nav-packages", label: "Packages", href: "/packages", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "nav-gift-cards", label: "Gift Cards", href: "/gift-cards", type: "internal", target: "_self", isEnabled: true, children: [] },
       { id: "nav-promotions", label: "Promotions", href: "/promotions", type: "internal", target: "_self", isEnabled: true, children: [] },
       { id: "nav-blog", label: "Beauty Journal", href: "/blog", type: "internal", target: "_self", isEnabled: true, children: [] },
       { id: "nav-contact", label: "Contact", href: "/contact", type: "internal", target: "_self", isEnabled: true, children: [] },
@@ -64,6 +65,7 @@ const navigationMenus = [
     items: [
       { id: "footer-explore-gallery", label: "Gallery", href: "/gallery", type: "internal", target: "_self", isEnabled: true, children: [] },
       { id: "footer-explore-promotions", label: "Promotions", href: "/promotions", type: "internal", target: "_self", isEnabled: true, children: [] },
+      { id: "footer-explore-gift-cards", label: "Gift Cards", href: "/gift-cards", type: "internal", target: "_self", isEnabled: true, children: [] },
       { id: "footer-explore-blog", label: "Beauty Journal", href: "/blog", type: "internal", target: "_self", isEnabled: true, children: [] },
       { id: "footer-explore-booking", label: "Book Now", href: "/booking", type: "internal", target: "_self", isEnabled: true, children: [] },
     ],
@@ -76,6 +78,7 @@ const navigationMenus = [
     items: [
       { id: "footer-legal-privacy", label: "Privacy Policy", href: "/privacy-policy", type: "internal", target: "_self", isEnabled: false, children: [] },
       { id: "footer-legal-terms", label: "Terms & Conditions", href: "/terms", type: "internal", target: "_self", isEnabled: false, children: [] },
+      { id: "footer-legal-gift-cards", label: "Gift Card Terms", href: "/gift-cards/terms", type: "internal", target: "_self", isEnabled: true, children: [] },
       { id: "footer-legal-booking", label: "Booking Policy", href: "/booking-policy", type: "internal", target: "_self", isEnabled: false, children: [] },
       { id: "footer-legal-accessibility", label: "Accessibility", href: "/accessibility", type: "internal", target: "_self", isEnabled: false, children: [] },
     ],
@@ -120,6 +123,46 @@ async function seedNavigationMenus() {
       footerLayout: "four_columns",
       footerShowSocial: true,
       footerShowLegal: true,
+    },
+  });
+}
+
+async function seedGiftCardDefaults() {
+  console.log("Seeding gift card settings...");
+  await prisma.giftCardSetting.upsert({
+    where: { key: "default" },
+    update: {},
+    create: {
+      key: "default",
+      currency: "USD",
+      amountPresetValues: [25, 50, 75, 100, 125, 150, 200, 250],
+      minCustomAmount: 25,
+      maxCustomAmount: 500,
+      allowCustomAmount: true,
+      expirationEnabled: false,
+      giftCardsEnabled: true,
+    },
+  });
+  await prisma.giftCardTemplate.upsert({
+    where: { id: "gift-template-luxury-aera" },
+    update: {},
+    create: {
+      id: "gift-template-luxury-aera",
+      name: "Luxury Aera",
+      description: "Ivory, champagne and bronze Aera gift card design.",
+      isDefault: true,
+      palette: { background: "#fffaf1", accent: "#8b5e3c", border: "#e4cfac" },
+    },
+  });
+  await prisma.giftCardTemplate.upsert({
+    where: { id: "gift-template-neutral" },
+    update: {},
+    create: {
+      id: "gift-template-neutral",
+      name: "Neutral Classic",
+      description: "Backup neutral gift card template.",
+      isDefault: false,
+      palette: { background: "#ffffff", accent: "#6f5a48", border: "#ded6cc" },
     },
   });
 }
@@ -2039,6 +2082,7 @@ async function main() {
   }
 
   await seedNavigationMenus();
+  await seedGiftCardDefaults();
 
   // Seed Business Settings
   console.log("Seeding business settings...");

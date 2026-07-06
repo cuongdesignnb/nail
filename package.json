@@ -12,6 +12,7 @@
     "data:backfill-bookings": "tsx scripts/backfill-file-bookings-to-prisma.ts",
     "data:migrate-content-hub": "tsx scripts/migrate-page-content-to-content-hub.ts",
     "data:migrate-navigation": "tsx scripts/migrate-navigation-to-menu-manager.ts",
+    "data:migrate-gift-cards-navigation": "tsx scripts/migrate-gift-cards-navigation.ts",
     "data:migrate-brand-logo": "tsx scripts/migrate-brand-logo-to-media-library.ts",
     "data:migrate-images-to-library": "tsx scripts/migrate-legacy-image-urls-to-media-library.ts",
     "data:migrate-static-seo": "tsx scripts/migrate-static-seo-to-content-hub.ts",

@@ -70,6 +70,8 @@ model Service {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   items            BookingItem[]
+  giftCardPurchases GiftCardPurchase[]
+  giftCards         GiftCard[]
 }
 
 model Technician {
@@ -99,6 +101,9 @@ model Booking {
   discountAmount   Decimal            @default(0)
   taxAmount        Decimal            @default(0)
   depositAmount    Decimal            @default(0)
+  paymentMethod    String             @default("PAY_AT_SALON")
+  giftCardId       String?
+  giftCardReservedAmount Decimal       @default(0)
   totalAmount      Decimal
   notes            String?
   internalNotes    String?
@@ -111,6 +116,8 @@ model Booking {
   items            BookingItem[]
   addonItems       BookingAddonItem[]
   payments         Payment[]
+  giftCard         GiftCard?          @relation(fields: [giftCardId], references: [id])
+  giftCardTransactions GiftCardTransaction[]
 }
 
 model BookingItem {
@@ -237,6 +244,155 @@ model PaymentWebhookEvent {
   @@index([eventType])
   @@index([providerOrderId])
   @@index([providerCaptureId])
+}
+
+enum GiftCardType {
+  AMOUNT
+  SERVICE
+}
+
+enum GiftCardStatus {
+  PENDING_PAYMENT
+  PAID
+  ISSUED
+  PARTIALLY_REDEEMED
+  REDEEMED
+  EXPIRED
+  CANCELLED
+  REFUNDED
+}
+
+enum GiftCardTransactionType {
+  ISSUE
+  REDEEM
+  ADJUSTMENT
+  VOID
+  REFUND
+  EXPIRE
+  RESERVATION
+  RELEASE_RESERVATION
+}
+
+enum GiftCardEmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model GiftCardPurchase {
+  id                      String          @id @default(cuid())
+  orderNumber             String          @unique
+  type                    GiftCardType
+  amount                  Decimal
+  currency                String          @default("USD")
+  purchaserName           String
+  purchaserEmail          String
+  recipientName           String
+  recipientEmail          String
+  senderName              String
+  senderEmail             String
+  message                 String
+  serviceId               String?
+  service                 Service?        @relation(fields: [serviceId], references: [id])
+  serviceNameSnapshot     String?
+  servicePriceSnapshot    Decimal?
+  serviceDurationSnapshot Int?
+  paypalOrderId           String?         @unique
+  paypalCaptureId         String?         @unique
+  paypalStatus            String?
+  status                  GiftCardStatus  @default(PENDING_PAYMENT)
+  createdAt               DateTime        @default(now())
+  paidAt                  DateTime?
+  updatedAt               DateTime        @updatedAt
+  giftCard                GiftCard?
+
+  @@index([status])
+  @@index([recipientEmail])
+  @@index([purchaserEmail])
+  @@index([createdAt])
+  @@index([serviceId])
+}
+
+model GiftCard {
+  id                      String              @id @default(cuid())
+  purchaseId              String              @unique
+  purchase                GiftCardPurchase    @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  type                    GiftCardType
+  codeHash                String              @unique
+  codeCiphertext          String
+  codeSuffix              String
+  initialAmount           Decimal
+  remainingBalance        Decimal
+  currency                String              @default("USD")
+  serviceId               String?
+  service                 Service?            @relation(fields: [serviceId], references: [id])
+  serviceNameSnapshot     String?
+  servicePriceSnapshot    Decimal?
+  serviceDurationSnapshot Int?
+  recipientName           String
+  recipientEmail          String
+  senderName              String
+  senderEmail             String
+  message                 String
+  status                  GiftCardStatus      @default(ISSUED)
+  issuedAt                DateTime?
+  expiresAt               DateTime?
+  sentAt                  DateTime?
+  emailStatus             GiftCardEmailStatus @default(PENDING)
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+  transactions            GiftCardTransaction[]
+  bookings                Booking[]
+
+  @@index([status])
+  @@index([recipientEmail])
+  @@index([senderEmail])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@index([serviceId])
+}
+
+model GiftCardTransaction {
+  id                String                  @id @default(cuid())
+  giftCardId        String
+  giftCard          GiftCard                @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  type              GiftCardTransactionType
+  amount            Decimal
+  bookingId         String?
+  booking           Booking?                @relation(fields: [bookingId], references: [id])
+  performedByUserId String?
+  note              String?
+  createdAt         DateTime                @default(now())
+
+  @@index([giftCardId])
+  @@index([bookingId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model GiftCardSetting {
+  id                 String   @id @default(cuid())
+  key                String   @unique @default("default")
+  currency           String   @default("USD")
+  amountPresetValues Json
+  minCustomAmount    Int      @default(25)
+  maxCustomAmount    Int      @default(500)
+  allowCustomAmount  Boolean  @default(true)
+  expirationEnabled  Boolean  @default(false)
+  giftCardsEnabled   Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model GiftCardTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  palette     Json?
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Promotion {

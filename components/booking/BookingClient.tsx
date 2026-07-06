@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { ArrowRight, CalendarDays, Check, Clock3, Sparkles, UserRound } from "lucide-react";
 import { PageShell } from "@/components/shared/PageShell";
 
@@ -26,13 +25,6 @@ type Quote = {
   durationMinutes: number;
 };
 
-type PayPalConfig = {
-  enabled: boolean;
-  clientId: string | null;
-  currency: string;
-  intent: "capture";
-};
-
 const today = new Date().toISOString().slice(0, 10);
 
 function money(value: number, currency = "USD") {
@@ -42,7 +34,6 @@ function money(value: number, currency = "USD") {
 export function BookingClient() {
   const [step, setStep] = useState(1);
   const [catalog, setCatalog] = useState<Catalog | null>(null);
-  const [paypalConfig, setPaypalConfig] = useState<PayPalConfig | null>(null);
   const [serviceIds, setServiceIds] = useState<string[]>([]);
   const [addonIds, setAddonIds] = useState<string[]>([]);
   const [technicianId, setTechnicianId] = useState("no-preference");
@@ -61,22 +52,15 @@ export function BookingClient() {
   const [notes, setNotes] = useState("");
   const [policyAccepted, setPolicyAccepted] = useState(false);
   const [quote, setQuote] = useState<Quote | null>(null);
-  const [checkout, setCheckout] = useState<{ publicToken: string; expiresAt: string } | null>(null);
-  const checkoutRef = useRef<{ publicToken: string; expiresAt: string } | null>(null);
   const [result, setResult] = useState<{ bookingCode: string; id: string; status?: string } | null>(null);
   const [error, setError] = useState("");
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     async function load() {
-      const [catalogRes, paypalRes] = await Promise.all([
-        fetch("/api/public/booking/catalog", { cache: "no-store" }),
-        fetch("/api/public/paypal/config", { cache: "no-store" }),
-      ]);
+      const catalogRes = await fetch("/api/public/booking/catalog", { cache: "no-store" });
       const catalogJson = await catalogRes.json();
-      const paypalJson = await paypalRes.json();
       if (catalogJson.success) setCatalog(catalogJson.data);
-      if (paypalJson.success) setPaypalConfig(paypalJson.data);
     }
     load().catch(() => setError("Unable to load booking options."));
   }, []);
@@ -136,73 +120,8 @@ export function BookingClient() {
     customer.email.includes("@") &&
     customer.phone.trim().length >= 7;
 
-  const readyToPay =
-    serviceIds.length > 0 &&
-    time &&
-    quote &&
-    validDetails &&
-    policyAccepted &&
-    paypalConfig?.enabled &&
-    paypalConfig.clientId;
-
   function toggle(list: string[], id: string, setter: (next: string[]) => void) {
     setter(list.includes(id) ? list.filter((item) => item !== id) : [...list, id]);
-    checkoutRef.current = null;
-    setCheckout(null);
-  }
-
-  async function createOrder() {
-    setError("");
-    setProcessing(true);
-    const res = await fetch("/api/public/booking-checkouts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        serviceIds,
-        addonIds,
-        technicianId,
-        date,
-        time,
-        promotionCode: promoCode,
-        customer,
-        notes,
-        policyAccepted,
-        policyVersion: "current-policy-version",
-      }),
-    });
-    const json = await res.json();
-    setProcessing(false);
-    if (!json.success) {
-      setError(json.error || "Unable to start PayPal checkout.");
-      throw new Error(json.error || "Unable to start PayPal checkout.");
-    }
-    const nextCheckout = { publicToken: json.data.publicToken, expiresAt: json.data.expiresAt };
-    checkoutRef.current = nextCheckout;
-    setCheckout(nextCheckout);
-    return json.data.paypalOrderId;
-  }
-
-  async function captureOrder(orderId: string) {
-    const activeCheckout = checkoutRef.current ?? checkout;
-    if (!activeCheckout?.publicToken) {
-      setError("Secure checkout session was not found. Please try again.");
-      return;
-    }
-    setProcessing(true);
-    setError("");
-    const res = await fetch(`/api/public/booking-checkouts/${activeCheckout.publicToken}/capture`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ paypalOrderId: orderId }),
-    });
-    const json = await res.json();
-    setProcessing(false);
-    if (!json.success) {
-      setError(json.error || "Payment could not be verified.");
-      return;
-    }
-    const booking = json.data.booking;
-    setResult({ id: booking.id, bookingCode: booking.bookingCode, status: "CONFIRMED" });
   }
 
   async function submitManualBookingRequest() {
@@ -239,12 +158,11 @@ export function BookingClient() {
   }
 
   if (result) {
-    const confirmed = result.status === "CONFIRMED" || result.status === "Confirmed";
     return (
       <PageShell
-        eyebrow={confirmed ? "Booking Confirmed" : "Booking Request Received"}
-        title={confirmed ? "Your Appointment Is Confirmed" : "We Received Your Booking Request"}
-        copy={confirmed ? "Your PayPal payment was verified and your appointment is confirmed." : "Our reception team will review and confirm payment details shortly."}
+        eyebrow="Booking Request Received"
+        title="We Received Your Booking Request"
+        copy="Payment is collected at the salon after your appointment."
       >
         <section className="lux-card booking-success">
           <h2>{result.bookingCode}</h2>
@@ -255,20 +173,20 @@ export function BookingClient() {
     );
   }
 
-  if (!catalog || !paypalConfig) {
+  if (!catalog) {
     return (
       <PageShell eyebrow="Online Booking" title="Book Your Appointment" copy="Loading booking options...">
-        <section className="lux-card">Loading secure checkout...</section>
+        <section className="lux-card">Loading booking options...</section>
       </PageShell>
     );
   }
 
   return (
-    <PageShell eyebrow="Online Booking" title="Book Your Appointment" copy="Choose services, technician, time and pay securely with PayPal.">
+    <PageShell eyebrow="Online Booking" title="Book Your Appointment" copy="Choose services, technician and time. Payment is collected at the salon after your appointment.">
       <section className="booking-layout">
         <div className="booking-main">
           <div className="stepper">
-            {["Service", "Technician", "Date & Time", "Details", "Review & Pay"].map((label, index) => (
+            {["Service", "Technician", "Date & Time", "Details", "Review"].map((label, index) => (
               <button className={step === index + 1 ? "active" : ""} key={label} onClick={() => setStep(index + 1)}>
                 {index + 1}. {label}
               </button>
@@ -348,41 +266,19 @@ export function BookingClient() {
 
           {step === 5 && (
             <div className="booking-panel">
-              <h3>Review & Pay</h3>
-              <p>Secure Payment - PayPal Checkout</p>
-              {quote?.chargeMode === "deposit" ? (
-                <p>Deposit due today: <b>{money(quote.paymentAmount, quote.currency)}</b>. Remaining balance at appointment: <b>{money(quote.remainingAmount, quote.currency)}</b>.</p>
-              ) : (
-                <p>Full payment due today: <b>{money(quote?.paymentAmount || 0, quote?.currency || "USD")}</b>.</p>
-              )}
-              {checkout && <p>Your selected time is temporarily reserved until {new Date(checkout.expiresAt).toLocaleTimeString()}.</p>}
+              <h3>Review</h3>
+              <p>Payment is collected at the salon after your appointment.</p>
+              <p>No deposit or online payment is required to submit this booking request.</p>
               <label className="check-label"><input type="checkbox" checked={policyAccepted} onChange={(e) => setPolicyAccepted(e.target.checked)} /> I agree to the booking and cancellation policy.</label>
-              {!paypalConfig.enabled && <p className="form-error">Online payment is not configured yet. Submit a booking request and our reception team will confirm it.</p>}
               {error && <p className="form-error">{error}</p>}
-              {processing && <p>Processing secure payment...</p>}
-              {!paypalConfig.enabled && (
-                <button
-                  className="primary-btn"
-                  disabled={processing || serviceIds.length === 0 || !time || !quote || !validDetails || !policyAccepted}
-                  onClick={submitManualBookingRequest}
-                >
-                  Submit Booking Request
-                </button>
-              )}
-              {readyToPay && paypalConfig.clientId && (
-                <PayPalScriptProvider options={{ clientId: paypalConfig.clientId, currency: quote?.currency || paypalConfig.currency, intent: "capture" }}>
-                  <PayPalButtons
-                    style={{ layout: "vertical", shape: "pill" }}
-                    disabled={processing}
-                    createOrder={createOrder}
-                    onApprove={async (data) => {
-                      if (data.orderID) await captureOrder(data.orderID);
-                    }}
-                    onCancel={() => setError("Payment was cancelled. Your slot remains held only until the checkout timer expires.")}
-                    onError={() => setError("PayPal payment failed. Please try again while your checkout is still valid.")}
-                  />
-                </PayPalScriptProvider>
-              )}
+              {processing && <p>Submitting booking request...</p>}
+              <button
+                className="primary-btn"
+                disabled={processing || serviceIds.length === 0 || !time || !quote || !validDetails || !policyAccepted}
+                onClick={submitManualBookingRequest}
+              >
+                Submit Booking Request
+              </button>
             </div>
           )}
 
@@ -403,7 +299,8 @@ export function BookingClient() {
           <p>Subtotal <b>{money(quote?.subtotal || 0, quote?.currency || catalog.payment.currency)}</b></p>
           <p>Discount <b>-{money(quote?.discountAmount || 0, quote?.currency || catalog.payment.currency)}</b></p>
           <p>Tax <b>{money(quote?.taxAmount || 0, quote?.currency || catalog.payment.currency)}</b></p>
-          <p>Due Today <b>{money(quote?.paymentAmount || 0, quote?.currency || catalog.payment.currency)}</b></p>
+          <p>Due Today <b>{money(0, quote?.currency || catalog.payment.currency)}</b></p>
+          <p className="form-helper">Payment is collected at the salon after your appointment.</p>
           <h3>Total {money(quote?.totalAmount || 0, quote?.currency || catalog.payment.currency)}</h3>
         </aside>
       </section>

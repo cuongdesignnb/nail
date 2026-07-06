@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { verifyPayPalWebhookSignature } from "@/lib/payments/paypal/paypal.webhook";
-import { finalizePaidCheckout } from "@/lib/payments/booking-checkout/checkout-finalizer";
+import { issueGiftCardForPurchase } from "@/lib/gift-cards/gift-card.service";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -43,29 +43,21 @@ export async function POST(req: Request) {
 
   try {
     if (eventType === "PAYMENT.CAPTURE.COMPLETED") {
-      const session = orderId
-        ? await prisma.bookingCheckoutSession.findUnique({ where: { paypalOrderId: orderId } })
+      const purchase = orderId
+        ? await prisma.giftCardPurchase.findUnique({ where: { paypalOrderId: orderId } })
         : null;
-      if (session) {
+      if (purchase) {
         const amount = Number(resource?.amount?.value ?? 0);
-        const currency = resource?.amount?.currency_code || session.currency;
-        const result = await finalizePaidCheckout({
-          checkoutSessionId: session.id,
-          paypalOrderId: orderId,
-          paypalCaptureId: captureId,
-          payer: {
-            email: resource?.payer?.email_address ?? null,
-            name: resource?.payer?.name ? String(resource.payer.name) : null,
-          },
+        const currency = resource?.amount?.currency_code || purchase.currency;
+        const result = await issueGiftCardForPurchase(purchase.id, {
+          captureId,
+          status: resource?.status,
           amount,
           currency,
-          providerStatus: resource?.status,
-          providerPayload: payload,
-          source: "paypal_webhook",
         });
         await prisma.paymentWebhookEvent.update({
           where: { id: event.id },
-          data: { processingStatus: "processed", checkoutSessionId: session.id, processedAt: new Date() },
+          data: { processingStatus: "processed", processedAt: new Date() },
         });
         return Response.json({ success: true, data: result });
       }

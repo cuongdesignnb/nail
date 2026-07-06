@@ -87,6 +87,7 @@ export const DEFAULT_NAVIGATION_ITEMS: Record<NavigationLocation, NavigationMenu
     item("nav-services", "Services", "/services"),
     item("nav-gallery", "Gallery", "/gallery"),
     item("nav-packages", "Packages", "/packages"),
+    item("nav-gift-cards", "Gift Cards", "/gift-cards"),
     item("nav-promotions", "Promotions", "/promotions"),
     item("nav-blog", "Beauty Journal", "/blog"),
     item("nav-contact", "Contact", "/contact"),
@@ -110,12 +111,14 @@ export const DEFAULT_NAVIGATION_ITEMS: Record<NavigationLocation, NavigationMenu
   footer_explore: [
     item("footer-explore-gallery", "Gallery", "/gallery"),
     item("footer-explore-promotions", "Promotions", "/promotions"),
+    item("footer-explore-gift-cards", "Gift Cards", "/gift-cards"),
     item("footer-explore-blog", "Beauty Journal", "/blog"),
     item("footer-explore-booking", "Book Now", "/booking"),
   ],
   footer_legal: [
     item("footer-legal-privacy", "Privacy Policy", "/privacy-policy", "internal", false),
     item("footer-legal-terms", "Terms & Conditions", "/terms", "internal", false),
+    item("footer-legal-gift-cards", "Gift Card Terms", "/gift-cards/terms"),
     item("footer-legal-booking", "Booking Policy", "/booking-policy", "internal", false),
     item("footer-legal-accessibility", "Accessibility", "/accessibility", "internal", false),
   ],

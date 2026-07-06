@@ -31,8 +31,8 @@ export default function PaymentSettings() {
 
   const webhookEndpoint =
     typeof window !== "undefined"
-      ? `${window.location.origin}/api/webhooks/paypal`
-      : "/api/webhooks/paypal";
+      ? `${window.location.origin}/api/gift-cards/paypal/webhook`
+      : "/api/gift-cards/paypal/webhook";
 
   const load = React.useCallback(async () => {
     const res = await fetch("/api/admin/settings/payments/paypal", { cache: "no-store" });
@@ -102,7 +102,7 @@ export default function PaymentSettings() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h3 className="text-sm font-bold text-aera-ink">PayPal Payments</h3>
-            <p className="mt-1 text-xs text-aera-muted">Configure secure PayPal checkout for public bookings.</p>
+            <p className="mt-1 text-xs text-aera-muted">Configure secure PayPal checkout for Gift Card purchases only.</p>
           </div>
           <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold ${settings.ready ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
             {settings.ready ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
@@ -171,7 +171,7 @@ export default function PaymentSettings() {
             checked={settings.autoConfirmAfterPayment}
             onChange={(e) => setSettings({ ...settings, autoConfirmAfterPayment: e.target.checked })}
           />
-          Auto-confirm appointment after successful payment
+          Gift Card orders are issued after successful payment
         </label>
 
         <div className="rounded-xl border border-aera-champagne/40 bg-aera-cream/20 p-4 text-xs text-aera-ink">
