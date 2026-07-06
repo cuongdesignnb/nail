@@ -1,0 +1,136 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   AERA NAIL LOUNGE — Admin Design Tokens
+   Luxury Salon Operations Console
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Surfaces ────────────────────────────────────────────────────────── */
+  --admin-canvas: #FAF6F1;           /* Warm ivory page background */
+  --admin-surface: #FFFFFF;           /* Card / panel surface */
+  --admin-surface-muted: #F8F3ED;     /* Subtle background areas */
+  --admin-surface-hover: #F3ECE3;     /* Hover on cards or rows */
+  --admin-surface-raised: #FFFDFB;    /* Sidebar, elevated panels */
+
+  /* ── Borders ─────────────────────────────────────────────────────────── */
+  --admin-border: rgba(116, 55, 15, 0.08);
+  --admin-border-strong: rgba(116, 55, 15, 0.15);
+  --admin-border-muted: rgba(116, 55, 15, 0.05);
+
+  /* ── Typography Colors ───────────────────────────────────────────────── */
+  --admin-ink: #2F1C11;               /* Primary text — warm dark brown */
+  --admin-ink-secondary: #4A2D1E;     /* Secondary text */
+  --admin-muted: #7F6D61;             /* Muted / helper text — taupe */
+  --admin-placeholder: #B8A99C;       /* Input placeholders */
+
+  /* ── Brand Accent — Copper/Bronze ────────────────────────────────────── */
+  --admin-accent: #A7622A;            /* Copper primary */
+  --admin-accent-hover: #8A4F1D;      /* Darker copper for hover */
+  --admin-accent-soft: rgba(167, 98, 42, 0.08);  /* Soft copper fill */
+  --admin-accent-muted: rgba(167, 98, 42, 0.12); /* Copper tint */
+
+  /* ── Semantic Colors ─────────────────────────────────────────────────── */
+  --admin-success: #1A7A3A;           /* Confirmed / Paid / Active */
+  --admin-success-soft: rgba(26, 122, 58, 0.08);
+  --admin-warning: #B45309;           /* Pending / Action required */
+  --admin-warning-soft: rgba(180, 83, 9, 0.08);
+  --admin-danger: #C53030;            /* Cancelled / Failed / Destructive */
+  --admin-danger-soft: rgba(197, 48, 48, 0.08);
+  --admin-info: #1D6FA5;              /* Informational */
+  --admin-info-soft: rgba(29, 111, 165, 0.08);
+  --admin-neutral: #6B5E54;           /* Completed / Neutral */
+  --admin-neutral-soft: rgba(107, 94, 84, 0.08);
+
+  /* ── Radius ──────────────────────────────────────────────────────────── */
+  --admin-radius-xs: 6px;
+  --admin-radius-sm: 8px;
+  --admin-radius-md: 12px;
+  --admin-radius-lg: 16px;
+  --admin-radius-xl: 20px;
+  --admin-radius-2xl: 24px;
+
+  /* ── Shadows ─────────────────────────────────────────────────────────── */
+  --admin-shadow-xs: 0 1px 2px rgba(77, 43, 20, 0.04);
+  --admin-shadow-sm: 0 2px 8px rgba(77, 43, 20, 0.05);
+  --admin-shadow-md: 0 4px 16px rgba(77, 43, 20, 0.06);
+  --admin-shadow-lg: 0 8px 32px rgba(77, 43, 20, 0.08);
+  --admin-shadow-xl: 0 18px 50px rgba(77, 43, 20, 0.1);
+
+  /* ── Layout ──────────────────────────────────────────────────────────── */
+  --admin-sidebar-width: 300px;
+  --admin-sidebar-collapsed-width: 80px;
+  --admin-topbar-height: 72px;
+  --admin-content-max-width: 1400px;
+
+  /* ── Transitions ─────────────────────────────────────────────────────── */
+  --admin-transition-fast: 160ms ease;
+  --admin-transition-normal: 200ms ease;
+  --admin-transition-slow: 240ms ease;
+  --admin-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --admin-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Z-Index Scale ───────────────────────────────────────────────────── */
+  --admin-z-base: 1;
+  --admin-z-sticky: 20;
+  --admin-z-sidebar: 30;
+  --admin-z-topbar: 25;
+  --admin-z-dropdown: 40;
+  --admin-z-overlay: 100;
+  --admin-z-drawer: 101;
+  --admin-z-dialog: 110;
+  --admin-z-toast: 120;
+  --admin-z-command: 130;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Focus Ring — Consistent across all interactive elements
+   ═══════════════════════════════════════════════════════════════════════ */
+.admin-focus-ring:focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+  border-radius: var(--admin-radius-sm);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Reduced Motion — Respect user preference
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Keyframes
+   ═══════════════════════════════════════════════════════════════════════ */
+@keyframes admin-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes admin-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes admin-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes admin-scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes admin-slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes admin-spin {
+  to { transform: rotate(360deg); }
+}

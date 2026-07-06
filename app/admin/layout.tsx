@@ -1,4 +1,6 @@
 import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
+import "@/styles/admin-tokens.css";
+import "@/styles/admin-components.css";
 
 export const metadata = {
   title: "Admin — Aera Nail Lounge",
