@@ -28,6 +28,7 @@ import {
   Image as ImageIcon,
   Globe,
   Menu,
+  Mail,
   ShieldCheck,
 } from "lucide-react";
 
@@ -88,6 +89,7 @@ export const navGroups: NavGroup[] = [
     title: "System",
     items: [
       { label: "Settings", href: "/admin/settings", icon: Settings },
+      { label: "Email & SMTP", href: "/admin/settings/email", icon: Mail },
       { label: "Users", href: "/admin/users", icon: ShieldCheck },
     ],
   },

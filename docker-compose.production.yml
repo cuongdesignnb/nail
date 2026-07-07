@@ -113,7 +113,7 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
-    command: ["node", "-e", "console.log('Run one-shot jobs with docker compose run --rm jobs npm run <script>')"]
+    command: ["node", "-e", "console.log('Run one-shot jobs with docker compose run --rm jobs npm run <script>. Recommended: flock -n /tmp/aera-email-retry.lock npm run jobs:retry-transactional-emails every 5 minutes.')"]
     volumes:
       - aera_runtime_production:/app/.data
       - aera_uploads_production:/app/public/uploads

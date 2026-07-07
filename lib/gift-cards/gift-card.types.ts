@@ -32,4 +32,7 @@ export type GiftCardCatalog = {
     clientId: string | null;
     currency: string;
   };
+  email: {
+    ready: boolean;
+  };
 };

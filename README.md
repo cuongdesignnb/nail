@@ -78,4 +78,19 @@ Default seeded admin:
 
 ## Environment
 
+## Transactional Email and Gift Cards
+
+Gift Cards are email-only and PayPal is used only for Gift Card purchases. Normal bookings remain payment-at-salon.
+
+Configure SMTP from `Admin > Settings > Email & SMTP`, then test the connection before enabling public Gift Card checkout. See:
+
+- `docs/SMTP_EMAIL_CONFIGURATION.md`
+- `docs/GIFT_CARD_EMAIL_FLOW.md`
+
+Retry failed transactional emails with:
+
+```bash
+npm run jobs:retry-transactional-emails
+```
+
 See `.env.example` for database, auth, Stripe, Resend, Twilio and R2 variables.

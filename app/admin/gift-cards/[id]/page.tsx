@@ -27,10 +27,31 @@ export default async function AdminGiftCardDetailPage({ params }: { params: { id
               <div><dt className="text-xs text-[var(--admin-muted)]">Sender</dt><dd>{card.senderName} ({card.senderEmail})</dd></div>
               <div><dt className="text-xs text-[var(--admin-muted)]">Order</dt><dd>{card.purchase.orderNumber}</dd></div>
               <div><dt className="text-xs text-[var(--admin-muted)]">PayPal</dt><dd>{card.purchase.paypalOrderId || "Not available"}</dd></div>
-              <div><dt className="text-xs text-[var(--admin-muted)]">Value</dt><dd>{card.type === "SERVICE" ? card.serviceNameSnapshot : money(card.initialAmount, card.currency)}</dd></div>
-              <div><dt className="text-xs text-[var(--admin-muted)]">Remaining</dt><dd>{money(card.remainingBalance, card.currency)}</dd></div>
+              <div><dt className="text-xs text-[var(--admin-muted)]">Value</dt><dd>{card.type === "SERVICE" ? "Service Voucher" : money(card.initialAmount, card.currency)}</dd></div>
+              <div><dt className="text-xs text-[var(--admin-muted)]">Remaining</dt><dd>{card.type === "SERVICE" ? "Service Voucher" : money(card.remainingBalance, card.currency)}</dd></div>
+              <div><dt className="text-xs text-[var(--admin-muted)]">Gratuity</dt><dd>{money(card.gratuityAmount, card.currency)}</dd></div>
+              <div><dt className="text-xs text-[var(--admin-muted)]">Last Sent</dt><dd>{card.sentAt ? card.sentAt.toLocaleString() : "Not sent"}</dd></div>
             </dl>
           </div>
+          {card.type === "SERVICE" && (
+            <div className="rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4">
+              <h2 className="font-heading text-lg font-bold">Service Bundle</h2>
+              <div className="mt-4 space-y-3">
+                {(card.serviceItems.length ? card.serviceItems : card.serviceNameSnapshot ? [{
+                  id: "legacy",
+                  serviceNameSnapshot: card.serviceNameSnapshot,
+                  serviceDurationSnapshot: card.serviceDurationSnapshot || 0,
+                  servicePriceSnapshot: card.servicePriceSnapshot || card.initialAmount,
+                  redeemedAt: null,
+                }] : []).map((item) => (
+                  <div key={item.id} className="rounded border border-[var(--admin-border)] p-3 text-sm">
+                    <b>{item.serviceNameSnapshot}</b>
+                    <p className="text-[var(--admin-muted)]">{item.serviceDurationSnapshot} min - {money(item.servicePriceSnapshot, card.currency)} {item.redeemedAt ? `- Redeemed ${item.redeemedAt.toLocaleString()}` : ""}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="rounded-[var(--admin-radius-lg)] border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4">
             <h2 className="font-heading text-lg font-bold">Transaction Timeline</h2>
             <div className="mt-4 space-y-3">

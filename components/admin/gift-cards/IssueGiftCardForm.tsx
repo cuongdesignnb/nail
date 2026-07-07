@@ -54,7 +54,9 @@ export default function IssueGiftCardForm({ catalog }: { catalog: GiftCardCatalo
   const [type, setType] = useState<"AMOUNT" | "SERVICE">("AMOUNT");
   const [amount, setAmount] = useState(String(firstPreset));
   const [categoryId, setCategoryId] = useState(firstCategoryId);
-  const [serviceId, setServiceId] = useState(catalog.categories[0]?.services[0]?.id || "");
+  const [serviceIds, setServiceIds] = useState<string[]>([]);
+  const [gratuityMode, setGratuityMode] = useState<"NONE" | "PERCENT_20" | "PERCENT_25" | "PERCENT_30" | "CUSTOM">("NONE");
+  const [customGratuityAmount, setCustomGratuityAmount] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [senderName, setSenderName] = useState("Aera Nail Lounge");
@@ -70,12 +72,16 @@ export default function IssueGiftCardForm({ catalog }: { catalog: GiftCardCatalo
     () => catalog.categories.find((category) => category.id === categoryId) || catalog.categories[0],
     [catalog.categories, categoryId],
   );
-  const selectedService = useMemo(
-    () => selectedCategory?.services.find((service) => service.id === serviceId) || selectedCategory?.services[0],
-    [selectedCategory, serviceId],
-  );
+  const allServices = useMemo(() => catalog.categories.flatMap((category) => category.services), [catalog.categories]);
+  const selectedServices = useMemo(() => serviceIds.map((id) => allServices.find((service) => service.id === id)).filter(Boolean) as typeof allServices, [allServices, serviceIds]);
   const numericAmount = Number(amount);
-  const selectedValue = type === "SERVICE" ? selectedService?.price || 0 : numericAmount;
+  const serviceSubtotal = selectedServices.reduce((sum, service) => sum + service.price, 0);
+  const gratuityAmount = gratuityMode === "NONE" ? 0 :
+    gratuityMode === "PERCENT_20" ? Math.round(serviceSubtotal * 0.2) :
+    gratuityMode === "PERCENT_25" ? Math.round(serviceSubtotal * 0.25) :
+    gratuityMode === "PERCENT_30" ? Math.round(serviceSubtotal * 0.3) :
+    Number(customGratuityAmount || 0);
+  const selectedValue = type === "SERVICE" ? serviceSubtotal + gratuityAmount : numericAmount;
   const valueLabel = money(selectedValue, catalog.settings.currency);
 
   const valid =
@@ -86,15 +92,17 @@ export default function IssueGiftCardForm({ catalog }: { catalog: GiftCardCatalo
     message.length <= 280 &&
     internalNote.length <= 500 &&
     (type === "SERVICE"
-      ? Boolean(selectedService?.id)
+      ? selectedServices.length > 0
       : Number.isInteger(numericAmount) &&
         numericAmount >= catalog.settings.minCustomAmount &&
         numericAmount <= catalog.settings.maxCustomAmount);
 
   function chooseCategory(nextCategoryId: string) {
-    const nextCategory = catalog.categories.find((category) => category.id === nextCategoryId);
     setCategoryId(nextCategoryId);
-    setServiceId(nextCategory?.services[0]?.id || "");
+  }
+
+  function toggleService(id: string) {
+    setServiceIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -107,7 +115,9 @@ export default function IssueGiftCardForm({ catalog }: { catalog: GiftCardCatalo
     const payload = {
       type,
       amount: type === "AMOUNT" ? numericAmount : undefined,
-      serviceId: type === "SERVICE" ? selectedService?.id : undefined,
+      serviceIds: type === "SERVICE" ? serviceIds : undefined,
+      gratuityMode: type === "SERVICE" ? gratuityMode : "NONE",
+      customGratuityAmount: type === "SERVICE" && gratuityMode === "CUSTOM" ? Number(customGratuityAmount || 0) : undefined,
       recipientName,
       recipientEmail,
       senderName,
@@ -213,18 +223,52 @@ export default function IssueGiftCardForm({ catalog }: { catalog: GiftCardCatalo
               </label>
               <label className="text-sm font-semibold text-[var(--admin-ink)]">
                 Select Service
-                <select className={inputClass} value={selectedService?.id || ""} onChange={(event) => setServiceId(event.target.value)}>
+                <select className={inputClass} value="" onChange={(event) => { if (event.target.value) toggleService(event.target.value); }}>
+                  <option value="">Add a service</option>
                   {(selectedCategory?.services || []).map((service) => (
-                    <option key={service.id} value={service.id}>
+                    <option key={service.id} value={service.id} disabled={serviceIds.includes(service.id)}>
                       {service.name} - {service.durationMinutes} min - {money(service.price, catalog.settings.currency)}
                     </option>
                   ))}
                 </select>
               </label>
               <FieldError errors={fieldErrors.serviceId} />
+              {selectedServices.length > 0 && (
+                <div className="sm:col-span-2 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] p-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--admin-muted)]">Gifted Services</h3>
+                  <div className="mt-2 space-y-2">
+                    {selectedServices.map((service) => (
+                      <div key={service.id} className="flex items-center justify-between gap-3 text-sm">
+                        <span><b>{service.name}</b> <span className="text-[var(--admin-muted)]">{service.durationMinutes} min - {money(service.price, catalog.settings.currency)}</span></span>
+                        <button type="button" className="font-semibold text-[var(--admin-accent)]" onClick={() => toggleService(service.id)}>Remove</button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-sm font-semibold">Services Subtotal: {money(serviceSubtotal, catalog.settings.currency)}</p>
+                </div>
+              )}
             </div>
           )}
         </section>
+
+        {type === "SERVICE" && (
+          <section className="rounded-2xl border border-[var(--admin-border)] bg-white p-5">
+            <h2 className="text-sm font-bold text-[var(--admin-ink)]">Include a Gratuity</h2>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {[
+                ["NONE", "No, Thanks"],
+                ["PERCENT_20", "20%"],
+                ["PERCENT_25", "25%"],
+                ["PERCENT_30", "30%"],
+                ["CUSTOM", "Custom Tip"],
+              ].map(([value, label]) => (
+                <button key={value} type="button" onClick={() => setGratuityMode(value as typeof gratuityMode)} className={`rounded-full border px-3 py-2 text-sm font-semibold ${gratuityMode === value ? "border-[var(--admin-accent)] bg-[var(--admin-accent)] text-white" : "border-[var(--admin-border)] bg-white"}`}>{label}</button>
+              ))}
+            </div>
+            {gratuityMode === "CUSTOM" && <input className={inputClass} inputMode="numeric" placeholder="Custom tip amount" value={customGratuityAmount} onChange={(event) => setCustomGratuityAmount(event.target.value.replace(/\D/g, ""))} />}
+            <p className="mt-3 text-sm font-semibold">Gratuity: {money(gratuityAmount, catalog.settings.currency)}</p>
+          </section>
+        )}
 
         <section className="rounded-2xl border border-[var(--admin-border)] bg-white p-5">
           <h2 className="text-sm font-bold text-[var(--admin-ink)]">Recipient Details</h2>
@@ -295,7 +339,7 @@ export default function IssueGiftCardForm({ catalog }: { catalog: GiftCardCatalo
         <GiftCardIssuePreview
           type={type}
           amountLabel={valueLabel}
-          serviceName={selectedService?.name}
+          serviceName={selectedServices.map((service) => service.name).join(", ")}
           recipientName={recipientName}
           senderName={senderName}
           message={message}

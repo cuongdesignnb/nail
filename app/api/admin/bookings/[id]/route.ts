@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
+import { sendBookingStatusEmail } from "@/lib/email/booking-mail.service";
 
 const updateBookingSchema = z.object({
   status: z.string().optional(),
@@ -131,6 +132,9 @@ export async function PATCH(
             newStatus: parsed.status,
           }),
         },
+      });
+      await sendBookingStatusEmail(booking.id, parsed.status).catch((error) => {
+        console.error("Booking status email failed:", error instanceof Error ? error.message : error);
       });
     }
 

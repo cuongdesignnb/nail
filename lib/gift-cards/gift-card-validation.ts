@@ -9,12 +9,15 @@ const optionalText = (max: number) =>
 export const createGiftCardPurchaseSchema = z.object({
   type: z.enum(["AMOUNT", "SERVICE"]),
   amount: z.number().int().min(25).max(500).optional(),
+  serviceIds: z.array(z.string().trim().min(1)).max(12).optional(),
   serviceId: z.string().trim().min(1).optional(),
+  gratuityMode: z.enum(["NONE", "PERCENT_20", "PERCENT_25", "PERCENT_30", "CUSTOM"]).optional(),
+  customGratuityAmount: z.number().int().min(0).max(500).optional(),
   recipientName: name,
   recipientEmail: email,
   senderName: name,
   senderEmail: email,
-  message: z.string().trim().min(1).max(280),
+  message: optionalText(280),
   termsAccepted: z.literal(true),
 });
 
@@ -41,7 +44,10 @@ export const adminGiftCardActionSchema = z.object({
 export const createManualGiftCardSchema = z.object({
   type: z.enum(["AMOUNT", "SERVICE"]),
   amount: z.coerce.number().int().positive().optional(),
+  serviceIds: z.array(z.string().trim().min(1)).max(12).optional(),
   serviceId: z.string().trim().min(1).optional(),
+  gratuityMode: z.enum(["NONE", "PERCENT_20", "PERCENT_25", "PERCENT_30", "CUSTOM"]).optional(),
+  customGratuityAmount: z.coerce.number().int().min(0).max(500).optional(),
   recipientName: name,
   recipientEmail: email,
   senderName: name,

@@ -6,12 +6,18 @@ export function GiftCardPreview({
   from,
   value,
   message,
+  serviceSummary,
+  gratuity,
+  total,
 }: {
   type: "AMOUNT" | "SERVICE";
   to: string;
   from: string;
   value: string;
   message: string;
+  serviceSummary?: string;
+  gratuity?: string;
+  total?: string;
 }) {
   return (
     <div className="overflow-hidden rounded-[28px] border border-[#e4cfac] bg-[#fffaf1] shadow-[0_24px_80px_rgba(92,62,38,0.14)]">
@@ -36,8 +42,20 @@ export function GiftCardPreview({
               <dt className="text-xs uppercase tracking-[0.2em] text-[#997553]">Gift</dt>
               <dd className="break-words text-2xl font-semibold">{value || "Select a gift"}</dd>
             </div>
+            {type === "SERVICE" && serviceSummary && (
+              <div>
+                <dt className="text-xs uppercase tracking-[0.2em] text-[#997553]">Services</dt>
+                <dd className="break-words text-sm">{serviceSummary}</dd>
+              </div>
+            )}
+            {type === "SERVICE" && (
+              <div>
+                <dt className="text-xs uppercase tracking-[0.2em] text-[#997553]">Total</dt>
+                <dd className="break-words text-lg font-semibold">{total} {gratuity ? <span className="text-sm font-normal">incl. {gratuity} gratuity</span> : null}</dd>
+              </div>
+            )}
           </dl>
-          <p className="mt-5 line-clamp-4 break-words text-sm italic text-[#674938]">{message || "Your personal message will appear here."}</p>
+          <p className="mt-5 line-clamp-4 break-words text-sm italic text-[#674938]">{message || "A thoughtful gift from Aera Nail Lounge."}</p>
         </div>
       </div>
     </div>

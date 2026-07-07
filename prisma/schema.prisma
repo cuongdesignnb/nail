@@ -72,6 +72,8 @@ model Service {
   items            BookingItem[]
   giftCardPurchases GiftCardPurchase[]
   giftCards         GiftCard[]
+  giftCardPurchaseItems GiftCardPurchaseServiceItem[]
+  giftCardServiceItems GiftCardServiceItem[]
 }
 
 model Technician {
@@ -279,6 +281,25 @@ enum GiftCardEmailStatus {
   FAILED
 }
 
+enum TransactionalEmailKind {
+  BOOKING_REQUEST_RECEIVED
+  BOOKING_CONFIRMED
+  BOOKING_RESCHEDULED
+  BOOKING_CANCELLED
+  BOOKING_COMPLETED
+  GIFT_CARD_DELIVERY
+  GIFT_CARD_PURCHASE_RECEIPT
+  GIFT_CARD_RESEND
+  SMTP_TEST
+}
+
+enum TransactionalEmailStatus {
+  PENDING
+  SENDING
+  SENT
+  FAILED
+}
+
 model GiftCardPurchase {
   id                      String          @id @default(cuid())
   orderNumber             String          @unique
@@ -297,6 +318,9 @@ model GiftCardPurchase {
   serviceNameSnapshot     String?
   servicePriceSnapshot    Decimal?
   serviceDurationSnapshot Int?
+  serviceSubtotal         Decimal         @default(0)
+  gratuityAmount          Decimal         @default(0)
+  totalAmount             Decimal         @default(0)
   paypalOrderId           String?         @unique
   paypalCaptureId         String?         @unique
   paypalStatus            String?
@@ -305,11 +329,28 @@ model GiftCardPurchase {
   paidAt                  DateTime?
   updatedAt               DateTime        @updatedAt
   giftCard                GiftCard?
+  items                   GiftCardPurchaseServiceItem[]
 
   @@index([status])
   @@index([recipientEmail])
   @@index([purchaserEmail])
   @@index([createdAt])
+  @@index([serviceId])
+}
+
+model GiftCardPurchaseServiceItem {
+  id                      String           @id @default(cuid())
+  purchaseId              String
+  purchase                GiftCardPurchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  serviceId               String?
+  service                 Service?         @relation(fields: [serviceId], references: [id])
+  serviceNameSnapshot     String
+  servicePriceSnapshot    Decimal
+  serviceDurationSnapshot Int
+  sortOrder               Int              @default(0)
+  createdAt               DateTime         @default(now())
+
+  @@index([purchaseId])
   @@index([serviceId])
 }
 
@@ -329,6 +370,8 @@ model GiftCard {
   serviceNameSnapshot     String?
   servicePriceSnapshot    Decimal?
   serviceDurationSnapshot Int?
+  gratuityAmount          Decimal             @default(0)
+  gratuityRedeemedAt      DateTime?
   recipientName           String
   recipientEmail          String
   senderName              String
@@ -342,6 +385,7 @@ model GiftCard {
   createdAt               DateTime            @default(now())
   updatedAt               DateTime            @updatedAt
   transactions            GiftCardTransaction[]
+  serviceItems            GiftCardServiceItem[]
   bookings                Booking[]
 
   @@index([status])
@@ -350,6 +394,25 @@ model GiftCard {
   @@index([createdAt])
   @@index([expiresAt])
   @@index([serviceId])
+}
+
+model GiftCardServiceItem {
+  id                      String   @id @default(cuid())
+  giftCardId              String
+  giftCard                GiftCard @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  serviceId               String?
+  service                 Service? @relation(fields: [serviceId], references: [id])
+  serviceNameSnapshot     String
+  servicePriceSnapshot    Decimal
+  serviceDurationSnapshot Int
+  sortOrder               Int      @default(0)
+  redeemedAt              DateTime?
+  redeemedBookingId       String?
+  createdAt               DateTime @default(now())
+
+  @@index([giftCardId])
+  @@index([serviceId])
+  @@index([redeemedAt])
 }
 
 model GiftCardTransaction {
@@ -1039,6 +1102,48 @@ model AiContentBatch {
   jobs                  AiContentJob[]
 
   @@index([status])
+  @@index([createdAt])
+}
+
+model EmailSmtpSetting {
+  id                    String   @id @default(cuid())
+  key                   String   @unique @default("default")
+  enabled               Boolean  @default(false)
+  host                  String?
+  port                  Int?
+  secure                Boolean  @default(false)
+  username              String?
+  encryptedPassword     String?
+  fromName              String?
+  fromEmail             String?
+  replyToEmail          String?
+  verifiedAt            DateTime?
+  lastVerificationError String?
+  lastTestSentAt        DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model TransactionalEmailLog {
+  id            String                   @id @default(cuid())
+  kind          TransactionalEmailKind
+  status        TransactionalEmailStatus @default(PENDING)
+  recipient     String
+  subject       String
+  entityType    String?
+  entityId      String?
+  attempts      Int                      @default(0)
+  lastError     String?
+  lastAttemptAt DateTime?
+  sentAt        DateTime?
+  nextRetryAt   DateTime?
+  metadata      Json?
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+
+  @@index([status, nextRetryAt])
+  @@index([entityType, entityId])
+  @@index([recipient])
   @@index([createdAt])
 }
 

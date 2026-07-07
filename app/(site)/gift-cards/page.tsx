@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GiftCardPageClient } from "@/components/gift-cards/GiftCardPageClient";
 import { getGiftCardCatalog } from "@/lib/gift-cards/gift-card.service";
+import type { GiftCardCatalog } from "@/lib/gift-cards/gift-card.types";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,19 @@ export const metadata: Metadata = {
 };
 
 export default async function GiftCardsPage() {
-  const catalog = await getGiftCardCatalog();
+  const catalog: GiftCardCatalog = await getGiftCardCatalog().catch(() => ({
+    settings: {
+      currency: "USD",
+      amountPresetValues: [25, 50, 75, 100, 125, 150, 200, 250],
+      minCustomAmount: 25,
+      maxCustomAmount: 500,
+      allowCustomAmount: true,
+      giftCardsEnabled: true,
+    },
+    categories: [],
+    paypal: { enabled: false, clientId: null, currency: "USD" },
+    email: { ready: false },
+  }));
   return (
     <main className="bg-[#fbf4e8] text-[#3d2d24]">
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">

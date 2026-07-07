@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { addMinutes } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 import { prisma } from "@/lib/db";
+import { sendBookingRequestReceivedEmail } from "@/lib/email/booking-mail.service";
 import { createPayPalOrder } from "@/lib/payments/paypal/paypal.orders";
 import { getOrCreatePayPalConfig } from "@/lib/payments/paypal/paypal.config";
 import type { BookingCustomerPayload, BookingPayload, QuoteSnapshot } from "./checkout.types";
@@ -371,7 +372,7 @@ export async function createManualBookingRequest(input: BookingPayload & { custo
   });
   const technician = await chooseTechnician({ technicianId: input.technicianId, start, end });
 
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const conflict = await tx.booking.count({
       where: {
         technicianId: technician.id,
@@ -464,4 +465,10 @@ export async function createManualBookingRequest(input: BookingPayload & { custo
       quote,
     };
   }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+
+  await sendBookingRequestReceivedEmail(result.booking.id).catch((error) => {
+    console.error("Booking request email failed:", error instanceof Error ? error.message : error);
+  });
+
+  return result;
 }
