@@ -14,6 +14,7 @@ export const categorySchema = z.object({
 
 export const serviceSchema = z.object({
   categoryId: z.string().optional().nullable(),
+  subcategoryId: z.string().optional().nullable(),
   name: z.string().min(1, "Name is required"),
   slug: z.string().optional().nullable(), // optional, generated on backend if missing
   shortDescription: z.string().optional().nullable(),

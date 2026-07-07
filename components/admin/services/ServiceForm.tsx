@@ -19,6 +19,7 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [subcategoryId, setSubcategoryId] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -44,6 +45,7 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
       setName(initialData.name || "");
       setSlug(initialData.slug || "");
       setCategoryId(initialData.categoryId || "");
+      setSubcategoryId(initialData.subcategoryId || "");
       setShortDescription(initialData.shortDescription || "");
       setDescription(initialData.description || "");
       setPrice(initialData.price !== undefined && initialData.price !== null ? initialData.price.toString() : "");
@@ -82,6 +84,7 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
 
     const payload = {
       categoryId: categoryId || null,
+      subcategoryId: subcategoryId || null,
       name,
       slug: slug || null,
       shortDescription: shortDescription || null,
@@ -138,6 +141,20 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
     value: cat.id,
     label: cat.name,
   }));
+  const subcategoryOptions = safeCategories
+    .find((cat) => cat.id === categoryId)
+    ?.subcategories?.map((sub) => ({
+      value: sub.id,
+      label: sub.name,
+    })) || [];
+
+  const handleCategoryChange = (value: string) => {
+    setCategoryId(value);
+    const nextCategory = safeCategories.find((cat) => cat.id === value);
+    if (!nextCategory?.subcategories?.some((sub) => sub.id === subcategoryId)) {
+      setSubcategoryId("");
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 md:p-8 border border-[var(--admin-border)]/45 shadow-luxury w-full max-w-4xl font-sans">
@@ -174,9 +191,19 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
           <FormSelect
             label="Category"
             value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
+            onChange={(e) => handleCategoryChange(e.target.value)}
             options={categoryOptions}
             error={errors.categoryId?.[0]}
+          />
+        )}
+
+        {subcategoryOptions.length > 0 && (
+          <FormSelect
+            label="Subcategory"
+            value={subcategoryId}
+            onChange={(e) => setSubcategoryId(e.target.value)}
+            options={[{ value: "", label: "No Subcategory" }, ...subcategoryOptions]}
+            error={errors.subcategoryId?.[0]}
           />
         )}
 

@@ -44,14 +44,33 @@ model ServiceCategory {
   sortOrder   Int       @default(0)
   isActive    Boolean   @default(true)
   services    Service[]
+  subcategories ServiceSubcategory[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model ServiceSubcategory {
+  id          String          @id @default(cuid())
+  categoryId  String
+  category    ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String          @unique
+  description String?
+  sortOrder   Int             @default(0)
+  isActive    Boolean         @default(true)
+  services    Service[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([categoryId])
 }
 
 model Service {
   id               String           @id @default(cuid())
   categoryId       String?
   category         ServiceCategory? @relation(fields: [categoryId], references: [id])
+  subcategoryId    String?
+  subcategory      ServiceSubcategory? @relation(fields: [subcategoryId], references: [id])
   name             String
   slug             String           @unique
   shortDescription String?
@@ -74,6 +93,8 @@ model Service {
   giftCards         GiftCard[]
   giftCardPurchaseItems GiftCardPurchaseServiceItem[]
   giftCardServiceItems GiftCardServiceItem[]
+
+  @@index([subcategoryId])
 }
 
 model Technician {

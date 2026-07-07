@@ -15,11 +15,23 @@ export type ServiceCategoryDTO = {
   slug: string;
   description?: string;
   icon?: string;
+  subcategories?: ServiceSubcategoryDTO[];
+};
+
+export type ServiceSubcategoryDTO = {
+  id: string;
+  categoryId: string;
+  name: string;
+  slug: string;
+  description?: string;
+  sortOrder?: number;
 };
 
 export type ServiceDTO = {
   id: string;
   categoryId?: string;
+  subcategoryId?: string;
+  subcategory?: ServiceSubcategoryDTO;
   name: string;
   slug: string;
   shortDescription?: string;
@@ -82,6 +94,7 @@ export type ServicesPageContent = {
     secondaryButton: ButtonConfig;
   };
   categories: ServiceCategoryDTO[];
+  subcategories?: ServiceSubcategoryDTO[];
   signatureServices: ServiceDTO[];
   whyChoose: {
     title: string;
@@ -101,6 +114,14 @@ export type ServicesPageContent = {
       items: {
         name: string;
         priceLabel: string;
+      }[];
+      sections?: {
+        id: string;
+        title: string;
+        items: {
+          name: string;
+          priceLabel: string;
+        }[];
       }[];
     }[];
   };

@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const keyword = searchParams.get("keyword") || "";
     const categoryId = searchParams.get("categoryId") || "";
+    const subcategoryId = searchParams.get("subcategoryId") || "";
     const isActiveStr = searchParams.get("isActive");
     const isFeaturedStr = searchParams.get("isFeatured");
     const page = parseInt(searchParams.get("page") || "1");
@@ -40,6 +41,10 @@ export async function GET(req: NextRequest) {
       where.categoryId = categoryId;
     }
 
+    if (subcategoryId) {
+      where.subcategoryId = subcategoryId;
+    }
+
     if (isActiveStr !== null && isActiveStr !== "") {
       where.isActive = isActiveStr === "true";
     }
@@ -56,7 +61,7 @@ export async function GET(req: NextRequest) {
         orderBy: { sortOrder: "asc" },
         skip: offset,
         take: limit,
-        include: { category: true },
+        include: { category: true, subcategory: true },
       }),
       prisma.service.count({ where }),
     ]);
@@ -114,6 +119,7 @@ export async function POST(req: NextRequest) {
     const newService = await prisma.service.create({
       data: {
         categoryId: data.categoryId,
+        subcategoryId: data.subcategoryId,
         name: data.name,
         slug: finalSlug,
         shortDescription: data.shortDescription,

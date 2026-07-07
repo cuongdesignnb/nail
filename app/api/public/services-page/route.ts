@@ -12,12 +12,19 @@ export async function GET() {
     const dbCategories = await prisma.serviceCategory.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: "asc" },
+      include: {
+        subcategories: {
+          where: { isActive: true },
+          orderBy: { sortOrder: "asc" },
+        },
+      },
     });
 
     // 3. Fetch Active Services
     const dbServices = await prisma.service.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: "asc" },
+      include: { subcategory: true },
     });
 
     // 4. Fetch Active Addons
@@ -59,11 +66,28 @@ export async function GET() {
       slug: c.slug,
       description: c.description || undefined,
       icon: c.icon || undefined,
+      subcategories: c.subcategories.map((sub) => ({
+        id: sub.id,
+        categoryId: sub.categoryId,
+        name: sub.name,
+        slug: sub.slug,
+        description: sub.description || undefined,
+        sortOrder: sub.sortOrder,
+      })),
     }));
 
     const mappedServices = dbServices.map((s) => ({
       id: s.id,
       categoryId: s.categoryId || undefined,
+      subcategoryId: s.subcategoryId || undefined,
+      subcategory: s.subcategory ? {
+        id: s.subcategory.id,
+        categoryId: s.subcategory.categoryId,
+        name: s.subcategory.name,
+        slug: s.subcategory.slug,
+        description: s.subcategory.description || undefined,
+        sortOrder: s.subcategory.sortOrder,
+      } : undefined,
       name: s.name,
       slug: s.slug,
       shortDescription: s.shortDescription || undefined,
@@ -115,13 +139,31 @@ export async function GET() {
     // Map services & addons into the matrix structure
     const pricingCategories = dbCategories.map((cat) => {
       const catServices = dbServices.filter((s) => s.categoryId === cat.id);
+      const sections = cat.subcategories
+        .map((sub) => {
+          const items = catServices
+            .filter((s) => s.subcategoryId === sub.id)
+            .map((s) => ({
+              name: s.name,
+              priceLabel: s.priceLabel || `$${s.price ? s.price.toString() : "0"}`,
+            }));
+          return { id: sub.id, title: sub.name, items };
+        })
+        .filter((section) => section.items.length > 0);
+      const unsectionedItems = catServices
+        .filter((s) => !s.subcategoryId)
+        .map((s) => ({
+          name: s.name,
+          priceLabel: s.priceLabel || `$${s.price ? s.price.toString() : "0"}`,
+        }));
       return {
         id: cat.id,
         title: cat.name,
-        items: catServices.map((s) => ({
+        items: sections.length > 0 ? unsectionedItems : catServices.map((s) => ({
           name: s.name,
           priceLabel: s.priceLabel || `$${s.price ? s.price.toString() : "0"}`,
         })),
+        sections,
       };
     });
 
@@ -134,6 +176,7 @@ export async function GET() {
           name: a.name,
           priceLabel: a.priceLabel || `$${a.price ? a.price.toString() : "0"}`,
         })),
+        sections: [],
       });
     }
 

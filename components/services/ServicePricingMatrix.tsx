@@ -31,29 +31,52 @@ export function ServicePricingMatrix({ data }: { data: ServicesPageContent["pric
             >
               {/* Category Title */}
               <div className="flex items-center gap-2 mb-6 pb-4 border-b border-aera-accent/10">
-                <span className="text-aera-accent text-sm">✦</span>
+                <span className="text-aera-accent text-sm">*</span>
                 <h3 className="font-heading text-lg font-medium text-aera-ink">
                   {category.title}
                 </h3>
               </div>
 
               {/* Items List */}
-              <ul className="space-y-5 flex-grow">
-                {category.items.map((item, itemIndex) => (
-                  <li key={itemIndex} className="flex flex-col gap-1">
-                    <div className="flex items-end justify-between gap-2">
-                      <span className="font-sans text-xs font-semibold text-aera-ink leading-tight">
-                        {item.name}
-                      </span>
-                      {/* Dotted connector */}
-                      <span className="flex-grow border-b border-dotted border-aera-muted/30 mx-1 mb-1" />
-                      <span className="font-heading text-sm font-semibold text-aera-accent shrink-0">
-                        {item.priceLabel}
-                      </span>
-                    </div>
-                  </li>
+              <div className="space-y-6 flex-grow">
+                {category.sections?.map((section) => (
+                  <div key={section.id}>
+                    <h4 className="mb-3 font-sans text-[11px] font-bold uppercase tracking-wide text-aera-accent">
+                      {section.title}
+                    </h4>
+                    <ul className="space-y-4">
+                      {section.items.map((item, itemIndex) => (
+                        <li key={`${section.id}-${itemIndex}`} className="flex flex-col gap-1">
+                          <div className="flex items-end justify-between gap-2">
+                            <span className="font-sans text-xs font-semibold text-aera-ink leading-tight">
+                              {item.name}
+                            </span>
+                            <span className="flex-grow border-b border-dotted border-aera-muted/30 mx-1 mb-1" />
+                            <span className="font-heading text-sm font-semibold text-aera-accent shrink-0">
+                              {item.priceLabel}
+                            </span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
+                <ul className="space-y-5">
+                  {category.items.map((item, itemIndex) => (
+                    <li key={itemIndex} className="flex flex-col gap-1">
+                      <div className="flex items-end justify-between gap-2">
+                        <span className="font-sans text-xs font-semibold text-aera-ink leading-tight">
+                          {item.name}
+                        </span>
+                        <span className="flex-grow border-b border-dotted border-aera-muted/30 mx-1 mb-1" />
+                        <span className="font-heading text-sm font-semibold text-aera-accent shrink-0">
+                          {item.priceLabel}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </motion.div>
           ))}
         </motion.div>

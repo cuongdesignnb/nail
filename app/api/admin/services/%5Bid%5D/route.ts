@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const service = await prisma.service.findUnique({
       where: { id: params.id },
-      include: { category: true },
+      include: { category: true, subcategory: true },
     });
 
     if (!service) {
@@ -74,6 +74,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       where: { id: params.id },
       data: {
         categoryId: data.categoryId,
+        subcategoryId: data.subcategoryId,
         name: data.name,
         slug: finalSlug,
         shortDescription: data.shortDescription,

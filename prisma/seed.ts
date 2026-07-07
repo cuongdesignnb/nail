@@ -243,12 +243,13 @@ async function main() {
 
   // 3. Service Categories
   const categories = [
-    { id: "cat-mani", name: "Manicure", slug: "manicure", description: "Nail shaping, cuticle care & hand treatment", icon: "hand", sortOrder: 0 },
-    { id: "cat-pedi", name: "Pedicure", slug: "pedicure", description: "Foot soaking, exfoliation & nail care", icon: "flower", sortOrder: 1 },
-    { id: "cat-gel", name: "Gel Polish", slug: "gel-polish", description: "Long-lasting color with brilliant shine", icon: "sparkles", sortOrder: 2 },
-    { id: "cat-art", name: "Nail Art", slug: "nail-art", description: "Custom designs that express you", icon: "brush", sortOrder: 3 },
-    { id: "cat-spa", name: "Spa Treatments", slug: "spa-treatments", description: "Rejuvenating rituals for hands & feet", icon: "leaf", sortOrder: 4 },
-    { id: "cat-ext", name: "Extensions", slug: "extensions", description: "Strong, beautiful & long-lasting nails", icon: "gem", sortOrder: 5 },
+    { id: "cat-pedi", name: "Pedicure", slug: "pedicure", description: "Spa pedicures, callus care, exfoliation, massage and polish.", icon: "flower", sortOrder: 0 },
+    { id: "cat-mani", name: "Manicure", slug: "manicure", description: "Classic, spa and gel manicure services for hands.", icon: "hand", sortOrder: 1 },
+    { id: "cat-enhancements", name: "Nail Enhancements", slug: "nail-enhancements", description: "Acrylic, builder gel, Gel-X, dipping powder, refill and toe enhancements.", icon: "gem", sortOrder: 2 },
+    { id: "cat-addons", name: "Nail Add-ons", slug: "nail-add-ons", description: "Shapes, French styles, nail care, treatments, upgrades and removals.", icon: "sparkles", sortOrder: 3 },
+    { id: "cat-kids", name: "Kids Menu", slug: "kids-menu", description: "Princess manicure, pedicure and combo services for guests under 10.", icon: "heart", sortOrder: 4 },
+    { id: "cat-waxing", name: "Waxing", slug: "waxing", description: "Facial and body waxing services.", icon: "leaf", sortOrder: 5 },
+    { id: "cat-lashes", name: "Eyelash Extensions", slug: "eyelash-extensions", description: "Hybrid, volume, mega volume and lash lifting services.", icon: "eye", sortOrder: 6 },
   ];
 
   for (const cat of categories) {
@@ -269,6 +270,47 @@ async function main() {
         description: cat.description,
         icon: cat.icon,
         sortOrder: cat.sortOrder,
+        isActive: true,
+      },
+    });
+  }
+
+  const subcategories = [
+    { id: "sub-pedi-spa", categoryId: "cat-pedi", name: "Spa Pedicures", slug: "pedicure-spa-pedicures", sortOrder: 0 },
+    { id: "sub-pedi-notes", categoryId: "cat-pedi", name: "Pedicure Add-ons", slug: "pedicure-add-ons", sortOrder: 1 },
+    { id: "sub-mani-classic", categoryId: "cat-mani", name: "Manicures", slug: "manicure-classic", sortOrder: 0 },
+    { id: "sub-enh-full-set", categoryId: "cat-enhancements", name: "Full Set", slug: "nail-enhancements-full-set", sortOrder: 0 },
+    { id: "sub-enh-refill", categoryId: "cat-enhancements", name: "Refill", slug: "nail-enhancements-refill", sortOrder: 1 },
+    { id: "sub-enh-pink-white", categoryId: "cat-enhancements", name: "Pink & White (French)", slug: "nail-enhancements-pink-white", sortOrder: 2 },
+    { id: "sub-enh-ombre-refill", categoryId: "cat-enhancements", name: "Ombre Refill", slug: "nail-enhancements-ombre-refill", sortOrder: 3 },
+    { id: "sub-enh-dipping", categoryId: "cat-enhancements", name: "Dipping Powder", slug: "nail-enhancements-dipping-powder", sortOrder: 4 },
+    { id: "sub-enh-polish-change", categoryId: "cat-enhancements", name: "Additional Services", slug: "nail-enhancements-additional-services", sortOrder: 5 },
+    { id: "sub-addon-shapes", categoryId: "cat-addons", name: "Nail Add-ons", slug: "nail-add-ons-shapes", sortOrder: 0 },
+    { id: "sub-addon-style", categoryId: "cat-addons", name: "Nail Style", slug: "nail-add-ons-style", sortOrder: 1 },
+    { id: "sub-addon-care", categoryId: "cat-addons", name: "Nail Care", slug: "nail-add-ons-care", sortOrder: 2 },
+    { id: "sub-addon-treatments", categoryId: "cat-addons", name: "Treatments & Upgrades", slug: "nail-add-ons-treatments-upgrades", sortOrder: 3 },
+    { id: "sub-addon-removal", categoryId: "cat-addons", name: "Removal Services", slug: "nail-add-ons-removal-services", sortOrder: 4 },
+    { id: "sub-kids-under-10", categoryId: "cat-kids", name: "Kids Menu (Under 10)", slug: "kids-menu-under-10", sortOrder: 0 },
+    { id: "sub-waxing-body", categoryId: "cat-waxing", name: "Waxing", slug: "waxing-body", sortOrder: 0 },
+    { id: "sub-lash-extensions", categoryId: "cat-lashes", name: "Eyelash Extensions", slug: "eyelash-extensions-sets", sortOrder: 0 },
+  ];
+
+  for (const sub of subcategories) {
+    await prisma.serviceSubcategory.upsert({
+      where: { slug: sub.slug },
+      update: {
+        categoryId: sub.categoryId,
+        name: sub.name,
+        description: null,
+        sortOrder: sub.sortOrder,
+        isActive: true,
+      },
+      create: {
+        id: sub.id,
+        categoryId: sub.categoryId,
+        name: sub.name,
+        slug: sub.slug,
+        sortOrder: sub.sortOrder,
         isActive: true,
       },
     });
@@ -423,12 +465,152 @@ async function main() {
     });
   }
 
+  const aeraMenuServices = [
+    { id: "svc-pedi-basics", categoryId: "cat-pedi", subcategoryId: "sub-pedi-spa", name: "Just the Basics", slug: "pedicure-just-the-basics", shortDescription: "A quick cleanup to keep your feet neat and refreshed.", price: 38, priceLabel: "$38", durationMinutes: 35, durationLabel: "35 min", features: ["Nail trim & shape", "Cuticle care", "Light callus smoothing", "Sugar scrub exfoliation", "Hot towel wrap", "6-minute relaxing massage", "Polish of your choice"], isFeatured: true, sortOrder: 0 },
+    { id: "svc-pedi-freshly-polished", categoryId: "cat-pedi", subcategoryId: "sub-pedi-spa", name: "Freshly Polished Pedicure", slug: "freshly-polished-pedicure", shortDescription: "A refreshing pedicure designed to revive tired feet.", price: 48, priceLabel: "$48", durationMinutes: 45, durationLabel: "45 min", features: ["All Just the Basics services", "Fresh lime exfoliation", "Citrus sugar scrub", "Hydrating mask", "Hot stone or paraffin wax therapy", "8-minute relaxing massage", "Polish of your choice"], isFeatured: true, sortOrder: 1 },
+    { id: "svc-pedi-treat-your-feet", categoryId: "cat-pedi", subcategoryId: "sub-pedi-spa", name: "Treat Your Feet", slug: "treat-your-feet-pedicure", shortDescription: "A deeper treatment to restore softness and hydration.", price: 65, priceLabel: "$65", durationMinutes: 60, durationLabel: "60 min", features: ["All $48 services", "Deep callus removal treatment", "Fresh orange & limes exfoliation", "Paraffin wax therapy", "Hot stone therapy", "Hot steam therapy", "Hydrating mask", "15-minute relaxing massage", "Finish with restoration serum", "Polish of your choice"], isFeatured: true, sortOrder: 2 },
+    { id: "svc-pedi-spare-me-petal", categoryId: "cat-pedi", subcategoryId: "sub-pedi-spa", name: "Spare Me a Petal", slug: "spare-me-a-petal-pedicure", shortDescription: "A relaxing floral spa escape for refreshed feet.", price: 79, priceLabel: "$79", durationMinutes: 70, durationLabel: "70 min", features: ["All Treat Your Feet services", "Milky & floral aromatic soak infusion", "Fresh orange exfoliation", "Hot steam therapy", "Aloe Vera massage", "Eye steam mask", "Hot candle massage", "22-minute therapeutic massage", "Finish with restoration serum", "Polish of your choice"], isFeatured: true, sortOrder: 3 },
+    { id: "svc-pedi-you-had-me", categoryId: "cat-pedi", subcategoryId: "sub-pedi-spa", name: "You Had Me at Aera", slug: "you-had-me-at-aera-pedicure", shortDescription: "Our most luxurious pedicure experience for feet, legs and hands.", price: 108, priceLabel: "$108", durationMinutes: 90, durationLabel: "90 min", features: ["All Spare Me a Petal services", "Volcano detox crystal soak", "Volcano bubbling eruption activator", "Fresh orange & grapefruit exfoliation", "Aloe Vera massage", "Collagen cream mask", "Hot lava stone therapy", "Collagen socks hydration treatment", "Collagen hand glove", "30-minute leg & foot massage", "5-minute shoulder massage", "Polish of your choice"], isFeatured: true, sortOrder: 4 },
+    { id: "svc-pedi-gel-addon", categoryId: "cat-pedi", subcategoryId: "sub-pedi-notes", name: "Gel / Shellac Add-on", slug: "pedicure-gel-shellac-add-on", shortDescription: "Gel or Shellac upgrade for pedicure services.", price: 20, priceLabel: "$20", durationMinutes: 15, durationLabel: "15 min", features: ["Pedicure add-on"], isFeatured: false, sortOrder: 5 },
+    { id: "svc-mani-basic", categoryId: "cat-mani", subcategoryId: "sub-mani-classic", name: "Basic Manicure", slug: "basic-manicure", shortDescription: "A simple manicure to keep your hands clean and polished.", price: 25, priceLabel: "$25", durationMinutes: 30, durationLabel: "30 min", features: ["Nail trim & shape", "Cuticle care", "Light buff", "Lotion massage", "Regular polish"], isFeatured: true, sortOrder: 10 },
+    { id: "svc-mani-freshly-polished", categoryId: "cat-mani", subcategoryId: "sub-mani-classic", name: "Freshly Polished Manicure", slug: "freshly-polished-manicure", shortDescription: "A refreshing manicure designed to leave hands soft and well-groomed.", price: 38, priceLabel: "$38", durationMinutes: 40, durationLabel: "40 min", features: ["Nail trim & shape", "Cuticle care", "Sugar scrub exfoliation", "Hydrating lotion massage", "Hot towel wrap", "Polish of your choice"], isFeatured: true, sortOrder: 11 },
+    { id: "svc-mani-treat-your-hands", categoryId: "cat-mani", subcategoryId: "sub-mani-classic", name: "Treat Your Hands", slug: "treat-your-hands-manicure", shortDescription: "A luxury manicure experience designed to restore softness and hydration.", price: 65, priceLabel: "$65", durationMinutes: 55, durationLabel: "55 min", features: ["Nail trim & shape", "Cuticle care", "Jelly soak infused with rose petals", "Sugar scrub exfoliation", "Hydrating mask", "Paraffin wax treatment", "14-minute extended relaxing massage", "Hot towel wrap", "Polish of your choice"], isFeatured: true, sortOrder: 12 },
+    { id: "svc-mani-gel", categoryId: "cat-mani", subcategoryId: "sub-mani-classic", name: "Gel Manicure", slug: "gel-manicure", shortDescription: "Classic manicure enhanced with Gel/Shellac polish for long-lasting shine.", price: 40, priceLabel: "$40", durationMinutes: 45, durationLabel: "45 min", features: ["Nail trimming & shaping", "Cuticle care", "Light buff", "Warm towel", "Relaxing hand massage", "Gel/Shellac polish"], isFeatured: true, sortOrder: 13 },
+    { id: "svc-enh-full-acrylic-color", categoryId: "cat-enhancements", subcategoryId: "sub-enh-full-set", name: "Acrylic with Color Powder", slug: "full-set-acrylic-color-powder", price: 55, priceLabel: "$55+", durationMinutes: 90, durationLabel: "90 min+", features: ["Full set"], isFeatured: true, sortOrder: 20 },
+    { id: "svc-enh-full-acrylic-regular", categoryId: "cat-enhancements", subcategoryId: "sub-enh-full-set", name: "Acrylic with Regular Polish", slug: "full-set-acrylic-regular-polish", price: 55, priceLabel: "$55+", durationMinutes: 90, durationLabel: "90 min+", features: ["Full set"], isFeatured: false, sortOrder: 21 },
+    { id: "svc-enh-full-acrylic-gel", categoryId: "cat-enhancements", subcategoryId: "sub-enh-full-set", name: "Acrylic with Gel/Shellac", slug: "full-set-acrylic-gel-shellac", price: 60, priceLabel: "$60+", durationMinutes: 100, durationLabel: "100 min+", features: ["Full set"], isFeatured: false, sortOrder: 22 },
+    { id: "svc-enh-full-builder-gel", categoryId: "cat-enhancements", subcategoryId: "sub-enh-full-set", name: "Builder Gel", slug: "full-set-builder-gel", price: 65, priceLabel: "$65+", durationMinutes: 100, durationLabel: "100 min+", features: ["Full set"], isFeatured: true, sortOrder: 23 },
+    { id: "svc-enh-full-gel-x", categoryId: "cat-enhancements", subcategoryId: "sub-enh-full-set", name: "Gel-X (Shape Included)", slug: "full-set-gel-x-shape-included", price: 65, priceLabel: "$65+", durationMinutes: 100, durationLabel: "100 min+", features: ["Shape included"], isFeatured: true, sortOrder: 24 },
+    { id: "svc-enh-full-pink-white", categoryId: "cat-enhancements", subcategoryId: "sub-enh-full-set", name: "Pink & White (French)", slug: "full-set-pink-white-french", price: 65, priceLabel: "$65+", durationMinutes: 110, durationLabel: "110 min+", features: ["French full set"], isFeatured: false, sortOrder: 25 },
+    { id: "svc-enh-full-ombre", categoryId: "cat-enhancements", subcategoryId: "sub-enh-full-set", name: "Acrylic Ombre", slug: "full-set-acrylic-ombre", price: 65, priceLabel: "$65+", durationMinutes: 110, durationLabel: "110 min+", features: ["Ombre full set"], isFeatured: false, sortOrder: 26 },
+    { id: "svc-enh-refill-acrylic-color", categoryId: "cat-enhancements", subcategoryId: "sub-enh-refill", name: "Acrylic with Color Powder Refill", slug: "refill-acrylic-color-powder", price: 45, priceLabel: "$45+", durationMinutes: 75, durationLabel: "75 min+", features: ["Refill"], isFeatured: false, sortOrder: 30 },
+    { id: "svc-enh-refill-acrylic-regular", categoryId: "cat-enhancements", subcategoryId: "sub-enh-refill", name: "Acrylic with Regular Polish Refill", slug: "refill-acrylic-regular-polish", price: 45, priceLabel: "$45+", durationMinutes: 75, durationLabel: "75 min+", features: ["Refill"], isFeatured: false, sortOrder: 31 },
+    { id: "svc-enh-refill-acrylic-gel", categoryId: "cat-enhancements", subcategoryId: "sub-enh-refill", name: "Acrylic with Gel/Shellac Refill", slug: "refill-acrylic-gel-shellac", price: 50, priceLabel: "$50+", durationMinutes: 85, durationLabel: "85 min+", features: ["Refill"], isFeatured: false, sortOrder: 32 },
+    { id: "svc-enh-refill-builder-gel", categoryId: "cat-enhancements", subcategoryId: "sub-enh-refill", name: "Builder Gel Refill", slug: "refill-builder-gel", price: 55, priceLabel: "$55+", durationMinutes: 85, durationLabel: "85 min+", features: ["Refill"], isFeatured: false, sortOrder: 33 },
+    { id: "svc-enh-refill-gel-x", categoryId: "cat-enhancements", subcategoryId: "sub-enh-refill", name: "Gel-X Refill", slug: "refill-gel-x", price: 55, priceLabel: "$55+", durationMinutes: 85, durationLabel: "85 min+", features: ["Refill"], isFeatured: false, sortOrder: 34 },
+    { id: "svc-enh-pw-one-color", categoryId: "cat-enhancements", subcategoryId: "sub-enh-pink-white", name: "One Color Pink & White", slug: "pink-white-one-color", price: 50, priceLabel: "$50+", durationMinutes: 90, durationLabel: "90 min+", features: ["Pink & white"], isFeatured: false, sortOrder: 40 },
+    { id: "svc-enh-pw-two-colors", categoryId: "cat-enhancements", subcategoryId: "sub-enh-pink-white", name: "Two Colors Pink & White", slug: "pink-white-two-colors", price: 55, priceLabel: "$55+", durationMinutes: 100, durationLabel: "100 min+", features: ["Pink & white"], isFeatured: false, sortOrder: 41 },
+    { id: "svc-enh-ombre-one-color", categoryId: "cat-enhancements", subcategoryId: "sub-enh-ombre-refill", name: "One Color Ombre Refill", slug: "ombre-refill-one-color", price: 50, priceLabel: "$50+", durationMinutes: 90, durationLabel: "90 min+", features: ["Ombre refill"], isFeatured: false, sortOrder: 45 },
+    { id: "svc-enh-ombre-two-colors", categoryId: "cat-enhancements", subcategoryId: "sub-enh-ombre-refill", name: "Two Colors Ombre Refill", slug: "ombre-refill-two-colors", price: 55, priceLabel: "$55+", durationMinutes: 100, durationLabel: "100 min+", features: ["Ombre refill"], isFeatured: false, sortOrder: 46 },
+    { id: "svc-enh-ombre-tap-gel", categoryId: "cat-enhancements", subcategoryId: "sub-enh-ombre-refill", name: "Tap Gel", slug: "ombre-refill-tap-gel", price: 55, priceLabel: "$55+", durationMinutes: 90, durationLabel: "90 min+", features: ["Ombre refill"], isFeatured: false, sortOrder: 47 },
+    { id: "svc-enh-toes-full-set", categoryId: "cat-enhancements", subcategoryId: "sub-enh-ombre-refill", name: "Full Set on Toes", slug: "full-set-on-toes", price: 65, priceLabel: "$65+", durationMinutes: 60, durationLabel: "60 min+", features: ["Toe enhancement"], isFeatured: false, sortOrder: 48 },
+    { id: "svc-enh-toes-refill", categoryId: "cat-enhancements", subcategoryId: "sub-enh-ombre-refill", name: "Refill on Toes", slug: "refill-on-toes", price: 55, priceLabel: "$55+", durationMinutes: 50, durationLabel: "50 min+", features: ["Toe enhancement"], isFeatured: false, sortOrder: 49 },
+    { id: "svc-enh-big-toes", categoryId: "cat-enhancements", subcategoryId: "sub-enh-ombre-refill", name: "Acrylic for 2 Big Toes", slug: "acrylic-for-two-big-toes", price: 15, priceLabel: "$15 / $10", durationMinutes: 20, durationLabel: "20 min", features: ["Toe enhancement"], isFeatured: false, sortOrder: 50 },
+    { id: "svc-enh-dip-natural", categoryId: "cat-enhancements", subcategoryId: "sub-enh-dipping", name: "Dipping on Natural Nails", slug: "dipping-on-natural-nails", price: 50, priceLabel: "$50+", durationMinutes: 60, durationLabel: "60 min+", features: ["Dipping powder"], isFeatured: false, sortOrder: 55 },
+    { id: "svc-enh-dip-extension", categoryId: "cat-enhancements", subcategoryId: "sub-enh-dipping", name: "Dipping with Extension", slug: "dipping-with-extension", price: 55, priceLabel: "$55+", durationMinutes: 75, durationLabel: "75 min+", features: ["Dipping powder"], isFeatured: false, sortOrder: 56 },
+    { id: "svc-enh-dip-french", categoryId: "cat-enhancements", subcategoryId: "sub-enh-dipping", name: "French Set", slug: "dipping-french-set", price: 60, priceLabel: "$60+", durationMinutes: 75, durationLabel: "75 min+", features: ["Dipping powder"], isFeatured: false, sortOrder: 57 },
+    { id: "svc-enh-dip-ombre", categoryId: "cat-enhancements", subcategoryId: "sub-enh-dipping", name: "Ombre Set", slug: "dipping-ombre-set", price: 65, priceLabel: "$65+", durationMinutes: 85, durationLabel: "85 min+", features: ["Dipping powder"], isFeatured: false, sortOrder: 58 },
+    { id: "svc-polish-shellac-hands", categoryId: "cat-enhancements", subcategoryId: "sub-enh-polish-change", name: "Shellac / Gel Polish Change - Hands", slug: "shellac-gel-polish-change-hands", price: 30, priceLabel: "$30", durationMinutes: 25, durationLabel: "25 min", features: ["Polish change"], isFeatured: false, sortOrder: 65 },
+    { id: "svc-polish-shellac-toes", categoryId: "cat-enhancements", subcategoryId: "sub-enh-polish-change", name: "Shellac / Gel Polish Change - Toes", slug: "shellac-gel-polish-change-toes", price: 30, priceLabel: "$30", durationMinutes: 25, durationLabel: "25 min", features: ["Polish change"], isFeatured: false, sortOrder: 66 },
+    { id: "svc-polish-regular-hands", categoryId: "cat-enhancements", subcategoryId: "sub-enh-polish-change", name: "Regular Polish Change - Hands", slug: "regular-polish-change-hands", price: 15, priceLabel: "$15", durationMinutes: 20, durationLabel: "20 min", features: ["Polish change"], isFeatured: false, sortOrder: 67 },
+    { id: "svc-polish-regular-toes", categoryId: "cat-enhancements", subcategoryId: "sub-enh-polish-change", name: "Regular Polish Change - Toes", slug: "regular-polish-change-toes", price: 15, priceLabel: "$15", durationMinutes: 20, durationLabel: "20 min", features: ["Polish change"], isFeatured: false, sortOrder: 68 },
+    { id: "svc-addon-special-shapes", categoryId: "cat-addons", subcategoryId: "sub-addon-shapes", name: "Special Shapes", slug: "special-shapes", price: 5, priceLabel: "$5+", durationMinutes: 10, durationLabel: "10 min+", features: ["Nail add-on"], isFeatured: false, sortOrder: 75 },
+    { id: "svc-addon-longer-length", categoryId: "cat-addons", subcategoryId: "sub-addon-shapes", name: "Longer Length", slug: "longer-length", price: 5, priceLabel: "$5+", durationMinutes: 10, durationLabel: "10 min+", features: ["Nail add-on"], isFeatured: false, sortOrder: 76 },
+    { id: "svc-addon-nail-repair", categoryId: "cat-addons", subcategoryId: "sub-addon-shapes", name: "Nail Repair", slug: "nail-repair", price: 5, priceLabel: "$5+", durationMinutes: 10, durationLabel: "10 min+", features: ["Nail add-on"], isFeatured: false, sortOrder: 77 },
+    { id: "svc-addon-reshape-cut-down", categoryId: "cat-addons", subcategoryId: "sub-addon-shapes", name: "Reshape / Cut Down", slug: "reshape-cut-down", price: 5, priceLabel: "$5+", durationMinutes: 10, durationLabel: "10 min+", features: ["Nail add-on"], isFeatured: false, sortOrder: 78 },
+    { id: "svc-style-basic-french", categoryId: "cat-addons", subcategoryId: "sub-addon-style", name: "Basic French", slug: "basic-french", price: 8, priceLabel: "$8", durationMinutes: 10, durationLabel: "10 min", features: ["Nail style"], isFeatured: false, sortOrder: 80 },
+    { id: "svc-style-deep-curve-french", categoryId: "cat-addons", subcategoryId: "sub-addon-style", name: "Deep Curve French", slug: "deep-curve-french", price: 15, priceLabel: "$15+", durationMinutes: 15, durationLabel: "15 min+", features: ["Nail style"], isFeatured: false, sortOrder: 81 },
+    { id: "svc-style-nail-design", categoryId: "cat-addons", subcategoryId: "sub-addon-style", name: "Nail Design", slug: "nail-design", price: 6, priceLabel: "$6+", durationMinutes: 15, durationLabel: "15 min+", features: ["Nail style"], isFeatured: false, sortOrder: 82 },
+    { id: "svc-care-cuticle-trim", categoryId: "cat-addons", subcategoryId: "sub-addon-care", name: "Cuticle Trim", slug: "cuticle-trim", price: 10, priceLabel: "$10", durationMinutes: 10, durationLabel: "10 min", features: ["Nail care"], isFeatured: false, sortOrder: 85 },
+    { id: "svc-care-shine-buffer", categoryId: "cat-addons", subcategoryId: "sub-addon-care", name: "Shine Buffer", slug: "shine-buffer", price: 8, priceLabel: "$8", durationMinutes: 10, durationLabel: "10 min", features: ["Nail care"], isFeatured: false, sortOrder: 86 },
+    { id: "svc-treatment-extra-massage", categoryId: "cat-addons", subcategoryId: "sub-addon-treatments", name: "Extra Massage", slug: "extra-massage", price: 1.5, priceLabel: "$1.50/min", durationMinutes: 10, durationLabel: "By minute", features: ["Treatment upgrade"], isFeatured: false, sortOrder: 90 },
+    { id: "svc-treatment-paraffin", categoryId: "cat-addons", subcategoryId: "sub-addon-treatments", name: "Paraffin Hot Wax", slug: "paraffin-hot-wax", price: 10, priceLabel: "$10", durationMinutes: 10, durationLabel: "10 min", features: ["Treatment upgrade"], isFeatured: false, sortOrder: 91 },
+    { id: "svc-treatment-collagen", categoryId: "cat-addons", subcategoryId: "sub-addon-treatments", name: "Collagen Mask / Socks", slug: "collagen-mask-socks", price: 10, priceLabel: "$10", durationMinutes: 10, durationLabel: "10 min", features: ["Treatment upgrade"], isFeatured: false, sortOrder: 92 },
+    { id: "svc-removal-acrylic-with-service", categoryId: "cat-addons", subcategoryId: "sub-addon-removal", name: "Acrylic / Builder Gel / Tap Gel / Dipping Removal - With Service", slug: "removal-acrylic-builder-tap-dipping-with-service", price: 10, priceLabel: "$10", durationMinutes: 20, durationLabel: "20 min", features: ["Removal service"], isFeatured: false, sortOrder: 95 },
+    { id: "svc-removal-acrylic-without-service", categoryId: "cat-addons", subcategoryId: "sub-addon-removal", name: "Acrylic / Builder Gel / Tap Gel / Dipping Removal - Without Service", slug: "removal-acrylic-builder-tap-dipping-without-service", price: 20, priceLabel: "$20", durationMinutes: 25, durationLabel: "25 min", features: ["Removal service"], isFeatured: false, sortOrder: 96 },
+    { id: "svc-removal-gel-with-service", categoryId: "cat-addons", subcategoryId: "sub-addon-removal", name: "Gel Polish Removal - With Service", slug: "gel-polish-removal-with-service", price: 5, priceLabel: "$5", durationMinutes: 10, durationLabel: "10 min", features: ["Removal service"], isFeatured: false, sortOrder: 97 },
+    { id: "svc-removal-gel-without-service", categoryId: "cat-addons", subcategoryId: "sub-addon-removal", name: "Gel Polish Removal - Without Service", slug: "gel-polish-removal-without-service", price: 8, priceLabel: "$8", durationMinutes: 15, durationLabel: "15 min", features: ["Removal service"], isFeatured: false, sortOrder: 98 },
+    { id: "svc-kids-princess-manicure", categoryId: "cat-kids", subcategoryId: "sub-kids-under-10", name: "Princess Manicure", slug: "princess-manicure", price: 15, priceLabel: "$15", durationMinutes: 20, durationLabel: "20 min", features: ["Under 10"], isFeatured: false, sortOrder: 100 },
+    { id: "svc-kids-princess-pedicure", categoryId: "cat-kids", subcategoryId: "sub-kids-under-10", name: "Princess Pedicure", slug: "princess-pedicure", price: 25, priceLabel: "$25", durationMinutes: 25, durationLabel: "25 min", features: ["Under 10"], isFeatured: false, sortOrder: 101 },
+    { id: "svc-kids-princess-combo", categoryId: "cat-kids", subcategoryId: "sub-kids-under-10", name: "Princess Combo", slug: "princess-combo", price: 35, priceLabel: "$35", durationMinutes: 45, durationLabel: "45 min", features: ["Under 10"], isFeatured: false, sortOrder: 102 },
+    { id: "svc-wax-upper-lips", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Upper Lips", slug: "waxing-upper-lips", price: 10, priceLabel: "$10", durationMinutes: 10, durationLabel: "10 min", features: ["Waxing"], isFeatured: false, sortOrder: 110 },
+    { id: "svc-wax-chin", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Chin", slug: "waxing-chin", price: 10, priceLabel: "$10+", durationMinutes: 10, durationLabel: "10 min", features: ["Waxing"], isFeatured: false, sortOrder: 111 },
+    { id: "svc-wax-eyebrows", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Eyebrows", slug: "waxing-eyebrows", price: 15, priceLabel: "$15", durationMinutes: 15, durationLabel: "15 min", features: ["Waxing"], isFeatured: false, sortOrder: 112 },
+    { id: "svc-wax-eyebrow-tint", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Eyebrow Tint & Wax", slug: "eyebrow-tint-wax", price: 35, priceLabel: "$35+", durationMinutes: 30, durationLabel: "30 min", features: ["Waxing"], isFeatured: false, sortOrder: 113 },
+    { id: "svc-wax-full-face", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Full Face", slug: "waxing-full-face", price: 45, priceLabel: "$45+", durationMinutes: 35, durationLabel: "35 min", features: ["Waxing"], isFeatured: false, sortOrder: 114 },
+    { id: "svc-wax-under-arms", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Under Arms", slug: "waxing-under-arms", price: 25, priceLabel: "$25+", durationMinutes: 20, durationLabel: "20 min", features: ["Waxing"], isFeatured: false, sortOrder: 115 },
+    { id: "svc-wax-half-full-arms", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Half Arms / Full Arms", slug: "waxing-half-arms-full-arms", price: 25, priceLabel: "$25+/$50+", durationMinutes: 45, durationLabel: "45 min+", features: ["Waxing"], isFeatured: false, sortOrder: 116 },
+    { id: "svc-wax-hands-fingers", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Hands + Fingers", slug: "waxing-hands-fingers", price: 30, priceLabel: "$30", durationMinutes: 25, durationLabel: "25 min", features: ["Waxing"], isFeatured: false, sortOrder: 117 },
+    { id: "svc-wax-half-full-legs", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Half Legs / Full Legs", slug: "waxing-half-legs-full-legs", price: 45, priceLabel: "$45+/$70+", durationMinutes: 60, durationLabel: "60 min+", features: ["Waxing"], isFeatured: false, sortOrder: 118 },
+    { id: "svc-wax-full-legs", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Full Legs", slug: "waxing-full-legs", price: 50, priceLabel: "$50", durationMinutes: 50, durationLabel: "50 min", features: ["Waxing"], isFeatured: false, sortOrder: 119 },
+    { id: "svc-wax-feet-toes", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Feet + Toes", slug: "waxing-feet-toes", price: 30, priceLabel: "$30", durationMinutes: 25, durationLabel: "25 min", features: ["Waxing"], isFeatured: false, sortOrder: 120 },
+    { id: "svc-wax-full-back", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Full Back", slug: "waxing-full-back", price: 50, priceLabel: "$50", durationMinutes: 45, durationLabel: "45 min", features: ["Waxing"], isFeatured: false, sortOrder: 121 },
+    { id: "svc-wax-bikini", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Bikini", slug: "waxing-bikini", price: 45, priceLabel: "$45+", durationMinutes: 35, durationLabel: "35 min", features: ["Waxing"], isFeatured: false, sortOrder: 122 },
+    { id: "svc-wax-brazilian", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Brazilian", slug: "waxing-brazilian", price: 60, priceLabel: "$60", durationMinutes: 45, durationLabel: "45 min", features: ["Waxing"], isFeatured: false, sortOrder: 123 },
+    { id: "svc-wax-back", categoryId: "cat-waxing", subcategoryId: "sub-waxing-body", name: "Back", slug: "waxing-back", price: 60, priceLabel: "$60+", durationMinutes: 45, durationLabel: "45 min", features: ["Waxing"], isFeatured: false, sortOrder: 124 },
+    { id: "svc-lash-hybrid-refill", categoryId: "cat-lashes", subcategoryId: "sub-lash-extensions", name: "Hybrid Refill", slug: "hybrid-refill-eyelash-extensions", price: 65, priceLabel: "$65 up", durationMinutes: 60, durationLabel: "1 hour", features: ["Eyelash extensions"], isFeatured: false, sortOrder: 130 },
+    { id: "svc-lash-hybrid-full-set", categoryId: "cat-lashes", subcategoryId: "sub-lash-extensions", name: "Hybrid Full Set", slug: "hybrid-full-set-eyelash-extensions", price: 125, priceLabel: "$125", durationMinutes: 90, durationLabel: "1 hour 30 min", features: ["Eyelash extensions"], isFeatured: false, sortOrder: 131 },
+    { id: "svc-lash-volume-refill", categoryId: "cat-lashes", subcategoryId: "sub-lash-extensions", name: "Volume Refill", slug: "volume-refill-eyelash-extensions", price: 85, priceLabel: "$85 up", durationMinutes: 60, durationLabel: "1 hour", features: ["Eyelash extensions"], isFeatured: false, sortOrder: 132 },
+    { id: "svc-lash-volume-full-set", categoryId: "cat-lashes", subcategoryId: "sub-lash-extensions", name: "Volume Full Set", slug: "volume-full-set-eyelash-extensions", price: 175, priceLabel: "$175", durationMinutes: 90, durationLabel: "1 hour 30 min", features: ["Eyelash extensions"], isFeatured: false, sortOrder: 133 },
+    { id: "svc-lash-mega-volume-refill", categoryId: "cat-lashes", subcategoryId: "sub-lash-extensions", name: "Mega Volume Refill", slug: "mega-volume-refill-eyelash-extensions", price: 115, priceLabel: "$115 up", durationMinutes: 105, durationLabel: "1 hour 45 min", features: ["Eyelash extensions"], isFeatured: false, sortOrder: 134 },
+    { id: "svc-lash-mega-volume-full-set", categoryId: "cat-lashes", subcategoryId: "sub-lash-extensions", name: "Mega Volume Full Set", slug: "mega-volume-full-set-eyelash-extensions", price: 215, priceLabel: "$215", durationMinutes: 150, durationLabel: "2 hours 30 min", features: ["Eyelash extensions"], isFeatured: false, sortOrder: 135 },
+    { id: "svc-lash-lifting", categoryId: "cat-lashes", subcategoryId: "sub-lash-extensions", name: "Lash Lifting", slug: "lash-lifting", price: 85, priceLabel: "$85", durationMinutes: 60, durationLabel: "1 hour", features: ["Eyelash service"], isFeatured: false, sortOrder: 136 },
+  ];
+
+  for (const s of aeraMenuServices) {
+    await prisma.service.upsert({
+      where: { slug: s.slug },
+      update: {
+        categoryId: s.categoryId,
+        subcategoryId: s.subcategoryId,
+        name: s.name,
+        shortDescription: s.shortDescription ?? null,
+        description: s.shortDescription ?? null,
+        image: "/images/salon-experience-2.jpg",
+        imageAlt: s.name,
+        price: s.price,
+        priceLabel: s.priceLabel,
+        durationMinutes: s.durationMinutes,
+        durationLabel: s.durationLabel,
+        duration: s.durationMinutes,
+        features: s.features,
+        isFeatured: s.isFeatured,
+        isActive: true,
+        sortOrder: s.sortOrder,
+        updatedAt: new Date(),
+      },
+      create: {
+        id: s.id,
+        categoryId: s.categoryId,
+        subcategoryId: s.subcategoryId,
+        name: s.name,
+        slug: s.slug,
+        shortDescription: s.shortDescription ?? null,
+        description: s.shortDescription ?? null,
+        image: "/images/salon-experience-2.jpg",
+        imageAlt: s.name,
+        price: s.price,
+        priceLabel: s.priceLabel,
+        durationMinutes: s.durationMinutes,
+        durationLabel: s.durationLabel,
+        duration: s.durationMinutes,
+        features: s.features,
+        isFeatured: s.isFeatured,
+        isActive: true,
+        sortOrder: s.sortOrder,
+      },
+    });
+  }
+
+  await prisma.service.updateMany({
+    where: { id: { in: ["sig-mani", "sig-pedi", "sig-gel", "sig-art", "sig-spa", "sig-ext"] } },
+    data: { isActive: false, isFeatured: false },
+  });
+
   // 5. Addons
   const addons = [
-    { id: "add-french", name: "French Tips", price: 15, priceLabel: "$15", description: "Classic white or colored tips", sortOrder: 0 },
-    { id: "add-mass", name: "Hand Massage", price: 15, priceLabel: "$15", description: "Extended 15 min hot oil massage", sortOrder: 1 },
-    { id: "add-rep", name: "Nail Repair", price: 10, priceLabel: "$10", description: "Silk wrap or builder gel fix per nail", sortOrder: 2 },
-    { id: "add-rem", name: "Gel Removal", price: 10, priceLabel: "$10", description: "Safe steam soak and buff", sortOrder: 3 },
+    { id: "add-special-shapes", name: "Special Shapes", price: 5, priceLabel: "$5+", description: "Shape upgrade for enhancement services.", sortOrder: 0 },
+    { id: "add-longer-length", name: "Longer Length", price: 5, priceLabel: "$5+", description: "Longer nail length upgrade.", sortOrder: 1 },
+    { id: "add-nail-repair", name: "Nail Repair", price: 5, priceLabel: "$5+", description: "Repair for damaged or broken nails.", sortOrder: 2 },
+    { id: "add-reshape-cut-down", name: "Reshape / Cut Down", price: 5, priceLabel: "$5+", description: "Reshape or cut down existing nails.", sortOrder: 3 },
+    { id: "add-basic-french", name: "Basic French", price: 8, priceLabel: "$8", description: "Classic French style.", sortOrder: 4 },
+    { id: "add-deep-curve-french", name: "Deep Curve French", price: 15, priceLabel: "$15+", description: "Deep curve French style.", sortOrder: 5 },
+    { id: "add-nail-design", name: "Nail Design", price: 6, priceLabel: "$6+", description: "Nail design pricing varies by complexity.", sortOrder: 6 },
+    { id: "add-cuticle-trim", name: "Cuticle Trim", price: 10, priceLabel: "$10", description: "Cuticle trim add-on.", sortOrder: 7 },
+    { id: "add-shine-buffer", name: "Shine Buffer", price: 8, priceLabel: "$8", description: "Natural nail shine buffing.", sortOrder: 8 },
+    { id: "add-extra-massage", name: "Extra Massage", price: 1.5, priceLabel: "$1.50/min", description: "Extra massage billed by minute.", sortOrder: 9 },
+    { id: "add-paraffin-hot-wax", name: "Paraffin Hot Wax", price: 10, priceLabel: "$10", description: "Paraffin hot wax treatment.", sortOrder: 10 },
+    { id: "add-collagen-mask-socks", name: "Collagen Mask / Socks", price: 10, priceLabel: "$10", description: "Collagen mask or socks treatment.", sortOrder: 11 },
   ];
 
   for (const add of addons) {
@@ -454,6 +636,11 @@ async function main() {
       },
     });
   }
+
+  await prisma.serviceAddon.updateMany({
+    where: { id: { in: ["add-french", "add-mass", "add-rep", "add-rem"] } },
+    data: { isActive: false },
+  });
 
   // 6. Packages
   const packages = [

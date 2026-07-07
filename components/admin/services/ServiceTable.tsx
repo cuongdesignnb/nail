@@ -201,9 +201,10 @@ export function ServiceTable({ categories, onEdit, refreshTrigger, onRefreshNeed
                     </div>
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap">
-                    <span className="text-xs text-[var(--admin-muted)]">
-                      {service.category?.name || "Uncategorized"}
-                    </span>
+                    <div className="text-xs text-[var(--admin-muted)]">
+                      <div>{service.category?.name || "Uncategorized"}</div>
+                      {service.subcategory?.name && <div className="mt-0.5 text-[10px] text-[var(--admin-accent)]">{service.subcategory.name}</div>}
+                    </div>
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap">
                     <span className="text-xs text-[var(--admin-muted)]">
