@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { GiftCardEmailStatus, GiftCardStatus, GiftCardTransactionType, GiftCardType, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { isTransactionalEmailReady } from "@/lib/email/smtp-config.service";
+import { getPublicSmtpSettings, isTransactionalEmailReady } from "@/lib/email/smtp-config.service";
 import { getPublicPayPalConfig } from "@/lib/payments/paypal/paypal.config";
 import { createPayPalOrder, capturePayPalOrder } from "@/lib/payments/paypal/paypal.orders";
 import { cleanGiftCardMessage } from "./gift-card-validation";
@@ -68,7 +68,7 @@ export async function getGiftCardSettings() {
 }
 
 export async function getGiftCardCatalog() {
-  const [settings, categories, paypal] = await Promise.all([
+  const [settings, categories, paypal, smtp] = await Promise.all([
     getGiftCardSettings(),
     prisma.serviceCategory.findMany({
       where: { isActive: true },
@@ -86,7 +86,10 @@ export async function getGiftCardCatalog() {
       },
     }),
     getPublicPayPalConfig(),
+    getPublicSmtpSettings(),
   ]);
+  const emailConfigured = Boolean(smtp.enabled && smtp.host && smtp.port && smtp.fromEmail);
+  const emailVerified = Boolean(smtp.verifiedAt);
 
   return {
     settings: {
@@ -114,7 +117,9 @@ export async function getGiftCardCatalog() {
       currency: paypal.currency || settings.currency,
     },
     email: {
-      ready: await isTransactionalEmailReady(),
+      ready: emailConfigured && emailVerified,
+      configured: emailConfigured,
+      verified: emailVerified,
     },
   };
 }

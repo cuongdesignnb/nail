@@ -19,7 +19,7 @@ const fallbackCatalog: GiftCardCatalog = {
   },
   categories: [],
   paypal: { enabled: false, clientId: null, currency: "USD" },
-  email: { ready: false },
+  email: { ready: false, configured: false, verified: false },
 };
 
 export default async function NewGiftCardPage() {

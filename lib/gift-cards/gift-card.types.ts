@@ -34,5 +34,7 @@ export type GiftCardCatalog = {
   };
   email: {
     ready: boolean;
+    configured: boolean;
+    verified: boolean;
   };
 };

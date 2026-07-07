@@ -15,7 +15,7 @@ export default function SmtpTestEmailCard({ disabled, onSent }: { disabled: bool
     });
     const json = await response.json();
     setSending(false);
-    onSent(json.message || json.error || "Test email complete.", response.ok ? "success" : "error");
+    onSent(json.message || json.detail || json.error || "Test email complete.", response.ok ? "success" : "error");
   }
   return (
     <section className="rounded-2xl border border-[var(--admin-border)] bg-white p-5">
@@ -27,7 +27,7 @@ export default function SmtpTestEmailCard({ disabled, onSent }: { disabled: bool
       <button type="button" disabled={disabled || sending || !to.includes("@")} onClick={send} className="mt-4 inline-flex h-10 items-center gap-2 rounded-[var(--admin-radius-md)] bg-[var(--admin-accent)] px-4 text-sm font-semibold text-white disabled:opacity-50">
         <Send size={15} /> {sending ? "Sending..." : "Send Test Email"}
       </button>
-      {disabled && <p className="mt-2 text-xs text-[var(--admin-muted)]">SMTP is not configured.</p>}
+      {disabled && <p className="mt-2 text-xs text-[var(--admin-muted)]">Send Test Email is available after SMTP is verified.</p>}
     </section>
   );
 }

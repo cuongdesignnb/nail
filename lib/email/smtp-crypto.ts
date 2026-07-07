@@ -29,6 +29,40 @@ export function decryptSmtpSecret(ciphertext: string | null | undefined) {
 }
 
 export function sanitizeMailError(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error || "Unknown email error");
+  const err = error as { code?: string; responseCode?: number; command?: string; message?: string } | null;
+  const code = String(err?.code || "").toUpperCase();
+  const responseCode = Number(err?.responseCode || 0);
+  const message = String(err?.message || error || "Unknown email error");
+  const lower = message.toLowerCase();
+
+  if (code === "SMTP_PASSWORD_REQUIRED") return "Enter an SMTP password before testing the connection.";
+  if (code === "SMTP_INVALID_CONFIG") return message;
+  if (code === "EAUTH" || responseCode === 535 || lower.includes("invalid login") || lower.includes("authentication")) {
+    return "Gmail rejected the SMTP login. Use a Google App Password and confirm 2-Step Verification is enabled for this Google account.";
+  }
+  if (code === "ETIMEDOUT" || lower.includes("timeout")) {
+    return "SMTP connection timed out. Check whether the server can reach the configured SMTP port.";
+  }
+  if (code === "ECONNREFUSED") {
+    return "SMTP server refused the connection. Check host, port and encryption mode.";
+  }
+  if (code === "ENOTFOUND" || code === "EAI_AGAIN") {
+    return "SMTP host could not be resolved. Check SMTP Host.";
+  }
+  if (code === "ESOCKET" || lower.includes("certificate") || lower.includes("tls") || lower.includes("ssl")) {
+    return "SMTP TLS negotiation failed. Check encryption mode and port.";
+  }
+
   return message.replace(/(password|pass|secret|token|apikey|api key)=?[^,\s]*/gi, "$1=[redacted]").slice(0, 500);
+}
+
+export function smtpErrorCode(error: unknown) {
+  const message = sanitizeMailError(error);
+  if (message.startsWith("Enter an SMTP password")) return "SMTP_PASSWORD_REQUIRED";
+  if (message.startsWith("Gmail rejected")) return "SMTP_AUTH_FAILED";
+  if (message.startsWith("SMTP connection timed out")) return "SMTP_TIMEOUT";
+  if (message.startsWith("SMTP server refused")) return "SMTP_CONNECTION_REFUSED";
+  if (message.startsWith("SMTP host could not")) return "SMTP_HOST_NOT_FOUND";
+  if (message.startsWith("SMTP TLS negotiation")) return "SMTP_TLS_FAILED";
+  return "SMTP_INVALID_CONFIG";
 }

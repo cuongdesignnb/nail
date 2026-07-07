@@ -27,7 +27,7 @@ export async function PUT(req: Request) {
         action: "SMTP_SETTINGS_UPDATED",
         entity: "EmailSmtpSetting:default",
         entityType: "EmailSmtpSetting",
-        details: { enabled: data.enabled, host: data.host, port: data.port, secure: data.secure, fromEmail: data.fromEmail },
+        details: { enabled: data.enabled, host: data.host, port: data.port, encryptionMode: data.encryptionMode, fromEmail: data.fromEmail },
       },
     }).catch(() => undefined);
     return Response.json({ success: true, data });

@@ -233,7 +233,11 @@ export function GiftCardPageClient({ catalog }: { catalog: GiftCardCatalog }) {
           {error && <p className="mt-3 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
           {processing && <p className="mt-3 flex items-center gap-2 text-sm"><Loader2 className="animate-spin" size={16} /> Processing...</p>}
           {!catalog.email.ready ? (
-            <p className="mt-4 rounded-2xl bg-[#fff7e7] p-4 text-sm text-[#6b4b36]">Online Gift Card delivery is currently unavailable. Please contact the salon for assistance.</p>
+            <p className="mt-4 rounded-2xl bg-[#fff7e7] p-4 text-sm text-[#6b4b36]">
+              {catalog.email.configured
+                ? "Gift Card email delivery is being configured. Please contact the salon for assistance."
+                : "Gift Card email delivery is not configured yet. Please contact the salon for assistance."}
+            </p>
           ) : !catalog.paypal.enabled || !catalog.paypal.clientId ? (
             <p className="mt-4 rounded-2xl bg-[#fff7e7] p-4 text-sm text-[#6b4b36]">Online Gift Card payments are currently unavailable. Please contact the salon for assistance.</p>
           ) : (

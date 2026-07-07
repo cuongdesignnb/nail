@@ -1,5 +1,7 @@
 import type { TransactionalEmailKind } from "@prisma/client";
 
+export type SmtpEncryptionMode = "STARTTLS" | "TLS" | "NONE";
+
 export type SendTransactionalEmailInput = {
   kind: TransactionalEmailKind;
   to: string;
@@ -16,6 +18,7 @@ export type PublicSmtpSettings = {
   host: string | null;
   port: number | null;
   secure: boolean;
+  encryptionMode: SmtpEncryptionMode;
   username: string | null;
   hasPassword: boolean;
   fromName: string | null;
@@ -31,6 +34,8 @@ export type RuntimeSmtpConfig = {
   host: string;
   port: number;
   secure: boolean;
+  encryptionMode: SmtpEncryptionMode;
+  requireTLS: boolean;
   username?: string;
   password?: string;
   fromName: string;

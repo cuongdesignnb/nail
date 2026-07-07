@@ -22,7 +22,7 @@ export default async function GiftCardsPage() {
     },
     categories: [],
     paypal: { enabled: false, clientId: null, currency: "USD" },
-    email: { ready: false },
+    email: { ready: false, configured: false, verified: false },
   }));
   return (
     <main className="bg-[#fbf4e8] text-[#3d2d24]">

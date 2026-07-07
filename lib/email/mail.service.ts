@@ -1,4 +1,4 @@
-import { TransactionalEmailStatus } from "@prisma/client";
+import { TransactionalEmailKind, TransactionalEmailStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getRuntimeSmtpConfig } from "./smtp-config.service";
 import { sanitizeMailError } from "./smtp-crypto";
@@ -10,7 +10,8 @@ function backoff(attempts: number) {
 }
 
 export async function sendTransactionalEmail(input: SendTransactionalEmailInput) {
-  const existing = input.entityType && input.entityId
+  const shouldDedupe = input.kind !== TransactionalEmailKind.SMTP_TEST;
+  const existing = shouldDedupe && input.entityType && input.entityId
     ? await prisma.transactionalEmailLog.findFirst({
         where: {
           kind: input.kind,

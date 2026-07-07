@@ -12,6 +12,19 @@ Only Owner users can view, save, test, or retry email delivery.
 - `465` with SSL/TLS when your provider requires implicit TLS.
 - `None` only for trusted local development.
 
+## Gmail Setup
+
+Use a Google App Password, not the normal Google account password.
+
+Recommended Gmail values:
+
+- Host: `smtp.gmail.com`
+- Port: `587`
+- Encryption: `STARTTLS`
+- Username: the full Gmail address
+- Password: Google App Password
+- From Email: the same Gmail address, unless Gmail has a configured Send mail as alias
+
 ## Password Encryption
 
 SMTP passwords are encrypted at rest with AES-256-GCM using `APP_SECRETS_ENCRYPTION_KEY`.
@@ -20,11 +33,13 @@ Keep `APP_SECRETS_ENCRYPTION_KEY` stable after production launch. If it changes,
 
 ## Testing
 
-1. Save SMTP settings.
-2. Click `Test Connection`.
+1. Enter or edit SMTP settings in the form.
+2. Click `Test Connection` to verify the current draft values.
 3. After verification succeeds, send a test email from the Test Email card.
 
 Saving settings does not mark SMTP as verified. Verification is updated only after a successful transporter check.
+
+`Check Server Connectivity` verifies DNS and TCP reachability for the configured host and port without sending credentials or attempting login.
 
 ## Delivery Logs and Retry
 
@@ -50,6 +65,7 @@ Admin database settings are primary. Environment variables are optional bootstra
 SMTP_HOST=
 SMTP_PORT=587
 SMTP_SECURE=false
+SMTP_ENCRYPTION_MODE=STARTTLS
 SMTP_USER=
 SMTP_PASSWORD=
 SMTP_FROM_NAME=Aera Nail Lounge
