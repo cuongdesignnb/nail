@@ -2,8 +2,19 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
 import { z } from "zod";
+import { promotionCampaignSchema } from "@/lib/promotions/promotion.validation";
 
-export async function GET() {
+export const dynamic = "force-dynamic";
+
+function toDate(value?: string | null) {
+  return value ? new Date(value) : null;
+}
+
+function decimalOrNull(value?: number | null) {
+  return value === null || value === undefined ? null : value;
+}
+
+export async function GET(req: NextRequest) {
   try {
     requireAdmin();
   } catch (error) {
@@ -12,37 +23,24 @@ export async function GET() {
   }
 
   try {
-    const promotions = await prisma.promotion.findMany({
-      orderBy: { createdAt: "desc" },
+    const { searchParams } = new URL(req.url);
+    const status = searchParams.get("status");
+    const where = status && status !== "ALL" ? { status: status as any } : {};
+    const campaigns = await prisma.promotionCampaign.findMany({
+      where,
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      include: {
+        voucherTemplate: true,
+        emailTemplate: true,
+        _count: { select: { leads: true, vouchers: true } },
+      },
     });
-
-    const data = promotions.map((p) => ({
-      ...p,
-      amount: Number(p.amount),
-    }));
-
-    return Response.json(
-      { success: true, data },
-      { headers: { "Cache-Control": "no-store" } }
-    );
+    return Response.json({ success: true, data: campaigns }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("Promotions list error:", error);
-    return Response.json({ success: false, error: "Failed to fetch promotions" }, { status: 500 });
+    console.error("Promotion campaigns list error:", error);
+    return Response.json({ success: false, error: "Failed to fetch promotion campaigns" }, { status: 500 });
   }
 }
-
-const createSchema = z.object({
-  code: z.string().min(1, "Promo code is required").transform((v) => v.toUpperCase().trim()),
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  type: z.enum(["percentage", "fixed"]),
-  amount: z.number().positive("Amount must be positive"),
-  active: z.boolean().default(true),
-  firstBookingOnly: z.boolean().default(false),
-  validUntil: z.string().nullable().optional(),
-  bannerImage: z.string().optional(),
-  termsHtml: z.string().optional(),
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -54,28 +52,63 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const data = createSchema.parse(body);
-
-    const promotion = await prisma.promotion.create({
+    const data = promotionCampaignSchema.parse(body);
+    const campaign = await prisma.promotionCampaign.create({
       data: {
-        ...data,
-        validUntil: data.validUntil ? new Date(data.validUntil) : null,
+        title: data.title,
+        subtitle: data.subtitle || null,
+        eyebrow: data.eyebrow || null,
+        badge: data.badge || null,
+        description: data.description || null,
+        policyNote: data.policyNote || null,
+        ctaLabel: data.ctaLabel,
+        imageUrl: data.imageUrl || null,
+        status: data.status,
+        displayLocation: data.displayLocation,
+        showOnHomepage: data.showOnHomepage,
+        popupEnabled: data.popupEnabled,
+        triggerType: data.triggerType,
+        scrollPercent: data.scrollPercent,
+        delaySeconds: data.delaySeconds,
+        frequencyHours: data.frequencyHours,
+        startDate: toDate(data.startDate),
+        endDate: toDate(data.endDate),
+        sortOrder: data.sortOrder,
+        voucherTemplate: {
+          create: {
+            discountType: data.voucher.discountType,
+            discountValue: decimalOrNull(data.voucher.discountValue),
+            codePrefix: data.voucher.codePrefix,
+            expiresInDays: data.voucher.expiresInDays,
+            usageLimit: data.voucher.usageLimit,
+            perCustomerLimit: data.voucher.perCustomerLimit,
+            minimumSpend: decimalOrNull(data.voucher.minimumSpend),
+          },
+        },
+        emailTemplate: {
+          create: {
+            subject: data.email.subject,
+            preheader: data.email.preheader || null,
+            bodyHtml: data.email.bodyHtml,
+            bodyText: data.email.bodyText || null,
+            buttonLabel: data.email.buttonLabel || null,
+            buttonUrl: data.email.buttonUrl || null,
+          },
+        },
       },
+      include: { voucherTemplate: true, emailTemplate: true, _count: { select: { leads: true, vouchers: true } } },
     });
 
     await prisma.auditLog.create({
-      data: { actor: "admin", action: "PROMOTION_CREATED", entity: `promotion:${promotion.id}` },
+      data: { actor: "admin", action: "PROMOTION_CAMPAIGN_CREATED", entity: `promotionCampaign:${campaign.id}` },
     });
 
-    return Response.json(
-      { success: true, data: { ...promotion, amount: Number(promotion.amount) } },
-      { status: 201, headers: { "Cache-Control": "no-store" } }
-    );
+    return Response.json({ success: true, data: campaign }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return Response.json({ success: false, error: error.issues[0].message }, { status: 400 });
     }
-    console.error("Create promotion error:", error);
-    return Response.json({ success: false, error: "Failed to create promotion" }, { status: 500 });
+    console.error("Create promotion campaign error:", error);
+    return Response.json({ success: false, error: "Failed to create promotion campaign" }, { status: 500 });
   }
 }

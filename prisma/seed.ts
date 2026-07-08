@@ -167,6 +167,131 @@ async function seedGiftCardDefaults() {
   });
 }
 
+async function seedPromotionCampaigns() {
+  console.log("Seeding promotion campaigns...");
+  const bodyHtml = `<p>Hi {{customerName}},</p>
+<p>Thank you for your interest in {{campaignTitle}}.</p>
+<p>Your voucher code is:</p>
+<h2>{{voucherCode}}</h2>
+<p><strong>Offer:</strong><br />{{offerSummary}}</p>
+<p><strong>Valid until:</strong><br />{{expiresAt}}</p>
+<p><a href="{{bookingUrl}}">Book your appointment</a></p>
+<p>With love,<br />Aera Nail Lounge</p>`;
+
+  const campaigns = [
+    {
+      seedKey: "early-bird",
+      badge: "EARLY BIRD",
+      eyebrow: "WEEKDAY SPECIAL",
+      title: "10% Off - Mon through Thurs",
+      subtitle: "Save on weekday self-care",
+      description: "Book any service between 9:30 AM - 1:00 PM, Monday through Thursday, and save 10%.",
+      policyNote: "Discounts cannot be stacked with other offers.",
+      ctaLabel: "Send My Voucher",
+      imageUrl: "/images/salon-experience-2.jpg",
+      status: "ACTIVE",
+      displayLocation: "ALL",
+      showOnHomepage: true,
+      popupEnabled: true,
+      triggerType: "SCROLL_PERCENT",
+      scrollPercent: 40,
+      delaySeconds: 3,
+      frequencyHours: 24,
+      sortOrder: 0,
+      voucher: { discountType: "PERCENT", discountValue: 10, codePrefix: "AERA-EARLY10", expiresInDays: 14 },
+    },
+    {
+      seedKey: "rewards",
+      badge: "MEMBERS",
+      eyebrow: "AERA REWARDS",
+      title: "Earn Points Every Visit",
+      subtitle: "Member-only salon perks",
+      description: "Join Aera Rewards and receive exclusive member-only offers.",
+      policyNote: "Rewards are manually confirmed by the salon team.",
+      ctaLabel: "Join Rewards",
+      imageUrl: "/images/salon-experience-6.jpg",
+      status: "ACTIVE",
+      displayLocation: "HOMEPAGE",
+      showOnHomepage: true,
+      popupEnabled: false,
+      triggerType: "SCROLL_PERCENT",
+      scrollPercent: 40,
+      delaySeconds: 3,
+      frequencyHours: 24,
+      sortOrder: 1,
+      voucher: { discountType: "CUSTOM", discountValue: null, codePrefix: "AERA-REWARD", expiresInDays: 30 },
+    },
+    {
+      seedKey: "birthday-perk",
+      badge: "CELEBRATE",
+      eyebrow: "BIRTHDAY PERK",
+      title: "Birthday Discount - Just for You",
+      subtitle: "Celebrate your birthday month",
+      description: "Celebrate your birthday month with a special Aera Nail Lounge offer.",
+      policyNote: "Birthday offer is valid during your birthday month.",
+      ctaLabel: "Claim Birthday Offer",
+      imageUrl: "/images/about-hero-nail.jpg",
+      status: "ACTIVE",
+      displayLocation: "HOMEPAGE",
+      showOnHomepage: true,
+      popupEnabled: false,
+      triggerType: "SCROLL_PERCENT",
+      scrollPercent: 40,
+      delaySeconds: 3,
+      frequencyHours: 24,
+      sortOrder: 2,
+      voucher: { discountType: "PERCENT", discountValue: 10, codePrefix: "AERA-BDAY", expiresInDays: 30 },
+    },
+  ];
+
+  for (const campaign of campaigns) {
+    const existing = await prisma.promotionCampaign.findUnique({ where: { seedKey: campaign.seedKey } });
+    if (existing) continue;
+    await prisma.promotionCampaign.create({
+      data: {
+        seedKey: campaign.seedKey,
+        badge: campaign.badge,
+        eyebrow: campaign.eyebrow,
+        title: campaign.title,
+        subtitle: campaign.subtitle,
+        description: campaign.description,
+        policyNote: campaign.policyNote,
+        ctaLabel: campaign.ctaLabel,
+        imageUrl: campaign.imageUrl,
+        status: campaign.status as any,
+        displayLocation: campaign.displayLocation as any,
+        showOnHomepage: campaign.showOnHomepage,
+        popupEnabled: campaign.popupEnabled,
+        triggerType: campaign.triggerType as any,
+        scrollPercent: campaign.scrollPercent,
+        delaySeconds: campaign.delaySeconds,
+        frequencyHours: campaign.frequencyHours,
+        sortOrder: campaign.sortOrder,
+        voucherTemplate: {
+          create: {
+            discountType: campaign.voucher.discountType as any,
+            discountValue: campaign.voucher.discountValue,
+            codePrefix: campaign.voucher.codePrefix,
+            expiresInDays: campaign.voucher.expiresInDays,
+            usageLimit: 1,
+            perCustomerLimit: 1,
+          },
+        },
+        emailTemplate: {
+          create: {
+            subject: "Your Aera Nail Lounge Voucher Is Here",
+            preheader: "Your limited-time Aera offer is ready.",
+            bodyHtml,
+            bodyText: "Hi {{customerName}}, your voucher code is {{voucherCode}}. Offer: {{offerSummary}}. Valid until {{expiresAt}}. Book: {{bookingUrl}}",
+            buttonLabel: "Book Your Appointment",
+            buttonUrl: "/booking",
+          },
+        },
+      },
+    });
+  }
+}
+
 async function main() {
   // 1. Admin user
   const password = await bcrypt.hash("AeraAdmin123!", 10);
@@ -2270,6 +2395,7 @@ async function main() {
 
   await seedNavigationMenus();
   await seedGiftCardDefaults();
+  await seedPromotionCampaigns();
 
   // Seed Business Settings
   console.log("Seeding business settings...");

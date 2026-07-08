@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Award,
@@ -21,6 +21,9 @@ import {
   WandSparkles
 } from "lucide-react";
 import { business, gallery as galleryItems, packages as packageItems, services as serviceItems, technicians } from "@/lib/data";
+import { PromotionCarousel } from "@/components/promotions/PromotionCarousel";
+import { PromotionPopupController } from "@/components/promotions/PromotionPopupController";
+import type { PublicPromotionCampaign } from "@/lib/promotions/promotion.types";
 
 const serviceIconMap = [HeartHandshake, Sparkles, WandSparkles, Gem, Award, Scissors];
 const services = serviceItems.slice(0, 6).map((service, index) => ({
@@ -110,8 +113,34 @@ function RevealDiv({ children, className = "", delay = 0 }: { children: React.Re
 }
 
 export function HomeClient() {
+  const [campaigns, setCampaigns] = useState<PublicPromotionCampaign[]>([]);
+  const [popupCampaign, setPopupCampaign] = useState<PublicPromotionCampaign | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadPromotions() {
+      try {
+        const [activeRes, popupRes] = await Promise.all([
+          fetch("/api/promotions/active", { cache: "no-store" }),
+          fetch("/api/promotions/active-popup", { cache: "no-store" }),
+        ]);
+        const [activeJson, popupJson] = await Promise.all([activeRes.json(), popupRes.json()]);
+        if (!mounted) return;
+        if (activeJson.success) setCampaigns(activeJson.data || []);
+        if (popupJson.success) setPopupCampaign(popupJson.data || null);
+      } catch (error) {
+        console.error("Failed to load homepage promotions:", error);
+      }
+    }
+    loadPromotions();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <main id="home">
+      <PromotionPopupController campaign={popupCampaign} />
       {/* ── Header ── */}
 
 
@@ -274,24 +303,9 @@ export function HomeClient() {
             ))}
           </div>
         </div>
-        <aside className="offer" id="promotions">
-          <div>
-            <span className="section-kicker">Special Offer ✦</span>
-            <h2>10% OFF</h2>
-            <p>On Your First Visit</p>
-            <small>Treat yourself to luxury. Use code <b>WELCOME10</b></small>
-            <a className="primary-btn compact" href="#contact">Book Now <ArrowRight size={14} /></a>
-          </div>
-          <div className="polish-bottle-img">
-            <Image
-              src="/nail-polish-bottle.png"
-              alt="Luxury nail polish bottle"
-              fill
-              sizes="200px"
-            />
-          </div>
-        </aside>
       </Reveal>
+
+      <PromotionCarousel campaigns={campaigns} />
 
       {/* ── Social Proof ── */}
       <Reveal className="social-proof" key="social-proof">

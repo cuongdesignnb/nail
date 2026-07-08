@@ -311,12 +311,53 @@ enum TransactionalEmailKind {
   GIFT_CARD_DELIVERY
   GIFT_CARD_PURCHASE_RECEIPT
   GIFT_CARD_RESEND
+  PROMOTION_VOUCHER
   SMTP_TEST
 }
 
 enum TransactionalEmailStatus {
   PENDING
   SENDING
+  SENT
+  FAILED
+}
+
+enum PromotionCampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  EXPIRED
+}
+
+enum PromotionDisplayLocation {
+  HOMEPAGE
+  PROMOTIONS_PAGE
+  POPUP
+  ALL
+}
+
+enum PromotionTriggerType {
+  SCROLL_PERCENT
+  SECTION_VISIBLE
+  DELAY_ONLY
+}
+
+enum VoucherDiscountType {
+  PERCENT
+  FIXED_AMOUNT
+  FREE_ADDON
+  CUSTOM
+}
+
+enum VoucherCodeStatus {
+  ISSUED
+  USED
+  EXPIRED
+  CANCELLED
+}
+
+enum PromotionEmailStatus {
+  PENDING
   SENT
   FAILED
 }
@@ -493,6 +534,118 @@ model Promotion {
   termsHtml        String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+}
+
+model PromotionCampaign {
+  id              String                   @id @default(cuid())
+  seedKey         String?                  @unique
+  title           String
+  subtitle        String?
+  eyebrow         String?
+  badge           String?
+  description     String?
+  policyNote      String?
+  ctaLabel        String?
+  imageUrl        String?
+  status          PromotionCampaignStatus  @default(DRAFT)
+  displayLocation PromotionDisplayLocation @default(HOMEPAGE)
+  showOnHomepage  Boolean                  @default(true)
+  popupEnabled    Boolean                  @default(false)
+  triggerType     PromotionTriggerType     @default(SCROLL_PERCENT)
+  scrollPercent   Int                      @default(40)
+  delaySeconds    Int                      @default(3)
+  frequencyHours  Int                      @default(24)
+  startDate       DateTime?
+  endDate         DateTime?
+  sortOrder       Int                      @default(0)
+  voucherTemplate VoucherTemplate?
+  emailTemplate   PromotionEmailTemplate?
+  leads           PromotionLead[]
+  vouchers        VoucherCode[]
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  @@index([status, startDate, endDate])
+  @@index([showOnHomepage, popupEnabled])
+  @@index([sortOrder])
+}
+
+model VoucherTemplate {
+  id                   String              @id @default(cuid())
+  campaignId           String              @unique
+  campaign             PromotionCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  discountType         VoucherDiscountType
+  discountValue        Decimal?
+  codePrefix           String
+  usageLimit           Int                 @default(1)
+  perCustomerLimit     Int                 @default(1)
+  expiresInDays        Int                 @default(14)
+  minimumSpend         Decimal?
+  applicableServiceIds Json?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+}
+
+model PromotionLead {
+  id              String               @id @default(cuid())
+  campaignId      String
+  campaign        PromotionCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  fullName        String
+  email           String
+  phone           String
+  consentAccepted Boolean              @default(false)
+  sourcePage      String?
+  ipHash          String?
+  userAgent       String?
+  emailStatus     PromotionEmailStatus @default(PENDING)
+  emailSentAt     DateTime?
+  emailError      String?
+  voucherCode     VoucherCode?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@unique([campaignId, email])
+  @@index([email])
+  @@index([phone])
+  @@index([campaignId, createdAt])
+}
+
+model VoucherCode {
+  id            String              @id @default(cuid())
+  campaignId    String
+  campaign      PromotionCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  leadId        String?             @unique
+  lead          PromotionLead?      @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  code          String              @unique
+  codePrefix    String?
+  status        VoucherCodeStatus   @default(ISSUED)
+  discountType  VoucherDiscountType
+  discountValue Decimal?
+  expiresAt     DateTime?
+  usedAt        DateTime?
+  bookingId     String?
+  cancelledAt   DateTime?
+  cancelReason  String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([campaignId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model PromotionEmailTemplate {
+  id          String            @id @default(cuid())
+  campaignId  String            @unique
+  campaign    PromotionCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subject     String
+  preheader   String?
+  bodyHtml    String
+  bodyText    String?
+  buttonLabel String?
+  buttonUrl   String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
 
 model InventoryItem {

@@ -1,209 +1,131 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Tag, Percent, DollarSign } from "lucide-react";
-import {
-  AdminPageHeader,
-  AdminTableShell,
-  AdminLoadingState,
-  AdminEmptyState,
-  AdminConfirmDialog,
-} from "@/components/admin/ui";
+import { Eye, Mail, Pencil, Plus, Tags, Trash2, Users } from "lucide-react";
+import { AdminConfirmDialog, AdminEmptyState, AdminLoadingState, AdminPageHeader, AdminTableShell } from "@/components/admin/ui";
 
-interface Promotion {
+type Campaign = {
   id: string;
-  code: string;
   title: string;
-  type: string;
-  amount: number;
-  active: boolean;
-  firstBookingOnly: boolean;
-  validUntil: string | null;
+  badge?: string | null;
+  status: "DRAFT" | "ACTIVE" | "PAUSED" | "EXPIRED";
+  popupEnabled: boolean;
+  showOnHomepage: boolean;
+  startDate?: string | null;
+  endDate?: string | null;
+  _count?: { leads: number; vouchers: number };
+};
+
+function chipClass(status: string) {
+  if (status === "ACTIVE") return "bg-emerald-50 text-emerald-700";
+  if (status === "PAUSED") return "bg-amber-50 text-amber-700";
+  if (status === "EXPIRED") return "bg-red-50 text-red-700";
+  return "bg-gray-50 text-gray-600";
+}
+
+function dateLabel(value?: string | null) {
+  return value ? new Date(value).toLocaleDateString() : "-";
 }
 
 export default function AdminPromotionsPage() {
   const router = useRouter();
-  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/admin/promotions");
-        const json = await res.json();
-        if (json.success) setPromotions(json.data);
-      } catch (err) {
-        console.error("Failed to load promotions:", err);
-      } finally {
-        setLoading(false);
-      }
+  async function load() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/promotions", { cache: "no-store" });
+      const json = await res.json();
+      if (json.success) setCampaigns(json.data || []);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
     load();
   }, []);
 
-  const handleDelete = async () => {
+  async function handleDelete() {
     if (!deleteId) return;
-    try {
-      await fetch(`/api/admin/promotions/${deleteId}`, { method: "DELETE" });
-      setPromotions((prev) => prev.filter((p) => p.id !== deleteId));
-    } catch (err) {
-      console.error("Delete promotion error:", err);
-    }
+    await fetch(`/api/admin/promotions/${deleteId}`, { method: "DELETE" });
     setDeleteId(null);
-  };
-
-  const toggleActive = async (id: string, active: boolean) => {
-    try {
-      await fetch(`/api/admin/promotions/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active }),
-      });
-      setPromotions((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, active } : p))
-      );
-    } catch (err) {
-      console.error("Toggle promotion error:", err);
-    }
-  };
+    load();
+  }
 
   const columns = [
-    { key: "code", label: "Code" },
-    { key: "title", label: "Title" },
-    { key: "type", label: "Type" },
-    { key: "amount", label: "Amount" },
-    { key: "firstBooking", label: "First Booking" },
-    { key: "validUntil", label: "Valid Until" },
+    { key: "campaign", label: "Campaign" },
+    { key: "badge", label: "Badge" },
     { key: "status", label: "Status" },
-    { key: "actions", label: "Actions", width: "140px" },
+    { key: "popup", label: "Popup" },
+    { key: "home", label: "Homepage" },
+    { key: "claims", label: "Claims" },
+    { key: "vouchers", label: "Vouchers" },
+    { key: "start", label: "Start" },
+    { key: "end", label: "End" },
+    { key: "actions", label: "Actions" },
   ];
 
   return (
     <div className="admin-page-container">
       <AdminPageHeader
-        eyebrow="Commerce"
-        title="Promotions"
-        description="Create promo codes, set validity windows and usage restrictions."
-        breadcrumbs={[
-          { label: "Admin", href: "/admin" },
-          { label: "Promotions" },
-        ]}
+        eyebrow="Marketing"
+        title="Promotion Campaigns"
+        description="Manage homepage offers, scroll popups, voucher claims, and campaign email templates."
+        breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Promotions" }]}
         actions={
-          <button
-            type="button"
-            onClick={() => router.push("/admin/promotions/new")}
-            className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent)]Hover"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            New Promotion
-          </button>
+          <>
+            <button type="button" onClick={() => router.push("/admin/promotions/leads")} className="inline-flex items-center gap-2 rounded-full border border-[var(--admin-border-strong)] bg-white px-4 py-2 text-xs font-bold text-[var(--admin-ink)]">
+              <Users className="h-3.5 w-3.5" />
+              Leads
+            </button>
+            <button type="button" onClick={() => router.push("/admin/promotions/vouchers")} className="inline-flex items-center gap-2 rounded-full border border-[var(--admin-border-strong)] bg-white px-4 py-2 text-xs font-bold text-[var(--admin-ink)]">
+              <Mail className="h-3.5 w-3.5" />
+              Vouchers
+            </button>
+            <button type="button" onClick={() => router.push("/admin/promotions/new")} className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white">
+              <Plus className="h-3.5 w-3.5" />
+              New Campaign
+            </button>
+          </>
         }
       />
 
       {loading ? (
         <AdminLoadingState variant="table" />
-      ) : promotions.length === 0 ? (
+      ) : campaigns.length === 0 ? (
         <div className="rounded-2xl border border-[var(--admin-border)] bg-white">
-          <AdminEmptyState
-            icon={Tag}
-            title="No promotions yet"
-            description="Create your first promotion to offer discounts to your customers."
-            actionLabel="Create Promotion"
-            onAction={() => router.push("/admin/promotions/new")}
-          />
+          <AdminEmptyState icon={Tags} title="No campaigns yet" description="Create a campaign to show offers on the homepage and collect voucher leads." actionLabel="Create Campaign" onAction={() => router.push("/admin/promotions/new")} />
         </div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <AdminTableShell columns={columns}>
-            {promotions.map((promo) => (
-              <tr key={promo.id} className="hover:bg-[var(--admin-surface-muted)] transition-colors">
-                <td className="px-5 py-3">
-                  <span className="inline-flex items-center gap-1 rounded-lg bg-[var(--admin-surface-hover)] px-2 py-1 text-[10px] font-bold font-mono text-[var(--admin-ink)]">
-                    <Tag className="h-2.5 w-2.5 text-[var(--admin-accent)]" />
-                    {promo.code}
-                  </span>
-                </td>
-                <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">{promo.title}</td>
-                <td className="px-5 py-3 text-xs text-[var(--admin-muted)] capitalize">
-                  <span className="flex items-center gap-1">
-                    {promo.type === "percentage" ? (
-                      <Percent className="h-3 w-3" />
-                    ) : (
-                      <DollarSign className="h-3 w-3" />
-                    )}
-                    {promo.type}
-                  </span>
-                </td>
-                <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">
-                  {promo.type === "percentage" ? `${promo.amount}%` : `$${promo.amount}`}
-                </td>
-                <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">
-                  {promo.firstBookingOnly ? "Yes" : "No"}
-                </td>
-                <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">
-                  {promo.validUntil
-                    ? new Date(promo.validUntil).toLocaleDateString()
-                    : "No expiry"}
-                </td>
-                <td className="px-5 py-3">
-                  <button
-                    type="button"
-                    onClick={() => toggleActive(promo.id, !promo.active)}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
-                      promo.active
-                        ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                        : "bg-gray-50 text-gray-500 hover:bg-gray-100"
-                    }`}
-                  >
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full shrink-0 ${
-                        promo.active ? "bg-emerald-500" : "bg-gray-400"
-                      }`}
-                    />
-                    {promo.active ? "Active" : "Inactive"}
-                  </button>
-                </td>
-                <td className="px-5 py-3">
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => router.push(`/admin/promotions/${promo.id}/edit`)}
-                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold text-[var(--admin-ink)] hover:bg-[var(--admin-surface-muted)] transition-colors"
-                    >
-                      <Pencil className="h-3 w-3" />
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleteId(promo.id)}
-                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </AdminTableShell>
-        </motion.div>
+        <AdminTableShell columns={columns}>
+          {campaigns.map((campaign) => (
+            <tr key={campaign.id} className="hover:bg-[var(--admin-surface-muted)]">
+              <td className="px-5 py-3 text-xs font-semibold text-[var(--admin-ink)]">{campaign.title}</td>
+              <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">{campaign.badge || "-"}</td>
+              <td className="px-5 py-3"><span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${chipClass(campaign.status)}`}>{campaign.status}</span></td>
+              <td className="px-5 py-3 text-xs">{campaign.popupEnabled ? "Yes" : "No"}</td>
+              <td className="px-5 py-3 text-xs">{campaign.showOnHomepage ? "Yes" : "No"}</td>
+              <td className="px-5 py-3 text-xs font-semibold">{campaign._count?.leads ?? 0}</td>
+              <td className="px-5 py-3 text-xs font-semibold">{campaign._count?.vouchers ?? 0}</td>
+              <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">{dateLabel(campaign.startDate)}</td>
+              <td className="px-5 py-3 text-xs text-[var(--admin-muted)]">{dateLabel(campaign.endDate)}</td>
+              <td className="px-5 py-3">
+                <div className="flex items-center gap-1">
+                  <button type="button" onClick={() => router.push(`/admin/promotions/${campaign.id}/edit`)} className="rounded-lg px-2 py-1 text-[10px] font-bold text-[var(--admin-ink)] hover:bg-[var(--admin-surface-muted)]"><Pencil className="inline h-3 w-3" /> Edit</button>
+                  <button type="button" onClick={() => router.push(`/admin/promotions/leads?campaignId=${campaign.id}`)} className="rounded-lg px-2 py-1 text-[10px] font-bold text-[var(--admin-ink)] hover:bg-[var(--admin-surface-muted)]"><Eye className="inline h-3 w-3" /> Leads</button>
+                  <button type="button" onClick={() => setDeleteId(campaign.id)} className="rounded-lg px-2 py-1 text-[10px] font-bold text-red-600 hover:bg-red-50"><Trash2 className="inline h-3 w-3" /></button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </AdminTableShell>
       )}
 
-      <AdminConfirmDialog
-        open={!!deleteId}
-        onClose={() => setDeleteId(null)}
-        onConfirm={handleDelete}
-        title="Delete Promotion"
-        description="Are you sure you want to delete this promotion? This action cannot be undone."
-        confirmLabel="Delete"
-        variant="danger"
-      />
+      <AdminConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} title="Delete Campaign" description="This will delete the campaign and its promotion leads/vouchers. Continue?" confirmLabel="Delete" variant="danger" />
     </div>
   );
 }
