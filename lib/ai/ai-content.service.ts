@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/slugify";
 import { parseKeywordInput } from "@/lib/utils/text-normalization";
-import { getOrCreateAiSettings } from "./ai-settings.service";
+import { getOrCreateAiSettings, serializeAiSettings } from "./ai-settings.service";
 import { AI_TERMINAL_JOB_STATUSES } from "./ai.constants";
 
 export async function inspectKeywordDuplicates(rawKeywordInput: string) {
@@ -122,5 +122,5 @@ export async function getAiContentDashboard() {
     prisma.blogCategory.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
     getOrCreateAiSettings(),
   ]);
-  return { batches, jobs, categories, settings };
+  return { batches, jobs, categories, settings: serializeAiSettings(settings) };
 }
