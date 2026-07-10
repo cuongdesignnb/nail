@@ -32,7 +32,7 @@ export default function BookingPolicySettings() {
     async function load() {
       try {
         const [globalRes, paypalRes] = await Promise.all([
-          fetch("/api/admin/content/global"),
+          fetch("/api/admin/content/global", { cache: "no-store" }),
           fetch("/api/admin/settings/payments/paypal", { cache: "no-store" }),
         ]);
 
@@ -88,7 +88,7 @@ export default function BookingPolicySettings() {
     setSaving(true);
     try {
       // 1. Save policies in global draft content
-      const getRes = await fetch("/api/admin/content/global");
+      const getRes = await fetch("/api/admin/content/global", { cache: "no-store" });
       const getJson = await getRes.json();
       let currentContent = {};
       let currentVersion = version;

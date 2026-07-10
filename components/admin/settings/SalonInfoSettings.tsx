@@ -32,7 +32,7 @@ export default function SalonInfoSettings() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/admin/content/global");
+        const res = await fetch("/api/admin/content/global", { cache: "no-store" });
         const json = await res.json();
         if (json.success && json.data) {
           const content = json.data.draftContent || {};
@@ -63,7 +63,7 @@ export default function SalonInfoSettings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const getRes = await fetch("/api/admin/content/global");
+      const getRes = await fetch("/api/admin/content/global", { cache: "no-store" });
       const getJson = await getRes.json();
       let currentContent = {};
       let currentVersion = version;

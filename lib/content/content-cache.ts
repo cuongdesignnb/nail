@@ -52,6 +52,11 @@ export function revalidateContentCache(pageKey: ContentPageKey) {
         revalidateTag(tag);
       }
     });
+    // Revalidate public shell/header/footer tags
+    revalidateTag("global-content");
+    revalidateTag("public-shell");
+    revalidateTag("public-header");
+    revalidateTag("public-footer");
   } else {
     // Revalidate the public path for this specific page
     const item = getRegistryItem(pageKey);
