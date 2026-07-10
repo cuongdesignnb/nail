@@ -2,12 +2,17 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { Edit2, Trash2 } from "lucide-react";
 import {
   AdminPageHeader,
   AdminLoadingState,
   AdminErrorState,
+  AdminButton,
+  AdminSidePanel,
+  AdminConfirmDialog,
 } from "@/components/admin/ui";
 import { TechnicianProfile } from "@/components/admin/technicians/TechnicianProfile";
+import { TechnicianForm } from "@/components/admin/technicians/TechnicianForm";
 
 export default function AdminTechnicianDetailPage() {
   const params = useParams();
@@ -17,6 +22,9 @@ export default function AdminTechnicianDetailPage() {
   const [technician, setTechnician] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editPanelOpen, setEditPanelOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchTechnician = useCallback(async () => {
     setLoading(true);
@@ -36,6 +44,35 @@ export default function AdminTechnicianDetailPage() {
     }
   }, [id]);
 
+  const handleUpdate = async (data: any) => {
+    const res = await fetch(`/api/admin/technicians/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || "Failed to update technician");
+    setEditPanelOpen(false);
+    fetchTechnician();
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/technicians/${id}`, {
+        method: "DELETE",
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || "Failed to delete technician");
+      setDeleteConfirmOpen(false);
+      router.push("/admin/technicians");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   useEffect(() => {
     fetchTechnician();
   }, [fetchTechnician]);
@@ -51,13 +88,31 @@ export default function AdminTechnicianDetailPage() {
           { label: technician?.name || "Details" },
         ]}
         actions={
-          <button
-            type="button"
-            onClick={() => router.push("/admin/technicians")}
-            className="rounded-full border border-[var(--admin-border-strong)] bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[var(--admin-ink)] transition-colors hover:bg-[var(--admin-surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-accent)]/40 focus-visible:ring-offset-2"
-          >
-            ← Back to Technicians
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <AdminButton
+              variant="secondary"
+              size="sm"
+              icon={<Edit2 size={13} />}
+              onClick={() => setEditPanelOpen(true)}
+            >
+              Edit
+            </AdminButton>
+            <AdminButton
+              variant="danger"
+              size="sm"
+              icon={<Trash2 size={13} />}
+              onClick={() => setDeleteConfirmOpen(true)}
+            >
+              Delete
+            </AdminButton>
+            <AdminButton
+              variant="secondary"
+              size="sm"
+              onClick={() => router.push("/admin/technicians")}
+            >
+              ← Back
+            </AdminButton>
+          </div>
         }
       />
 
@@ -73,6 +128,39 @@ export default function AdminTechnicianDetailPage() {
       {!loading && !error && technician && (
         <TechnicianProfile technician={technician} />
       )}
+
+      {/* Edit Technician Panel */}
+      <AdminSidePanel
+        open={editPanelOpen}
+        onClose={() => setEditPanelOpen(false)}
+        title="Edit Technician"
+      >
+        {technician && (
+          <TechnicianForm
+            initialData={{
+              name: technician.name,
+              role: technician.role,
+              specialty: technician.specialty,
+              avatar: technician.avatar,
+              isActive: technician.isActive,
+            }}
+            isEdit
+            onSubmit={handleUpdate}
+            onCancel={() => setEditPanelOpen(false)}
+          />
+        )}
+      </AdminSidePanel>
+
+      {/* Delete Confirmation Dialog */}
+      <AdminConfirmDialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        title="Delete Technician"
+        description={`Are you sure you want to delete ${technician?.name || "this technician"}? This action cannot be undone.`}
+        confirmLabel={deleting ? "Deleting..." : "Delete"}
+        variant="danger"
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

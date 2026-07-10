@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Users, Search, Star } from "lucide-react";
+import { Users, Search, Star, Plus } from "lucide-react";
 import Link from "next/link";
 import {
   AdminPageHeader,
@@ -10,7 +10,10 @@ import {
   AdminEmptyState,
   AdminCard,
   AdminStatusChip,
+  AdminButton,
+  AdminSidePanel,
 } from "@/components/admin/ui";
+import { TechnicianForm } from "@/components/admin/technicians/TechnicianForm";
 
 interface Technician {
   id: string;
@@ -26,6 +29,7 @@ export default function AdminTechniciansPage() {
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [panelOpen, setPanelOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -38,6 +42,18 @@ export default function AdminTechniciansPage() {
     finally { setLoading(false); }
   }, [search]);
 
+  const handleCreate = async (data: any) => {
+    const res = await fetch("/api/admin/technicians", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || "Failed to create technician");
+    setPanelOpen(false);
+    fetchData();
+  };
+
   useEffect(() => { fetchData(); }, [fetchData]);
 
   return (
@@ -46,6 +62,16 @@ export default function AdminTechniciansPage() {
         eyebrow="Operations"
         title="Technicians"
         description="Manage your nail artists and specialists"
+        actions={
+          <AdminButton
+            variant="primary"
+            size="sm"
+            icon={<Plus size={14} />}
+            onClick={() => setPanelOpen(true)}
+          >
+            Add Technician
+          </AdminButton>
+        }
       />
 
       {/* Search */}
@@ -118,6 +144,17 @@ export default function AdminTechniciansPage() {
           ))}
         </div>
       )}
+
+      <AdminSidePanel
+        open={panelOpen}
+        onClose={() => setPanelOpen(false)}
+        title="Add New Technician"
+      >
+        <TechnicianForm
+          onSubmit={handleCreate}
+          onCancel={() => setPanelOpen(false)}
+        />
+      </AdminSidePanel>
     </div>
   );
 }

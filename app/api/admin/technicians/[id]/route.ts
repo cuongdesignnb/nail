@@ -121,3 +121,60 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    requireAdmin();
+  } catch (error) {
+    const res = authErrorResponse(error);
+    if (res) return res;
+    throw error;
+  }
+
+  try {
+    const technician = await prisma.technician.findUnique({
+      where: { id: params.id },
+      select: {
+        id: true,
+        _count: {
+          select: { bookings: true },
+        },
+      },
+    });
+
+    if (!technician) {
+      return NextResponse.json(
+        { success: false, error: "Technician not found" },
+        { status: 404 }
+      );
+    }
+
+    if (technician._count.bookings > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "This technician has bookings and cannot be deleted. You can set them as inactive instead.",
+        },
+        { status: 400 }
+      );
+    }
+
+    await prisma.technician.delete({
+      where: { id: params.id },
+    });
+
+    return NextResponse.json(
+      { success: true, message: "Technician deleted successfully" },
+      { headers: { "Cache-Control": "no-store" } }
+    );
+  } catch (error) {
+    console.error("[technician DELETE error]:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to delete technician" },
+      { status: 500 }
+    );
+  }
+}
