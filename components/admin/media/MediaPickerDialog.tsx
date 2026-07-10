@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { X, Search, Upload, Check, ImagePlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 
 interface MediaAsset {
   id: string;
@@ -277,12 +276,10 @@ export function MediaPickerDialog({
                             : "border-[var(--admin-border)]/50 hover:border-[var(--admin-accent)]/40"
                         }`}
                       >
-                        <Image
+                        <img
                           src={asset.url}
                           alt={asset.alt || asset.fileName}
-                          fill
-                          sizes="150px"
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         {/* Bottom overlay */}
                         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">

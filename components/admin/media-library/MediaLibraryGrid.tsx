@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Search, Trash2, Folder, Clock, Calendar, Check, ExternalLink } from "lucide-react";
-import Image from "next/image";
 import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
 
 interface MediaLibraryGridProps {
@@ -129,7 +128,7 @@ export function MediaLibraryGrid({ refreshTrigger, onRefresh }: MediaLibraryGrid
                       : "border-[var(--admin-border)]/40 hover:border-[var(--admin-accent)] hover:scale-[0.99]"
                   }`}
                 >
-                  <Image src={asset.url} alt={asset.altText || ""} fill className="object-cover" />
+                  <img src={asset.url} alt={asset.alt || asset.fileName || ""} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="text-[10px] font-bold text-white bg-black/50 px-2.5 py-1 rounded-full uppercase tracking-wider">
                       View Properties
@@ -157,7 +156,7 @@ export function MediaLibraryGrid({ refreshTrigger, onRefresh }: MediaLibraryGrid
           <div className="space-y-6">
             {/* Preview */}
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-[var(--admin-border)]/40 bg-[var(--admin-surface-muted)]">
-              <Image src={selectedAsset.url} alt="Preview" fill className="object-contain" />
+              <img src={selectedAsset.url} alt="Preview" className="w-full h-full object-contain" />
             </div>
 
             {/* Meta list */}

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { ImagePlus, Replace, X } from "lucide-react";
 import { MediaPickerDialog } from "./MediaPickerDialog";
 import type { MediaReference } from "@/lib/media/media.types";
@@ -102,11 +101,10 @@ export function MediaPickerField({
             style={{ aspectRatio }}
             onClick={() => setPickerOpen(true)}
           >
-            <Image
+            <img
               src={src}
               alt={effectiveAlt || "Selected image"}
-              fill
-              className="object-cover"
+              className="w-full h-full object-cover"
             />
             {/* Hover overlay */}
             <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
