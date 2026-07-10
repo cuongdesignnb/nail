@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FileText, Save } from "lucide-react";
 import { AdminFormField, AdminToggle } from "@/components/admin/ui";
@@ -14,32 +14,70 @@ interface PolicyData {
   bufferMinutes: number;
 }
 
-const STORAGE_KEY = "aera_booking_policies";
-
-function loadPolicies(): PolicyData {
-  if (typeof window === "undefined") return getDefaults();
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch {}
-  return getDefaults();
-}
-
-function getDefaults(): PolicyData {
-  return {
+export default function BookingPolicySettings() {
+  const [form, setForm] = useState<PolicyData>({
     minAdvanceHours: 2,
     maxAdvanceDays: 30,
     cancellationWindowHours: 24,
     depositRequired: true,
     depositPercent: 20,
     bufferMinutes: 15,
-  };
-}
-
-export default function BookingPolicySettings() {
-  const [form, setForm] = useState<PolicyData>(loadPolicies);
+  });
+  const [version, setVersion] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [globalRes, paypalRes] = await Promise.all([
+          fetch("/api/admin/content/global"),
+          fetch("/api/admin/settings/payments/paypal", { cache: "no-store" }),
+        ]);
+
+        const globalJson = await globalRes.json();
+        const paypalJson = await paypalRes.json();
+
+        let policies = {
+          minAdvanceHours: 2,
+          maxAdvanceDays: 30,
+          cancellationWindowHours: 24,
+          bufferMinutes: 15,
+        };
+
+        if (globalJson.success && globalJson.data) {
+          const content = globalJson.data.draftContent || {};
+          if (content.bookingPolicies) {
+            policies = { ...policies, ...content.bookingPolicies };
+          }
+          setVersion(globalJson.data.version || 1);
+        }
+
+        let depositInfo = {
+          depositRequired: true,
+          depositPercent: 25,
+        };
+
+        if (paypalJson.success && paypalJson.data) {
+          depositInfo = {
+            depositRequired: paypalJson.data.chargeMode === "deposit",
+            depositPercent: Number(paypalJson.data.depositPercentage) || 25,
+          };
+        }
+
+        setForm({
+          ...policies,
+          ...depositInfo,
+        });
+      } catch (err) {
+        console.error("Failed to load booking policies:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const update = <K extends keyof PolicyData>(field: K, value: PolicyData[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -49,9 +87,70 @@ export default function BookingPolicySettings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
+      // 1. Save policies in global draft content
+      const getRes = await fetch("/api/admin/content/global");
+      const getJson = await getRes.json();
+      let currentContent = {};
+      let currentVersion = version;
+      if (getJson.success && getJson.data) {
+        currentContent = getJson.data.draftContent || {};
+        currentVersion = getJson.data.version;
+      }
+
+      const updatedContent = {
+        ...currentContent,
+        bookingPolicies: {
+          minAdvanceHours: form.minAdvanceHours,
+          maxAdvanceDays: form.maxAdvanceDays,
+          cancellationWindowHours: form.cancellationWindowHours,
+          bufferMinutes: form.bufferMinutes,
+        },
+      };
+
+      const putRes = await fetch("/api/admin/content/global", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: updatedContent, version: currentVersion }),
+      });
+      const putJson = await putRes.json();
+      if (!putRes.ok || !putJson.success) {
+        throw new Error(putJson.error || "Failed to save global policies");
+      }
+
+      const nextVersion = putJson.data.version;
+
+      // Publish global content
+      const publishRes = await fetch("/api/admin/content/global/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ version: nextVersion }),
+      });
+      const publishJson = await publishRes.json();
+      if (!publishRes.ok || !publishJson.success) {
+        throw new Error(publishJson.error || "Failed to publish global policies");
+      }
+      setVersion(publishJson.data.version);
+
+      // 2. Sync chargeMode & depositPercentage in PayPal settings
+      const paypalGet = await fetch("/api/admin/settings/payments/paypal", { cache: "no-store" });
+      const paypalGetJson = await paypalGet.json();
+      if (paypalGetJson.success && paypalGetJson.data) {
+        const currentPaypal = paypalGetJson.data;
+        await fetch("/api/admin/settings/payments/paypal", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...currentPaypal,
+            chargeMode: form.depositRequired ? "deposit" : "full",
+            depositPercentage: form.depositPercent,
+          }),
+        });
+      }
+
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to save policies");
     } finally {
       setSaving(false);
     }
@@ -59,6 +158,10 @@ export default function BookingPolicySettings() {
 
   const inputClass =
     "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2.5 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
+
+  if (loading) {
+    return <div className="p-6 text-xs text-[var(--admin-muted)]">Loading booking policies...</div>;
+  }
 
   return (
     <motion.div

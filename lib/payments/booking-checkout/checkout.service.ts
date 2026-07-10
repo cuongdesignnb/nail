@@ -183,8 +183,17 @@ export async function getBusinessTimezone() {
 
 export async function resolveSchedule(input: { date: string; time: string; durationMinutes: number }) {
   const timezone = await getBusinessTimezone();
+  const globalRecord = await prisma.sitePageContent.findUnique({
+    where: { slug: "global" },
+    select: { publishedContent: true },
+  });
+  const content = globalRecord?.publishedContent as any;
+  const buffer = typeof content?.bookingPolicies?.bufferMinutes === "number"
+    ? content.bookingPolicies.bufferMinutes
+    : BUFFER_MINUTES;
+
   const start = fromZonedTime(`${input.date}T${input.time}:00`, timezone);
-  const end = addMinutes(start, input.durationMinutes + BUFFER_MINUTES);
+  const end = addMinutes(start, input.durationMinutes + buffer);
   return { start, end, timezone };
 }
 

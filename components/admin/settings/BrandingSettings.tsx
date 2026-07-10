@@ -1,24 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Palette, Save } from "lucide-react";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 
-const STORAGE_KEY = "aera_branding";
-
 interface BrandingData {
   logo: string;
   favicon: string;
-}
-
-function loadBranding(): BrandingData {
-  if (typeof window === "undefined") return { logo: "", favicon: "" };
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch {}
-  return { logo: "", favicon: "" };
 }
 
 const BRAND_COLORS = [
@@ -31,20 +20,94 @@ const BRAND_COLORS = [
 ];
 
 export default function BrandingSettings() {
-  const [data, setData] = useState<BrandingData>(loadBranding);
+  const [data, setData] = useState<BrandingData>({ logo: "", favicon: "" });
+  const [version, setVersion] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/admin/content/global");
+        const json = await res.json();
+        if (json.success && json.data) {
+          const content = json.data.draftContent || {};
+          setData({
+            logo: content.brand?.logo?.src || "",
+            favicon: content.brand?.favicon || "",
+          });
+          setVersion(json.data.version || 1);
+        }
+      } catch (err) {
+        console.error("Failed to load branding settings:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const getRes = await fetch("/api/admin/content/global");
+      const getJson = await getRes.json();
+      let currentContent = {};
+      let currentVersion = version;
+      if (getJson.success && getJson.data) {
+        currentContent = getJson.data.draftContent || {};
+        currentVersion = getJson.data.version;
+      }
+
+      const updatedContent = {
+        ...currentContent,
+        brand: {
+          ...(currentContent as any).brand,
+          logo: {
+            ...(currentContent as any).brand?.logo,
+            src: data.logo,
+            alt: `${(currentContent as any).brand?.name || "Aera"} logo`,
+          },
+          favicon: data.favicon,
+        },
+      };
+
+      const putRes = await fetch("/api/admin/content/global", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: updatedContent, version: currentVersion }),
+      });
+      const putJson = await putRes.json();
+      if (!putRes.ok || !putJson.success) {
+        throw new Error(putJson.error || "Failed to save draft");
+      }
+
+      const nextVersion = putJson.data.version;
+
+      const publishRes = await fetch("/api/admin/content/global/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ version: nextVersion }),
+      });
+      const publishJson = await publishRes.json();
+      if (!publishRes.ok || !publishJson.success) {
+        throw new Error(publishJson.error || "Failed to publish");
+      }
+
+      setVersion(publishJson.data.version);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to save branding");
     } finally {
       setSaving(false);
     }
   };
+
+  if (loading) {
+    return <div className="p-6 text-xs text-[var(--admin-muted)]">Loading branding settings...</div>;
+  }
 
   return (
     <motion.div
@@ -75,6 +138,7 @@ export default function BrandingSettings() {
             }}
             folder="branding"
             aspectRatio="3/1"
+            allowRemove
           />
           <MediaPickerField
             label="Favicon"
@@ -85,6 +149,7 @@ export default function BrandingSettings() {
             }}
             folder="branding"
             aspectRatio="1/1"
+            allowRemove
           />
         </div>
 

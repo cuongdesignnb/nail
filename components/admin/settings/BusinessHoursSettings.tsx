@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock, Save } from "lucide-react";
 import { AdminToggle } from "@/components/admin/ui";
@@ -22,21 +22,77 @@ const DEFAULT_HOURS: DaySchedule[] = [
   { day: "Sunday", isOpen: false, startTime: "10:00", endTime: "16:00" },
 ];
 
-const STORAGE_KEY = "aera_business_hours";
+function formatBusinessHoursString(hoursList: DaySchedule[]): string {
+  const openDays = hoursList.filter((d) => d.isOpen);
+  if (openDays.length === 0) return "Closed";
 
-function loadHours(): DaySchedule[] {
-  if (typeof window === "undefined") return DEFAULT_HOURS;
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch {}
-  return DEFAULT_HOURS;
+  const formatTime = (t: string) => {
+    const [h, m] = t.split(":");
+    const hr = parseInt(h);
+    const ampm = hr >= 12 ? "PM" : "AM";
+    const hour12 = hr % 12 || 12;
+    return `${hour12}:${m} ${ampm}`;
+  };
+
+  const groups: { [key: string]: string[] } = {};
+  hoursList.forEach((day) => {
+    if (!day.isOpen) {
+      const key = "Closed";
+      groups[key] = groups[key] || [];
+      groups[key].push(day.day.slice(0, 3));
+    } else {
+      const key = `${formatTime(day.startTime)} – ${formatTime(day.endTime)}`;
+      groups[key] = groups[key] || [];
+      groups[key].push(day.day.slice(0, 3));
+    }
+  });
+
+  return Object.entries(groups)
+    .map(([times, days]) => {
+      if (days.length === 7) return `Mon – Sun: ${times}`;
+      if (
+        days.length === 5 &&
+        days.includes("Mon") &&
+        days.includes("Fri") &&
+        !days.includes("Sat") &&
+        !days.includes("Sun")
+      ) {
+        return `Mon – Fri: ${times}`;
+      }
+      return `${days.join(", ")}: ${times}`;
+    })
+    .join(" | ");
 }
 
 export default function BusinessHoursSettings() {
-  const [hours, setHours] = useState<DaySchedule[]>(loadHours);
+  const [hours, setHours] = useState<DaySchedule[]>(DEFAULT_HOURS);
+  const [version, setVersion] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/admin/content/global");
+        const json = await res.json();
+        if (json.success && json.data) {
+          const content = json.data.draftContent || {};
+          if (Array.isArray(content.businessHours)) {
+            setHours(content.businessHours);
+          } else {
+            setHours(DEFAULT_HOURS);
+          }
+          setVersion(json.data.version || 1);
+        }
+      } catch (err) {
+        console.error("Failed to load business hours:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const updateDay = (index: number, field: keyof DaySchedule, value: string | boolean) => {
     setHours((prev) => {
@@ -50,9 +106,60 @@ export default function BusinessHoursSettings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(hours));
+      const getRes = await fetch("/api/admin/content/global");
+      const getJson = await getRes.json();
+      let currentContent = {};
+      let currentVersion = version;
+      if (getJson.success && getJson.data) {
+        currentContent = getJson.data.draftContent || {};
+        currentVersion = getJson.data.version;
+      }
+
+      const hoursString = formatBusinessHoursString(hours);
+
+      const updatedContent = {
+        ...currentContent,
+        businessHours: hours,
+        defaultContact: {
+          ...(currentContent as any).defaultContact,
+          hours: hoursString,
+        },
+        footer: {
+          ...(currentContent as any).footer,
+          contact: {
+            ...(currentContent as any).footer?.contact,
+            hours: hoursString,
+          },
+        },
+      };
+
+      const putRes = await fetch("/api/admin/content/global", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: updatedContent, version: currentVersion }),
+      });
+      const putJson = await putRes.json();
+      if (!putRes.ok || !putJson.success) {
+        throw new Error(putJson.error || "Failed to save draft");
+      }
+
+      const nextVersion = putJson.data.version;
+
+      const publishRes = await fetch("/api/admin/content/global/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ version: nextVersion }),
+      });
+      const publishJson = await publishRes.json();
+      if (!publishRes.ok || !publishJson.success) {
+        throw new Error(publishJson.error || "Failed to publish");
+      }
+
+      setVersion(publishJson.data.version);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to save business hours");
     } finally {
       setSaving(false);
     }
@@ -60,6 +167,10 @@ export default function BusinessHoursSettings() {
 
   const inputClass =
     "rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
+
+  if (loading) {
+    return <div className="p-6 text-xs text-[var(--admin-muted)]">Loading business hours...</div>;
+  }
 
   return (
     <motion.div

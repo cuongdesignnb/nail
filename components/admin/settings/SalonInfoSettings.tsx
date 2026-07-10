@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Save, Building2 } from "lucide-react";
 import { AdminFormField } from "@/components/admin/ui";
@@ -15,32 +15,45 @@ interface SalonInfo {
   description: string;
 }
 
-const STORAGE_KEY = "aera_salon_info";
-
-function loadSalonInfo(): SalonInfo {
-  if (typeof window === "undefined") return getDefaults();
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch {}
-  return getDefaults();
-}
-
-function getDefaults(): SalonInfo {
-  return {
-    name: "Aera Nail Lounge",
-    address: "123 Luxury Ave, Beverly Hills, CA 90210",
-    phone: "(310) 555-0100",
-    email: "hello@aeranaillounge.com",
-    website: "https://aeranaillounge.com",
-    description: "A luxury nail lounge experience with artisan techniques and premium products.",
-  };
-}
-
 export default function SalonInfoSettings() {
-  const [form, setForm] = useState<SalonInfo>(loadSalonInfo);
+  const [form, setForm] = useState<SalonInfo>({
+    name: "",
+    address: "",
+    phone: "",
+    email: "",
+    website: "",
+    description: "",
+  });
+  const [version, setVersion] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/admin/content/global");
+        const json = await res.json();
+        if (json.success && json.data) {
+          const content = json.data.draftContent || {};
+          setForm({
+            name: content.brand?.name || "",
+            address: content.defaultContact?.address || "",
+            phone: content.defaultContact?.phone || "",
+            email: content.defaultContact?.email || "",
+            website: content.defaultContact?.website || "",
+            description: content.footer?.brandText || "",
+          });
+          setVersion(json.data.version || 1);
+        }
+      } catch (err) {
+        console.error("Failed to load salon info:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const update = (field: keyof SalonInfo, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -50,9 +63,67 @@ export default function SalonInfoSettings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
+      const getRes = await fetch("/api/admin/content/global");
+      const getJson = await getRes.json();
+      let currentContent = {};
+      let currentVersion = version;
+      if (getJson.success && getJson.data) {
+        currentContent = getJson.data.draftContent || {};
+        currentVersion = getJson.data.version;
+      }
+
+      const updatedContent = {
+        ...currentContent,
+        brand: {
+          ...(currentContent as any).brand,
+          name: form.name,
+        },
+        defaultContact: {
+          ...(currentContent as any).defaultContact,
+          address: form.address,
+          phone: form.phone,
+          email: form.email,
+          website: form.website,
+        },
+        footer: {
+          ...(currentContent as any).footer,
+          contact: {
+            ...(currentContent as any).footer?.contact,
+            address: form.address,
+            phone: form.phone,
+            email: form.email,
+          },
+          brandText: form.description,
+        },
+      };
+
+      const putRes = await fetch("/api/admin/content/global", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: updatedContent, version: currentVersion }),
+      });
+      const putJson = await putRes.json();
+      if (!putRes.ok || !putJson.success) {
+        throw new Error(putJson.error || "Failed to save draft");
+      }
+
+      const nextVersion = putJson.data.version;
+
+      const publishRes = await fetch("/api/admin/content/global/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ version: nextVersion }),
+      });
+      const publishJson = await publishRes.json();
+      if (!publishRes.ok || !publishJson.success) {
+        throw new Error(publishJson.error || "Failed to publish");
+      }
+
+      setVersion(publishJson.data.version);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to save settings");
     } finally {
       setSaving(false);
     }
@@ -60,6 +131,10 @@ export default function SalonInfoSettings() {
 
   const inputClass =
     "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2.5 text-xs text-[var(--admin-ink)] placeholder:text-[var(--admin-placeholder)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
+
+  if (loading) {
+    return <div className="p-6 text-xs text-[var(--admin-muted)]">Loading salon settings...</div>;
+  }
 
   return (
     <motion.div
