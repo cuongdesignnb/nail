@@ -60,11 +60,14 @@ export async function POST(req: Request) {
     const title = (formData.get("title") as string) || "";
     const folderId = (formData.get("folderId") as string) || null;
 
+    const { normalizeMediaUrl } = await import("@/lib/media/resolve-media");
+    const assetUrl = normalizeMediaUrl(result.url);
+
     const asset = await prisma.mediaAsset.create({
       data: {
         fileName: storageKey,
         originalName: file.name,
-        url: result.url,
+        url: assetUrl,
         storageKey: result.storageKey,
         mimeType: "image/webp",
         originalMimeType: validation.detectedType,

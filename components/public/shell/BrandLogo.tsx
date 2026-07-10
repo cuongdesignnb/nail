@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ImageField } from "@/lib/content/content.types";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 type BrandLogoProps = {
   brandName: string;
@@ -18,7 +19,7 @@ const logoSizes = {
 
 export function BrandLogo({ brandName, logo, size = "header", priority = false, className = "" }: BrandLogoProps) {
   const dimension = logoSizes[size];
-  const logoSrc = logo?.src || null;
+  const logoSrc = normalizeMediaUrl(logo?.src);
   return (
     <Link className={`aera-brand-logo aera-brand-logo--${size} ${className}`.trim()} href="/" aria-label={`${brandName} home`}>
       {logoSrc && (

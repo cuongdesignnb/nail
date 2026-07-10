@@ -13,6 +13,7 @@ import { BlogDetailCTA } from "@/components/blog/detail/BlogDetailCTA";
 import { buildEntityPageMetadata, resolveEntitySeoMetadata } from "@/lib/seo/seo.service";
 import { buildBlogPostingSchema } from "@/lib/seo/schema/blog-posting.schema";
 import { buildAbsoluteUrl } from "@/lib/seo/site-url";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export const dynamic = "force-dynamic";
 
@@ -41,11 +42,8 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
         keywords: post.seoKeywords,
       },
     });
-  } catch (err) {
-    return {
-      title: "Article Not Found | Aera Nail Lounge",
-      robots: "noindex,nofollow",
-    };
+  } catch {
+    return {};
   }
 }
 
@@ -72,7 +70,7 @@ export default async function BlogPostDetailPage({ params }: BlogPostPageProps) 
     authorName: data.post.authorName,
     publisherName: seo.globalContent.brand?.name || "Aera Nail Lounge",
     publisherLogo: seo.globalContent.brand?.logo?.src
-      ? buildAbsoluteUrl(seo.globalContent.brand.logo.src)
+      ? buildAbsoluteUrl(normalizeMediaUrl(seo.globalContent.brand.logo.src))
       : undefined,
     datePublished: data.post.publishedAt || data.post.createdAt,
     dateModified: data.post.updatedAt,

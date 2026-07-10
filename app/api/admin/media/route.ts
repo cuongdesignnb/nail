@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
 import { mediaListQuerySchema } from "@/lib/validations/media.schema";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export const dynamic = "force-dynamic";
 
@@ -58,10 +59,15 @@ export async function GET(req: Request) {
       prisma.mediaAsset.count({ where }),
     ]);
 
+    const normalizedItems = items.map((item) => ({
+      ...item,
+      url: normalizeMediaUrl(item.url),
+    }));
+
     return NextResponse.json({
       success: true,
       data: {
-        items,
+        items: normalizedItems,
         total,
         page: query.page,
         pageSize: query.pageSize,

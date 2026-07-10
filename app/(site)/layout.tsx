@@ -4,6 +4,7 @@ import { getPublishedGlobalContent } from "@/lib/content/content.service";
 import { getSeoSiteSettings } from "@/lib/seo/seo.service";
 import { buildAbsoluteUrl } from "@/lib/seo/site-url";
 import { DEFAULT_DESCRIPTION } from "@/lib/seo/seo.constants";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [globalContent, settings] = await Promise.all([
@@ -11,8 +12,9 @@ export async function generateMetadata(): Promise<Metadata> {
     getSeoSiteSettings(),
   ]);
   const siteName = globalContent.brand?.name || "Aera Nail Lounge";
-  const shareImage = globalContent.defaultShareImage?.src
-    ? buildAbsoluteUrl(globalContent.defaultShareImage.src)
+  const shareImageSrc = normalizeMediaUrl(globalContent.defaultShareImage?.src);
+  const shareImage = shareImageSrc
+    ? buildAbsoluteUrl(shareImageSrc)
     : undefined;
 
   return {
