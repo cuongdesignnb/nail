@@ -2,6 +2,7 @@
 
 import React from "react";
 import { ExternalLink, Save } from "lucide-react";
+import { settingsEqual } from "@/lib/settings/normalize-settings";
 
 type Settings = {
   titleTemplate: string;
@@ -37,20 +38,27 @@ export default function SeoSiteSettings() {
   const [form, setForm] = React.useState<Settings | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [saved, setSaved] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [dirty, setDirty] = React.useState(false);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   React.useEffect(() => {
-    fetch("/api/admin/seo/site-settings")
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.success) setForm(json.data);
+    fetch("/api/admin/seo/site-settings", { cache: "no-store", headers: { "Cache-Control": "no-cache" } })
+      .then(async (res) => {
+        const json = await res.json();
+        if (!res.ok || !json.success) throw new Error(json.error || "Unable to load settings.");
+        return json;
       })
-      .catch(() => {});
+      .then((json) => {
+        setForm(json.data);
+      })
+      .catch(() => setError("Unable to load settings."));
   }, []);
 
   function update<K extends keyof Settings>(key: K, value: Settings[K]) {
     setForm((current) => (current ? { ...current, [key]: value } : current));
     setSaved(false);
+    setDirty(true);
   }
 
   async function save() {
@@ -62,14 +70,21 @@ export default function SeoSiteSettings() {
       body: JSON.stringify(form),
     });
     const json = await res.json();
+    if (!res.ok || !json.success) { setError(json.error || "Unable to save settings."); setSaving(false); return; }
+    const verifyRes = await fetch("/api/admin/seo/site-settings", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+    const verifyJson = await verifyRes.json();
     setSaving(false);
-    if (json.success) {
-      setForm(json.data);
+    if (verifyRes.ok && verifyJson.success && settingsEqual(json.data, verifyJson.data)) {
+      setForm(verifyJson.data);
+      setDirty(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
+    } else {
+      setError("Your changes could not be verified after saving. Please reload and try again.");
     }
   }
 
+  if (error && !form) return <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">Unable to load settings. <button type="button" onClick={() => window.location.reload()} className="font-bold underline">Retry</button></div>;
   if (!form) return <div className="rounded-xl border border-[var(--admin-border)] bg-white p-6 text-sm text-[var(--admin-muted)]">Loading SEO settings...</div>;
 
   const inputClass = "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2.5 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none";
@@ -116,12 +131,12 @@ export default function SeoSiteSettings() {
           <a className="inline-flex items-center gap-2 rounded-full border border-[var(--admin-border)] px-4 py-2 text-xs font-bold text-[var(--admin-ink)]" href="/admin/content/global">
             Global Content Settings <ExternalLink size={13} />
           </a>
-          <button onClick={save} disabled={saving} className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white disabled:opacity-40">
-            <Save size={14} /> {saving ? "Saving..." : saved ? "Saved!" : "Save SEO Settings"}
+          <button onClick={save} disabled={saving || !dirty} className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white disabled:opacity-40">
+            <Save size={14} /> {saving ? "Saving..." : saved ? "Settings saved and verified." : "Save SEO Settings"}
           </button>
         </div>
+        {error && <p className="mt-3 text-xs text-red-600">{error}</p>}
       </div>
     </div>
   );
 }
-

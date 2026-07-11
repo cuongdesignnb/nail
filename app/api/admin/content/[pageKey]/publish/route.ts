@@ -70,14 +70,16 @@ export async function POST(
 
     revalidateContentCache(pageKey as ContentPageKey);
 
+    const data = await getPageContent(pageKey as ContentPageKey);
     return NextResponse.json(
-      { success: true, data: { version: updated.version } },
-      { headers: { "Cache-Control": "no-store" } }
+      { success: true, data, meta: { version: data.version, updatedAt: data.updatedAt, updatedBy: data.updatedBy } },
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate", Pragma: "no-cache", Expires: "0" } }
     );
   } catch (error) {
     if (error instanceof Error && error.name === "VERSION_CONFLICT") {
+      console.warn(JSON.stringify({ event: "CONTENT_VERSION_CONFLICT", pageKey: params.pageKey }));
       return NextResponse.json(
-        { success: false, error: error.message },
+        { success: false, error: error.message, code: "VERSION_CONFLICT" },
         { status: 409 }
       );
     }

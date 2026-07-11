@@ -1,69 +1,37 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/db";
-import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
 import { z } from "zod";
+import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
+import { getBusinessSettings, saveBusinessSettings } from "@/lib/settings/settings.service";
+
+const NO_STORE_HEADERS = { "Cache-Control": "no-store, no-cache, must-revalidate", Pragma: "no-cache", Expires: "0" };
+
+function authorize() {
+  try { requireAdmin(); return null; } catch (error) { return authErrorResponse(error); }
+}
 
 export async function GET() {
+  const unauthorized = authorize();
+  if (unauthorized) return unauthorized;
   try {
-    requireAdmin();
+    const result = await getBusinessSettings();
+    return Response.json({ success: true, data: result.data, meta: { updatedAt: result.updatedAt } }, { headers: NO_STORE_HEADERS });
   } catch (error) {
-    const res = authErrorResponse(error);
-    if (res) return res;
-  }
-
-  try {
-    let settings = await prisma.businessSetting.findFirst({
-      where: { key: "default" },
-    });
-
-    if (!settings) {
-      settings = await prisma.businessSetting.create({
-        data: { key: "default" },
-      });
-    }
-
-    return Response.json(
-      { success: true, data: settings },
-      { headers: { "Cache-Control": "no-store" } }
-    );
-  } catch (error) {
-    console.error("Settings GET error:", error);
-    return Response.json({ success: false, error: "Failed to fetch settings" }, { status: 500 });
+    console.error(JSON.stringify({ event: "SETTINGS_LOAD_FAILED", scope: "business", error: error instanceof Error ? error.message : "unknown" }));
+    return Response.json({ success: false, error: "Unable to load settings.", code: "DATABASE_ERROR" }, { status: 500, headers: NO_STORE_HEADERS });
   }
 }
 
-const updateSchema = z.object({
-  timezone: z.string().optional(),
-  currency: z.string().optional(),
-});
-
-export async function PUT(req: NextRequest) {
+export async function PUT(request: NextRequest) {
+  const unauthorized = authorize();
+  if (unauthorized) return unauthorized;
   try {
-    requireAdmin();
-  } catch (error) {
-    const res = authErrorResponse(error);
-    if (res) return res;
-  }
-
-  try {
-    const body = await req.json();
-    const data = updateSchema.parse(body);
-
-    const settings = await prisma.businessSetting.upsert({
-      where: { key: "default" },
-      create: { key: "default", ...data },
-      update: data,
-    });
-
-    return Response.json(
-      { success: true, data: settings },
-      { headers: { "Cache-Control": "no-store" } }
-    );
+    const result = await saveBusinessSettings(await request.json());
+    return Response.json({ success: true, data: result.data, meta: { updatedAt: result.updatedAt } }, { headers: NO_STORE_HEADERS });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return Response.json({ success: false, error: error.issues[0]?.message || "Validation error" }, { status: 400 });
+      return Response.json({ success: false, error: "Validation failed", code: "VALIDATION_ERROR", issues: error.flatten().fieldErrors }, { status: 400, headers: NO_STORE_HEADERS });
     }
-    console.error("Settings PUT error:", error);
-    return Response.json({ success: false, error: "Failed to update settings" }, { status: 500 });
+    console.error(JSON.stringify({ event: "SETTINGS_SAVE_FAILED", scope: "business", error: error instanceof Error ? error.message : "unknown" }));
+    return Response.json({ success: false, error: "Unable to save settings.", code: "DATABASE_ERROR" }, { status: 500, headers: NO_STORE_HEADERS });
   }
 }

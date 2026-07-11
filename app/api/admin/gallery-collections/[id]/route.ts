@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { categorySchema } from "@/lib/validations/gallery.validation";
+import { collectionSchema } from "@/lib/validations/gallery.validation";
+import { requireAdminApi } from "@/lib/auth/admin-api";
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
-    const category = await prisma.galleryCategory.findUnique({
+    const col = await prisma.galleryCollection.findUnique({
       where: { id: params.id },
     });
-    if (!category) {
-      return NextResponse.json({ success: false, message: "Category not found" }, { status: 404 });
+    if (!col) {
+      return NextResponse.json({ success: false, message: "Collection not found" }, { status: 404 });
     }
-    return NextResponse.json({ success: true, data: category });
+    return NextResponse.json({ success: true, data: col });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ success: false, message: "Server error occurred" }, { status: 500 });
@@ -18,17 +20,18 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
     const json = await req.json();
 
-    if (json.name && !json.slug) {
-      json.slug = json.name
+    if (json.title && !json.slug) {
+      json.slug = json.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)+/g, "");
     }
 
-    const result = categorySchema.safeParse(json);
+    const result = collectionSchema.safeParse(json);
     if (!result.success) {
       return NextResponse.json(
         {
@@ -40,8 +43,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       );
     }
 
-    // Check unique slug (excluding self)
-    const existing = await prisma.galleryCategory.findFirst({
+    const existing = await prisma.galleryCollection.findFirst({
       where: {
         slug: result.data.slug,
         NOT: { id: params.id },
@@ -52,13 +54,13 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         {
           success: false,
           message: "Validation failed",
-          errors: { slug: ["Slug already in use by another category."] },
+          errors: { slug: ["Slug already in use by another collection."] },
         },
         { status: 400 }
       );
     }
 
-    const updated = await prisma.galleryCategory.update({
+    const updated = await prisma.galleryCollection.update({
       where: { id: params.id },
       data: result.data,
     });
@@ -71,9 +73,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
-    // Soft delete: turn active flag off
-    const deactivated = await prisma.galleryCategory.update({
+    const deactivated = await prisma.galleryCollection.update({
       where: { id: params.id },
       data: { isActive: false },
     });
@@ -83,3 +85,5 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     return NextResponse.json({ success: false, message: "Server error occurred" }, { status: 500 });
   }
 }
+
+export const PATCH = PUT;

@@ -178,13 +178,19 @@ export async function saveDraftContent(input: {
     );
   }
 
-  const updated = await prisma.sitePageContent.update({
-    where: { slug: input.pageKey },
-    data: {
-      draftContent: input.content as unknown as Prisma.InputJsonValue,
-      version: { increment: 1 },
-      updatedBy: input.actor,
-    },
+  const updated = await prisma.$transaction(async (tx) => {
+    const result = await tx.sitePageContent.updateMany({
+      where: { slug: input.pageKey, version: input.version },
+      data: {
+        draftContent: input.content as unknown as Prisma.InputJsonValue,
+        version: { increment: 1 },
+        updatedBy: input.actor,
+      },
+    });
+    if (result.count !== 1) {
+      throw Object.assign(new Error("This content was updated by another administrator. Reload the latest version before saving your changes."), { name: "VERSION_CONFLICT" });
+    }
+    return tx.sitePageContent.findUniqueOrThrow({ where: { slug: input.pageKey } });
   });
 
   await audit("CONTENT_DRAFT_SAVED", input.actor, input.pageKey);
@@ -212,14 +218,21 @@ export async function publishContent(input: {
     );
   }
 
-  const updated = await prisma.sitePageContent.update({
-    where: { slug: input.pageKey },
-    data: {
-      publishedContent: record.draftContent as Prisma.InputJsonValue,
-      publishedAt: new Date(),
-      publishedBy: input.actor,
-      version: { increment: 1 },
-    },
+  const updated = await prisma.$transaction(async (tx) => {
+    const result = await tx.sitePageContent.updateMany({
+      where: { slug: input.pageKey, version: input.version },
+      data: {
+        publishedContent: record.draftContent as Prisma.InputJsonValue,
+        publishedAt: new Date(),
+        publishedBy: input.actor,
+        updatedBy: input.actor,
+        version: { increment: 1 },
+      },
+    });
+    if (result.count !== 1) {
+      throw Object.assign(new Error("This content was updated by another administrator. Reload the latest version before saving your changes."), { name: "VERSION_CONFLICT" });
+    }
+    return tx.sitePageContent.findUniqueOrThrow({ where: { slug: input.pageKey } });
   });
 
   await audit("CONTENT_PUBLISHED", input.actor, input.pageKey);

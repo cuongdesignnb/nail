@@ -19,6 +19,7 @@
     "audit:public-shell": "tsx scripts/audit-public-shell-duplicates.ts",
     "audit:public-footer": "tsx scripts/audit-public-footer.ts",
     "audit:image-library": "tsx scripts/audit-image-library-usage.ts",
+    "audit:admin-persistence": "tsx scripts/audit-admin-persistence.ts",
     "audit:seo": "tsx scripts/audit-seo.ts",
     "verify:content-hub": "tsx scripts/verify-content-hub-completeness.ts",
     "verify:navigation-menus": "tsx scripts/verify-navigation-menus.ts",

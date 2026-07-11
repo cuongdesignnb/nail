@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { testimonialSchema } from "@/lib/validations/gallery.validation";
+import { requireAdminApi } from "@/lib/auth/admin-api";
 
 export async function GET() {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
     const testimonials = await prisma.galleryTestimonial.findMany({
       orderBy: { sortOrder: "asc" },
@@ -15,6 +17,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
     const json = await req.json();
     const result = testimonialSchema.safeParse(json);

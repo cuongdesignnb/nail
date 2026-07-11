@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock, Save } from "lucide-react";
 import { AdminToggle } from "@/components/admin/ui";
+import { settingsEqual } from "@/lib/settings/normalize-settings";
 
 interface DaySchedule {
   day: string;
@@ -70,13 +71,16 @@ export default function BusinessHoursSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
 
-  useEffect(() => {
-    async function load() {
+  const load = React.useCallback(async () => {
+      setLoading(true);
+      setLoadError(null);
       try {
-        const res = await fetch("/api/admin/content/global", { cache: "no-store" });
+        const res = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
         const json = await res.json();
-        if (json.success && json.data) {
+        if (!res.ok || !json.success || !json.data) throw new Error(json.error || "Unable to load settings.");
           const content = json.data.draftContent || {};
           if (Array.isArray(content.businessHours)) {
             setHours(content.businessHours);
@@ -84,15 +88,14 @@ export default function BusinessHoursSettings() {
             setHours(DEFAULT_HOURS);
           }
           setVersion(json.data.version || 1);
-        }
+          setIsDirty(false);
       } catch (err) {
-        console.error("Failed to load business hours:", err);
+        setLoadError(err instanceof Error ? err.message : "Unable to load settings.");
       } finally {
         setLoading(false);
       }
-    }
-    load();
   }, []);
+  useEffect(() => { load().catch(() => undefined); }, [load]);
 
   const updateDay = (index: number, field: keyof DaySchedule, value: string | boolean) => {
     setHours((prev) => {
@@ -101,19 +104,17 @@ export default function BusinessHoursSettings() {
       return next;
     });
     setSaved(false);
+    setIsDirty(true);
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const getRes = await fetch("/api/admin/content/global", { cache: "no-store" });
+      const getRes = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
       const getJson = await getRes.json();
-      let currentContent = {};
-      let currentVersion = version;
-      if (getJson.success && getJson.data) {
-        currentContent = getJson.data.draftContent || {};
-        currentVersion = getJson.data.version;
-      }
+      if (!getRes.ok || !getJson.success || !getJson.data) throw new Error(getJson.error || "Unable to load settings.");
+      const currentContent = getJson.data.draftContent;
+      const currentVersion = getJson.data.version;
 
       const hoursString = formatBusinessHoursString(hours);
 
@@ -155,7 +156,13 @@ export default function BusinessHoursSettings() {
         throw new Error(publishJson.error || "Failed to publish");
       }
 
-      setVersion(publishJson.data.version);
+      const verifyRes = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+      const verifyJson = await verifyRes.json();
+      const verified = verifyJson.data?.draftContent?.businessHours;
+      if (!verifyRes.ok || !verifyJson.success || !settingsEqual(hours, verified)) throw new Error("Your changes could not be verified after saving. Please reload and try again.");
+      setHours(verified);
+      setVersion(verifyJson.data.version);
+      setIsDirty(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
@@ -171,6 +178,7 @@ export default function BusinessHoursSettings() {
   if (loading) {
     return <div className="p-6 text-xs text-[var(--admin-muted)]">Loading business hours...</div>;
   }
+  if (loadError) return <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-xs text-red-700"><p>Unable to load settings.</p><button type="button" onClick={() => load().catch(() => undefined)} className="mt-3 font-bold underline">Retry</button></div>;
 
   return (
     <motion.div
@@ -236,11 +244,11 @@ export default function BusinessHoursSettings() {
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving}
+            disabled={loading || saving || !isDirty}
             className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-40"
           >
             <Save className="h-3.5 w-3.5" />
-            {saving ? "Saving..." : saved ? "Saved!" : "Save Hours"}
+            {saving ? "Saving..." : saved ? "Settings saved and verified." : "Save Hours"}
           </button>
         </div>
       </div>

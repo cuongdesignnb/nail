@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FormField } from "@/components/common/FormField";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Edit, Trash2 } from "lucide-react";
+import { verifyGalleryMutation } from "@/lib/gallery/verify-gallery-mutation";
 
 export function GalleryCategoryForm() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -105,12 +106,13 @@ export function GalleryCategoryForm() {
           setGlobalError(json.message || "Failed to save category");
         }
       } else {
+        await verifyGalleryMutation("gallery-categories", json.data, payload);
         resetForm();
-        fetchCategories();
+        await fetchCategories();
       }
     } catch (err) {
       console.error(err);
-      setGlobalError("Connection error occurred. Please try again.");
+      setGlobalError(err instanceof Error ? err.message : "Connection error occurred. Please try again.");
     } finally {
       setFormLoading(false);
     }

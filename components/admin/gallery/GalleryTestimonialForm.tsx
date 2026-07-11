@@ -6,6 +6,7 @@ import { Edit, Trash2, Star } from "lucide-react";
 import Image from "next/image";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
+import { verifyGalleryMutation } from "@/lib/gallery/verify-gallery-mutation";
 
 export function GalleryTestimonialForm() {
   const toast = useToast();
@@ -111,12 +112,13 @@ export function GalleryTestimonialForm() {
           setGlobalError(json.message || "Failed to save testimonial");
         }
       } else {
+        await verifyGalleryMutation("gallery-testimonials", json.data, payload);
         resetForm();
-        fetchTestimonials();
+        await fetchTestimonials();
       }
     } catch (err) {
       console.error(err);
-      setGlobalError("Connection error occurred. Please try again.");
+      setGlobalError(err instanceof Error ? err.message : "Connection error occurred. Please try again.");
     } finally {
       setFormLoading(false);
     }

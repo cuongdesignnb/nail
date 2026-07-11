@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Save, Building2 } from "lucide-react";
 import { AdminFormField } from "@/components/admin/ui";
 import { RichTextEditor } from "@/components/admin/editor/RichTextEditor";
+import { settingsEqual } from "@/lib/settings/normalize-settings";
 
 interface SalonInfo {
   name: string;
@@ -28,14 +29,17 @@ export default function SalonInfoSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
 
-  useEffect(() => {
-    async function load() {
+  const load = React.useCallback(async () => {
+      setLoading(true);
+      setLoadError(null);
       try {
-        const res = await fetch("/api/admin/content/global", { cache: "no-store" });
+        const res = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
         const json = await res.json();
-        if (json.success && json.data) {
-          const content = json.data.draftContent || {};
+        if (!res.ok || !json.success || !json.data) throw new Error(json.error || "Unable to load settings.");
+          const content = json.data.draftContent;
           setForm({
             name: content.brand?.name || "",
             address: content.defaultContact?.address || "",
@@ -45,32 +49,32 @@ export default function SalonInfoSettings() {
             description: content.footer?.brandText || "",
           });
           setVersion(json.data.version || 1);
-        }
+          setIsDirty(false);
       } catch (err) {
-        console.error("Failed to load salon info:", err);
+        setLoadError(err instanceof Error ? err.message : "Unable to load settings.");
       } finally {
         setLoading(false);
       }
-    }
-    load();
   }, []);
+
+  useEffect(() => {
+    load().catch(() => undefined);
+  }, [load]);
 
   const update = (field: keyof SalonInfo, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     setSaved(false);
+    setIsDirty(true);
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const getRes = await fetch("/api/admin/content/global", { cache: "no-store" });
+      const getRes = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
       const getJson = await getRes.json();
-      let currentContent = {};
-      let currentVersion = version;
-      if (getJson.success && getJson.data) {
-        currentContent = getJson.data.draftContent || {};
-        currentVersion = getJson.data.version;
-      }
+      if (!getRes.ok || !getJson.success || !getJson.data) throw new Error(getJson.error || "Unable to load settings.");
+      const currentContent = getJson.data.draftContent;
+      const currentVersion = getJson.data.version;
 
       const updatedContent = {
         ...currentContent,
@@ -118,8 +122,19 @@ export default function SalonInfoSettings() {
       if (!publishRes.ok || !publishJson.success) {
         throw new Error(publishJson.error || "Failed to publish");
       }
-
-      setVersion(publishJson.data.version);
+      const verifyRes = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+      const verifyJson = await verifyRes.json();
+      if (!verifyRes.ok || !verifyJson.success) throw new Error("Your changes could not be verified after saving. Please reload and try again.");
+      const verifiedContent = verifyJson.data.draftContent;
+      const verified = {
+        name: verifiedContent.brand?.name || "", address: verifiedContent.defaultContact?.address || "",
+        phone: verifiedContent.defaultContact?.phone || "", email: verifiedContent.defaultContact?.email || "",
+        website: verifiedContent.defaultContact?.website || "", description: verifiedContent.footer?.brandText || "",
+      };
+      if (!settingsEqual(form, verified)) throw new Error("Your changes could not be verified after saving. Please reload and try again.");
+      setForm(verified);
+      setVersion(verifyJson.data.version);
+      setIsDirty(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
@@ -135,6 +150,7 @@ export default function SalonInfoSettings() {
   if (loading) {
     return <div className="p-6 text-xs text-[var(--admin-muted)]">Loading salon settings...</div>;
   }
+  if (loadError) return <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-xs text-red-700"><p>Unable to load settings.</p><button type="button" onClick={() => load().catch(() => undefined)} className="mt-3 font-bold underline">Retry</button></div>;
 
   return (
     <motion.div
@@ -213,11 +229,11 @@ export default function SalonInfoSettings() {
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving}
+          disabled={loading || saving || !isDirty || !form.name.trim()}
           className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-40"
         >
           <Save className="h-3.5 w-3.5" />
-          {saving ? "Saving..." : saved ? "Saved!" : "Save Changes"}
+          {saving ? "Saving..." : saved ? "Settings saved and verified." : "Save Changes"}
         </button>
       </div>
     </motion.div>

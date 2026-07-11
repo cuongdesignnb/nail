@@ -5,6 +5,10 @@ import * as path from "path";
 
 const prisma = new PrismaClient();
 
+if (process.env.NODE_ENV === "production") {
+  throw new Error("Database seeding is disabled in production.");
+}
+
 const navigationMenus = [
   {
     key: "header-primary",
@@ -293,6 +297,23 @@ async function seedPromotionCampaigns() {
 }
 
 async function main() {
+  const existingProtectedData = await Promise.all([
+    prisma.sitePageContent.count(),
+    prisma.galleryItem.count(),
+    prisma.galleryCategory.count(),
+    prisma.galleryCollection.count(),
+    prisma.galleryTrend.count(),
+    prisma.galleryTestimonial.count(),
+    prisma.businessSetting.count(),
+    prisma.service.count(),
+    prisma.seoSiteSetting.count(),
+    prisma.emailSmtpSetting.count(),
+    prisma.aiProviderSetting.count(),
+  ]);
+  if (existingProtectedData.some((count) => count > 0)) {
+    console.log("Protected admin-editable data already exists; non-destructive seed skipped.");
+    return;
+  }
   // 1. Admin user
   const password = await bcrypt.hash("AeraAdmin123!", 10);
   await prisma.user.upsert({

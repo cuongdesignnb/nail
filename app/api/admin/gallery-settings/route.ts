@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { settingsSchema } from "@/lib/validations/gallery.validation";
+import { requireAdminApi } from "@/lib/auth/admin-api";
 
 export async function GET() {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
     let setting = await prisma.galleryPageSetting.findFirst();
     if (!setting) {
@@ -46,6 +48,7 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
     const json = await req.json();
     const result = settingsSchema.safeParse(json);

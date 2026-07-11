@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Palette, Save } from "lucide-react";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { settingsEqual } from "@/lib/settings/normalize-settings";
 
 interface BrandingData {
   logo: string;
@@ -25,12 +26,15 @@ export default function BrandingSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
         const res = await fetch("/api/admin/content/global", { cache: "no-store" });
         const json = await res.json();
+        if (!res.ok || !json.success || !json.data) throw new Error("Unable to load settings.");
         if (json.success && json.data) {
           const content = json.data.draftContent || {};
           setData({
@@ -40,7 +44,7 @@ export default function BrandingSettings() {
           setVersion(json.data.version || 1);
         }
       } catch (err) {
-        console.error("Failed to load branding settings:", err);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -95,7 +99,13 @@ export default function BrandingSettings() {
         throw new Error(publishJson.error || "Failed to publish");
       }
 
-      setVersion(publishJson.data.version);
+      const verifyRes = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+      const verifyJson = await verifyRes.json();
+      const verified = { logo: verifyJson.data?.draftContent?.brand?.logo?.src || "", favicon: verifyJson.data?.draftContent?.brand?.favicon || "" };
+      if (!verifyRes.ok || !verifyJson.success || !settingsEqual(data, verified)) throw new Error("Your changes could not be verified after saving. Please reload and try again.");
+      setData(verified);
+      setVersion(verifyJson.data.version);
+      setIsDirty(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
@@ -108,6 +118,7 @@ export default function BrandingSettings() {
   if (loading) {
     return <div className="p-6 text-xs text-[var(--admin-muted)]">Loading branding settings...</div>;
   }
+  if (loadError) return <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-xs text-red-700"><p>Unable to load settings.</p><button type="button" onClick={() => window.location.reload()} className="mt-3 font-bold underline">Retry</button></div>;
 
   return (
     <motion.div
@@ -135,6 +146,7 @@ export default function BrandingSettings() {
             onChange={(url) => {
               setData((prev) => ({ ...prev, logo: url }));
               setSaved(false);
+              setIsDirty(true);
             }}
             folder="branding"
             aspectRatio="3/1"
@@ -146,6 +158,7 @@ export default function BrandingSettings() {
             onChange={(url) => {
               setData((prev) => ({ ...prev, favicon: url }));
               setSaved(false);
+              setIsDirty(true);
             }}
             folder="branding"
             aspectRatio="1/1"
@@ -175,11 +188,11 @@ export default function BrandingSettings() {
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving}
+          disabled={loading || saving || !isDirty}
           className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-40"
         >
           <Save className="h-3.5 w-3.5" />
-          {saving ? "Saving..." : saved ? "Saved!" : "Save Branding"}
+          {saving ? "Saving..." : saved ? "Settings saved and verified." : "Save Branding"}
         </button>
       </div>
     </motion.div>

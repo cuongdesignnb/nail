@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { gallery } from "@/lib/data";
+import { fetchGalleryPageContent } from "@/services/gallery-page.service";
 
-export function GET() {
-  return NextResponse.json({ data: gallery });
+export async function GET() {
+  return NextResponse.json({ data: await fetchGalleryPageContent() }, { headers: { "Cache-Control": "no-store" } });
 }

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FileText, Save } from "lucide-react";
 import { AdminFormField, AdminToggle } from "@/components/admin/ui";
+import { settingsEqual } from "@/lib/settings/normalize-settings";
 
 interface PolicyData {
   minAdvanceHours: number;
@@ -27,6 +28,8 @@ export default function BookingPolicySettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -38,6 +41,7 @@ export default function BookingPolicySettings() {
 
         const globalJson = await globalRes.json();
         const paypalJson = await paypalRes.json();
+        if (!globalRes.ok || !globalJson.success || !paypalRes.ok || !paypalJson.success) throw new Error("Unable to load settings.");
 
         let policies = {
           minAdvanceHours: 2,
@@ -71,7 +75,7 @@ export default function BookingPolicySettings() {
           ...depositInfo,
         });
       } catch (err) {
-        console.error("Failed to load booking policies:", err);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -82,6 +86,7 @@ export default function BookingPolicySettings() {
   const update = <K extends keyof PolicyData>(field: K, value: PolicyData[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     setSaved(false);
+    setIsDirty(true);
   };
 
   const handleSave = async () => {
@@ -136,7 +141,7 @@ export default function BookingPolicySettings() {
       const paypalGetJson = await paypalGet.json();
       if (paypalGetJson.success && paypalGetJson.data) {
         const currentPaypal = paypalGetJson.data;
-        await fetch("/api/admin/settings/payments/paypal", {
+        const paypalPut = await fetch("/api/admin/settings/payments/paypal", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -145,8 +150,21 @@ export default function BookingPolicySettings() {
             depositPercentage: form.depositPercent,
           }),
         });
+        if (!paypalPut.ok) throw new Error("Unable to save payment settings.");
       }
-
+      const [verifyGlobalRes, verifyPaypalRes] = await Promise.all([
+        fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } }),
+        fetch("/api/admin/settings/payments/paypal", { cache: "no-store", headers: { "Cache-Control": "no-cache" } }),
+      ]);
+      const [verifyGlobal, verifyPaypal] = await Promise.all([verifyGlobalRes.json(), verifyPaypalRes.json()]);
+      const verified = {
+        ...verifyGlobal.data?.draftContent?.bookingPolicies,
+        depositRequired: verifyPaypal.data?.chargeMode === "deposit",
+        depositPercent: Number(verifyPaypal.data?.depositPercentage),
+      };
+      if (!verifyGlobalRes.ok || !verifyPaypalRes.ok || !settingsEqual(form, verified)) throw new Error("Your changes could not be verified after saving. Please reload and try again.");
+      setForm(verified);
+      setIsDirty(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
@@ -162,6 +180,7 @@ export default function BookingPolicySettings() {
   if (loading) {
     return <div className="p-6 text-xs text-[var(--admin-muted)]">Loading booking policies...</div>;
   }
+  if (loadError) return <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-xs text-red-700"><p>Unable to load settings.</p><button type="button" onClick={() => window.location.reload()} className="mt-3 font-bold underline">Retry</button></div>;
 
   return (
     <motion.div
@@ -276,11 +295,11 @@ export default function BookingPolicySettings() {
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving}
+          disabled={loading || saving || !isDirty}
           className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-40"
         >
           <Save className="h-3.5 w-3.5" />
-          {saving ? "Saving..." : saved ? "Saved!" : "Save Policies"}
+          {saving ? "Saving..." : saved ? "Settings saved and verified." : "Save Policies"}
         </button>
       </div>
     </motion.div>

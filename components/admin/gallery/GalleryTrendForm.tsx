@@ -6,6 +6,7 @@ import { Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
+import { verifyGalleryMutation } from "@/lib/gallery/verify-gallery-mutation";
 
 export function GalleryTrendForm() {
   const toast = useToast();
@@ -115,12 +116,13 @@ export function GalleryTrendForm() {
           setGlobalError(json.message || "Failed to save trend");
         }
       } else {
+        await verifyGalleryMutation("gallery-trends", json.data, payload);
         resetForm();
-        fetchTrends();
+        await fetchTrends();
       }
     } catch (err) {
       console.error(err);
-      setGlobalError("Connection error occurred. Please try again.");
+      setGlobalError(err instanceof Error ? err.message : "Connection error occurred. Please try again.");
     } finally {
       setFormLoading(false);
     }

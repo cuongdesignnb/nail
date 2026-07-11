@@ -185,6 +185,7 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
     try {
       const res = await fetch(`/api/admin/content/${pageKey}`, {
         cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
       });
       if (res.status === 401) {
         setError("Please sign in as an Owner or Manager to edit website content.");
@@ -237,9 +238,17 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
         setIsSaving(false);
         return;
       }
-      // API returns { version } only — reload full data
+      const verifyRes = await fetch(`/api/admin/content/${pageKey}`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache" },
+      });
+      const verifyJson = await verifyRes.json();
+      if (!verifyRes.ok || !verifyJson.success || JSON.stringify(verifyJson.data?.draftContent) !== JSON.stringify(content)) {
+        setError("Your changes could not be verified after saving. Please reload and try again.");
+        return;
+      }
       await loadData();
-      setMessage("Draft saved successfully.");
+      setMessage("Settings saved and verified.");
       setTimeout(() => setMessage(""), 4000);
     } catch {
       setError("Network error — unable to save.");
@@ -276,8 +285,17 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
             setError(json.error ?? "Failed to publish.");
             return;
           }
+          const verifyRes = await fetch(`/api/admin/content/${pageKey}`, {
+            cache: "no-store",
+            headers: { "Cache-Control": "no-cache" },
+          });
+          const verifyJson = await verifyRes.json();
+          if (!verifyRes.ok || !verifyJson.success || JSON.stringify(verifyJson.data?.draftContent) !== JSON.stringify(verifyJson.data?.publishedContent)) {
+            setError("Your changes could not be verified after saving. Please reload and try again.");
+            return;
+          }
           await loadData();
-          setMessage("Content published successfully.");
+          setMessage("Settings saved and verified.");
           setTimeout(() => setMessage(""), 4000);
         } catch {
           setError("Network error — unable to publish.");
@@ -420,7 +438,7 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
 
       {/* Header */}
       <div className="mb-6">
-        <ContentEditorHeader
+      <ContentEditorHeader
           registryItem={registryItem}
           status={status}
           updatedAt={payload?.updatedAt ?? null}
@@ -515,6 +533,12 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
         description={confirmAction?.description ?? ""}
         variant={confirmAction?.variant ?? "default"}
       />
+
+      {pageKey === "gallery" && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-800">
+          Gallery images, categories and collections are managed in Gallery Manager. This page controls only page copy, SEO and section headings.
+        </div>
+      )}
     </>
   );
 }

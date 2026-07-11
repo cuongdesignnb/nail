@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { galleryItemSchema } from "@/lib/validations/gallery.validation";
+import { trendSchema } from "@/lib/validations/gallery.validation";
+import { requireAdminApi } from "@/lib/auth/admin-api";
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
-    const item = await prisma.galleryItem.findUnique({
+    const trend = await prisma.galleryTrend.findUnique({
       where: { id: params.id },
-      include: { category: true },
     });
-    if (!item) {
-      return NextResponse.json({ success: false, message: "Gallery item not found" }, { status: 404 });
+    if (!trend) {
+      return NextResponse.json({ success: false, message: "Trend not found" }, { status: 404 });
     }
-    return NextResponse.json({ success: true, data: item });
+    return NextResponse.json({ success: true, data: trend });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ success: false, message: "Server error occurred" }, { status: 500 });
@@ -19,6 +20,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
     const json = await req.json();
 
@@ -29,7 +31,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         .replace(/(^-|-$)+/g, "");
     }
 
-    const result = galleryItemSchema.safeParse(json);
+    const result = trendSchema.safeParse(json);
     if (!result.success) {
       return NextResponse.json(
         {
@@ -41,10 +43,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       );
     }
 
-    // Check unique slug (excluding self)
-    const existing = await prisma.galleryItem.findFirst({
+    const existing = await prisma.galleryTrend.findFirst({
       where: {
-        slug: result.data.slug || "",
+        slug: result.data.slug,
         NOT: { id: params.id },
       },
     });
@@ -53,26 +54,15 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         {
           success: false,
           message: "Validation failed",
-          errors: { slug: ["Slug already in use by another gallery item."] },
+          errors: { slug: ["Slug already in use by another trend."] },
         },
         { status: 400 }
       );
     }
 
-    const updated = await prisma.galleryItem.update({
+    const updated = await prisma.galleryTrend.update({
       where: { id: params.id },
-      data: {
-        categoryId: result.data.categoryId || null,
-        title: result.data.title,
-        slug: result.data.slug || "",
-        description: result.data.description || null,
-        image: result.data.image,
-        imageAlt: result.data.imageAlt || null,
-        tag: result.data.tag || null,
-        isHighlight: result.data.isHighlight,
-        isActive: result.data.isActive,
-        sortOrder: result.data.sortOrder,
-      },
+      data: result.data,
     });
 
     return NextResponse.json({ success: true, data: updated });
@@ -83,8 +73,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
-    const deactivated = await prisma.galleryItem.update({
+    const deactivated = await prisma.galleryTrend.update({
       where: { id: params.id },
       data: { isActive: false },
     });
@@ -94,3 +85,5 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     return NextResponse.json({ success: false, message: "Server error occurred" }, { status: 500 });
   }
 }
+
+export const PATCH = PUT;

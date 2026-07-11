@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { galleryItemSchema } from "@/lib/validations/gallery.validation";
+import { requireAdminApi } from "@/lib/auth/admin-api";
 
 export async function GET(req: Request) {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
     const { searchParams } = new URL(req.url);
     const keyword = searchParams.get("keyword");
@@ -70,6 +72,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const unauthorized = requireAdminApi(); if (unauthorized) return unauthorized;
   try {
     const json = await req.json();
 

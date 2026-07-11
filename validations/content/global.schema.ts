@@ -24,8 +24,9 @@ export const globalContentSchema = z.object({
   brand: z.object({
     name: requiredText(100),
     logo: imageFieldSchema,
+    favicon: optionalText(500),
     tagline: requiredText(300),
-  }),
+  }).passthrough(),
   headerNav: z.object({
     items: z
       .array(navLinkSchema)
@@ -57,9 +58,24 @@ export const globalContentSchema = z.object({
     facebookUrl: hrefSchema,
     tiktokUrl: hrefSchema,
   }),
-  defaultContact: contactFieldSchema,
+  defaultContact: contactFieldSchema.extend({
+    website: optionalText(500),
+    hours: optionalText(500),
+  }).passthrough(),
+  businessHours: z.array(z.object({
+    day: requiredText(20),
+    isOpen: z.boolean(),
+    startTime: z.string(),
+    endTime: z.string(),
+  }).passthrough()).max(7).optional(),
+  bookingPolicies: z.object({
+    minAdvanceHours: z.coerce.number().int().min(0),
+    maxAdvanceDays: z.coerce.number().int().min(1),
+    cancellationWindowHours: z.coerce.number().int().min(0),
+    bufferMinutes: z.coerce.number().int().min(0),
+  }).passthrough().optional(),
   defaultShareImage: imageFieldSchema,
-});
+}).passthrough();
 
 export type GlobalContentInput = z.infer<typeof globalContentSchema>;
 

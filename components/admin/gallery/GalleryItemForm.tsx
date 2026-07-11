@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FormField, FormSelect, FormTextarea } from "@/components/common/FormField";
 import { GalleryCategoryDTO } from "@/types/gallery";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
+import { verifyGalleryMutation } from "@/lib/gallery/verify-gallery-mutation";
 
 interface GalleryItemFormProps {
   categories: GalleryCategoryDTO[];
@@ -92,11 +93,12 @@ export function GalleryItemForm({ categories, initialData, onSave, onCancel }: G
           setGlobalError(json.message || "Failed to save gallery design item");
         }
       } else {
+        await verifyGalleryMutation("gallery-items", json.data, payload);
         onSave();
       }
     } catch (err) {
       console.error(err);
-      setGlobalError("Connection error occurred. Please try again.");
+      setGlobalError(err instanceof Error ? err.message : "Connection error occurred. Please try again.");
     } finally {
       setLoading(false);
     }

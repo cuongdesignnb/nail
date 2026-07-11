@@ -1,5 +1,7 @@
 # Aera Nail Lounge aaPanel Docker Deployment
 
+> Production safety: always back up PostgreSQL before migrations. Production deploys run `prisma migrate deploy` and never run `npm run prisma:seed`. Never use `prisma migrate reset`, `prisma db push`, or `docker compose down -v` against production.
+
 Production domain: `aeranails.com`
 Production root: `/www/wwwroot/aeranails.com`
 Internal app target: `http://127.0.0.1:31847`

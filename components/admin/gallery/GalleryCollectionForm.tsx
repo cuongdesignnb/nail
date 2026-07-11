@@ -6,6 +6,7 @@ import { Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
 import { AdminConfirmDialog, useToast } from "@/components/admin/ui";
+import { verifyGalleryMutation } from "@/lib/gallery/verify-gallery-mutation";
 
 export function GalleryCollectionForm() {
   const toast = useToast();
@@ -127,12 +128,13 @@ export function GalleryCollectionForm() {
           setGlobalError(json.message || "Failed to save collection");
         }
       } else {
+        await verifyGalleryMutation("gallery-collections", json.data, payload);
         resetForm();
-        fetchCollections();
+        await fetchCollections();
       }
     } catch (err) {
       console.error(err);
-      setGlobalError("Connection error occurred. Please try again.");
+      setGlobalError(err instanceof Error ? err.message : "Connection error occurred. Please try again.");
     } finally {
       setFormLoading(false);
     }

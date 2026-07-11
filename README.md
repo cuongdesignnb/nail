@@ -66,6 +66,8 @@ Never run `docker compose down -v` in production.
 
 The Prisma schema targets PostgreSQL. The current app also includes a file-backed booking store so Docker can run immediately without blocking on migrations.
 
+`npm run prisma:seed` is only for a completely fresh local or staging database. It is non-destructive and skips when admin-editable data already exists. Production deployment must use `prisma migrate deploy` only and must never run the seeder.
+
 ```bash
 npx prisma db push
 npm run prisma:seed
