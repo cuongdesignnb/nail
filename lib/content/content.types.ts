@@ -336,7 +336,8 @@ export type ContactPageContent = {
 export type GlobalContent = {
   brand: {
     name: string;
-    logo: ImageField;
+    logo: ImageField | null;
+    favicon?: ImageField | null;
     tagline: string;
   };
   headerNav: {

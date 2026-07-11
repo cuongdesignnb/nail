@@ -46,6 +46,8 @@ export function revalidateContentCache(pageKey: ContentPageKey) {
     for (const path of allPaths) {
       revalidatePath(path);
     }
+    // Gift cards uses the global shell but is not a Content Hub page key.
+    revalidatePath("/gift-cards");
     // Also revalidate all content tags since global data (header/footer) is used everywhere
     Object.values(CACHE_TAGS).forEach((tag) => {
       if (tag !== CACHE_TAGS.global) {

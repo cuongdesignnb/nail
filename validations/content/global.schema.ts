@@ -16,6 +16,21 @@ import {
   makeDraftSchema,
 } from "./shared.schema";
 
+export const mediaReferenceSchema = z.object({
+  mediaId: z.string().nullable().optional(),
+  src: z.string().trim().min(1),
+  alt: z.string().default(""),
+  title: z.string().nullable().optional(),
+});
+
+const legacyCompatibleMediaReferenceSchema = z.preprocess(
+  (value) =>
+    typeof value === "string" && value.trim()
+      ? { mediaId: null, src: value.trim(), alt: "", title: null }
+      : value,
+  mediaReferenceSchema.nullable(),
+);
+
 /* ------------------------------------------------------------------ */
 /*  Publish (strict) schema                                           */
 /* ------------------------------------------------------------------ */
@@ -23,8 +38,8 @@ import {
 export const globalContentSchema = z.object({
   brand: z.object({
     name: requiredText(100),
-    logo: imageFieldSchema,
-    favicon: optionalText(500),
+    logo: legacyCompatibleMediaReferenceSchema,
+    favicon: legacyCompatibleMediaReferenceSchema.optional(),
     tagline: requiredText(300),
   }).passthrough(),
   headerNav: z.object({

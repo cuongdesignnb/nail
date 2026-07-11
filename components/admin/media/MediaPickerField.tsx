@@ -4,6 +4,11 @@ import React, { useState } from "react";
 import { ImagePlus, Replace, X } from "lucide-react";
 import { MediaPickerDialog } from "./MediaPickerDialog";
 import type { MediaReference } from "@/lib/media/media.types";
+import {
+  mediaAssetToPickerValue,
+  mediaAssetToReference,
+  type MediaPickerValueMode,
+} from "@/lib/media/media-picker-value";
 
 interface MediaAsset {
   id: string;
@@ -32,6 +37,7 @@ interface MediaPickerFieldProps {
   required?: boolean;
   allowRemove?: boolean;
   allowAltOverride?: boolean;
+  valueMode?: MediaPickerValueMode;
 }
 
 export function MediaPickerField({
@@ -46,6 +52,7 @@ export function MediaPickerField({
   required = false,
   allowRemove = true,
   allowAltOverride = true,
+  valueMode = "url",
 }: MediaPickerFieldProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const isMediaReference = typeof value === "object" && value !== null;
@@ -53,29 +60,18 @@ export function MediaPickerField({
   const src = mediaValue?.src ?? (typeof value === "string" ? value : "");
   const effectiveAlt = mediaValue?.alt ?? alt ?? "";
 
-  const toReference = (asset: MediaAsset): MediaReference => ({
-    mediaId: asset.id,
-    src: asset.url,
-    alt: asset.alt || effectiveAlt || asset.title || asset.originalName || asset.fileName,
-    title: asset.title || asset.originalName || asset.fileName,
-  });
-
   const handleSelect = (asset: MediaAsset | MediaAsset[]) => {
     const selected = Array.isArray(asset) ? asset[0] : asset;
     if (!selected) return;
-    const reference = toReference(selected);
-    if (isMediaReference) {
-      onChange(reference);
-    } else {
-      onChange(reference.src);
-    }
+    const reference = mediaAssetToReference(selected, effectiveAlt);
+    onChange(mediaAssetToPickerValue(selected, valueMode, effectiveAlt));
     if (onAltChange && reference.alt) {
       onAltChange(reference.alt);
     }
   };
 
   const handleRemove = () => {
-    onChange(isMediaReference ? null : "");
+    onChange(valueMode === "reference" ? null : "");
     if (onAltChange) onAltChange("");
   };
 

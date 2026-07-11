@@ -4,12 +4,13 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Palette, Save } from "lucide-react";
 import { MediaPickerField } from "@/components/admin/media/MediaPickerField";
-import { settingsEqual } from "@/lib/settings/normalize-settings";
-
-interface BrandingData {
-  logo: string;
-  favicon: string;
-}
+import type { MediaReference } from "@/lib/media/media.types";
+import {
+  buildBrandingContent,
+  hydrateBrandingContent,
+  verifyBrandingPersistence,
+  type BrandingData,
+} from "@/lib/settings/branding-persistence";
 
 const BRAND_COLORS = [
   { name: "Ivory", value: "#FFF9F4" },
@@ -21,7 +22,7 @@ const BRAND_COLORS = [
 ];
 
 export default function BrandingSettings() {
-  const [data, setData] = useState<BrandingData>({ logo: "", favicon: "" });
+  const [data, setData] = useState<BrandingData>({ logo: null, favicon: null });
   const [version, setVersion] = useState(1);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,10 +38,7 @@ export default function BrandingSettings() {
         if (!res.ok || !json.success || !json.data) throw new Error("Unable to load settings.");
         if (json.success && json.data) {
           const content = json.data.draftContent || {};
-          setData({
-            logo: content.brand?.logo?.src || "",
-            favicon: content.brand?.favicon || "",
-          });
+          setData(hydrateBrandingContent(content));
           setVersion(json.data.version || 1);
         }
       } catch (err) {
@@ -54,28 +52,21 @@ export default function BrandingSettings() {
 
   const handleSave = async () => {
     setSaving(true);
+    setSaved(false);
     try {
+      const selected: BrandingData = {
+        logo: data.logo ? { ...data.logo } : null,
+        favicon: data.favicon ? { ...data.favicon } : null,
+      };
       const getRes = await fetch("/api/admin/content/global", { cache: "no-store" });
       const getJson = await getRes.json();
-      let currentContent = {};
-      let currentVersion = version;
-      if (getJson.success && getJson.data) {
-        currentContent = getJson.data.draftContent || {};
-        currentVersion = getJson.data.version;
+      if (!getRes.ok || !getJson.success || !getJson.data) {
+        throw new Error(getJson.error || "Unable to load the latest branding settings.");
       }
 
-      const updatedContent = {
-        ...currentContent,
-        brand: {
-          ...(currentContent as any).brand,
-          logo: {
-            ...(currentContent as any).brand?.logo,
-            src: data.logo,
-            alt: `${(currentContent as any).brand?.name || "Aera"} logo`,
-          },
-          favicon: data.favicon,
-        },
-      };
+      const currentContent = getJson.data.draftContent || {};
+      const currentVersion = getJson.data.version ?? version;
+      const updatedContent = buildBrandingContent(currentContent, selected);
 
       const putRes = await fetch("/api/admin/content/global", {
         method: "PUT",
@@ -83,11 +74,21 @@ export default function BrandingSettings() {
         body: JSON.stringify({ content: updatedContent, version: currentVersion }),
       });
       const putJson = await putRes.json();
-      if (!putRes.ok || !putJson.success) {
+      if (!putRes.ok || !putJson.success || !putJson.data) {
         throw new Error(putJson.error || "Failed to save draft");
       }
 
       const nextVersion = putJson.data.version;
+      const draftVerification = verifyBrandingPersistence({
+        selectedLogo: selected.logo,
+        selectedFavicon: selected.favicon,
+        draftContent: putJson.data.draftContent,
+        publishedContent: putJson.data.draftContent,
+      });
+      if (!draftVerification.matches) {
+        console.error({ event: "BRANDING_VERIFICATION_FAILED", stage: "draft" });
+        throw new Error("Logo preview does not match the saved website logo. The change was not published.");
+      }
 
       const publishRes = await fetch("/api/admin/content/global/publish", {
         method: "POST",
@@ -95,15 +96,38 @@ export default function BrandingSettings() {
         body: JSON.stringify({ version: nextVersion }),
       });
       const publishJson = await publishRes.json();
-      if (!publishRes.ok || !publishJson.success) {
+      if (!publishRes.ok || !publishJson.success || !publishJson.data) {
         throw new Error(publishJson.error || "Failed to publish");
+      }
+
+      const publishVerification = verifyBrandingPersistence({
+        selectedLogo: selected.logo,
+        selectedFavicon: selected.favicon,
+        draftContent: publishJson.data.draftContent,
+        publishedContent: publishJson.data.publishedContent,
+      });
+      if (!publishVerification.matches) {
+        console.error({ event: "BRANDING_VERIFICATION_FAILED", stage: "publish" });
+        throw new Error("Logo preview does not match the saved website logo. The change was not published.");
       }
 
       const verifyRes = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
       const verifyJson = await verifyRes.json();
-      const verified = { logo: verifyJson.data?.draftContent?.brand?.logo?.src || "", favicon: verifyJson.data?.draftContent?.brand?.favicon || "" };
-      if (!verifyRes.ok || !verifyJson.success || !settingsEqual(data, verified)) throw new Error("Your changes could not be verified after saving. Please reload and try again.");
-      setData(verified);
+      if (!verifyRes.ok || !verifyJson.success || !verifyJson.data) {
+        throw new Error("Your changes could not be verified after saving. Please reload and try again.");
+      }
+      const finalVerification = verifyBrandingPersistence({
+        selectedLogo: selected.logo,
+        selectedFavicon: selected.favicon,
+        draftContent: verifyJson.data.draftContent,
+        publishedContent: verifyJson.data.publishedContent,
+      });
+      if (!finalVerification.matches) {
+        console.error({ event: "BRANDING_VERIFICATION_FAILED", stage: "reload" });
+        throw new Error("Logo preview does not match the saved website logo. The change was not published.");
+      }
+
+      setData(hydrateBrandingContent(verifyJson.data.publishedContent));
       setVersion(verifyJson.data.version);
       setIsDirty(false);
       setSaved(true);
@@ -143,8 +167,9 @@ export default function BrandingSettings() {
           <MediaPickerField
             label="Logo"
             value={data.logo}
-            onChange={(url) => {
-              setData((prev) => ({ ...prev, logo: url }));
+            valueMode="reference"
+            onChange={(reference: MediaReference | null) => {
+              setData((prev) => ({ ...prev, logo: reference }));
               setSaved(false);
               setIsDirty(true);
             }}
@@ -155,8 +180,9 @@ export default function BrandingSettings() {
           <MediaPickerField
             label="Favicon"
             value={data.favicon}
-            onChange={(url) => {
-              setData((prev) => ({ ...prev, favicon: url }));
+            valueMode="reference"
+            onChange={(reference: MediaReference | null) => {
+              setData((prev) => ({ ...prev, favicon: reference }));
               setSaved(false);
               setIsDirty(true);
             }}

@@ -4,6 +4,7 @@ import { isValidPageKey } from "@/lib/content/content-registry";
 import { getPageContent, saveDraftContent } from "@/lib/content/content.repository";
 import type { ContentPageKey } from "@/lib/content/content.types";
 import { getSchemaForPage } from "@/validations/content";
+import { hydrateBrandingContent } from "@/lib/settings/branding-persistence";
 
 export async function GET(
   _request: NextRequest,
@@ -92,7 +93,18 @@ export async function PUT(
       );
     }
 
-    const updated = await saveDraftContent({
+    if (pageKey === "global") {
+      const selected = hydrateBrandingContent(content);
+      console.info(JSON.stringify({
+        event: "BRANDING_SAVE_REQUEST",
+        adminEmail: admin.email,
+        selectedLogoMediaId: selected.logo?.mediaId ?? null,
+        selectedLogoSrc: selected.logo?.src ?? "",
+        version,
+      }));
+    }
+
+    await saveDraftContent({
       pageKey: pageKey as ContentPageKey,
       content,
       version,
@@ -100,6 +112,16 @@ export async function PUT(
     });
 
     const data = await getPageContent(pageKey as ContentPageKey);
+    if (pageKey === "global") {
+      const draft = hydrateBrandingContent(data.draftContent);
+      console.info(JSON.stringify({
+        event: "BRANDING_DRAFT_SAVED",
+        adminEmail: admin.email,
+        draftLogoMediaId: draft.logo?.mediaId ?? null,
+        draftLogoSrc: draft.logo?.src ?? "",
+        version: data.version,
+      }));
+    }
     return NextResponse.json(
       { success: true, data, meta: { version: data.version, updatedAt: data.updatedAt, updatedBy: data.updatedBy } },
       { headers: { "Cache-Control": "no-store, no-cache, must-revalidate", Pragma: "no-cache", Expires: "0" } }
