@@ -1,0 +1,94 @@
+{
+  "brand": {
+    "name": "Aera Legacy Production",
+    "tagline": "Production legacy tagline",
+    "logo": {
+      "src": "/uploads/production-logo.webp",
+      "title": "Production logo"
+    },
+    "favicon": "/uploads/production-favicon.png",
+    "legacyTheme": "champagne"
+  },
+  "header": {
+    "primaryMenu": [
+      {
+        "key": "legacy-home",
+        "name": "Home",
+        "url": "/",
+        "target": "_self",
+        "isEnabled": true
+      },
+      {
+        "key": "legacy-booking",
+        "name": "Book",
+        "url": "/booking",
+        "icon": "calendar"
+      }
+    ],
+    "mobileMenu": [
+      { "id": "mobile-home", "label": "Home", "href": "/" }
+    ],
+    "cta": {
+      "label": "Reserve",
+      "href": "/booking",
+      "variant": "primary",
+      "trackingId": "legacy-cta"
+    }
+  },
+  "footer": {
+    "description": "Legacy production footer copy",
+    "companyMenu": {
+      "items": [
+        { "key": "company-about", "name": "About", "url": "/about", "target": "_self" }
+      ]
+    },
+    "servicesMenu": [
+      { "key": "service-manicure", "name": "Manicure", "url": "/services/manicure" }
+    ],
+    "exploreMenu": [
+      { "key": "explore-gallery", "name": "Gallery", "url": "/gallery" }
+    ],
+    "legalMenu": [
+      { "key": "legal-privacy", "name": "Privacy", "url": "/privacy" }
+    ],
+    "socialMenu": [
+      { "key": "social-instagram", "name": "Instagram", "url": "https://instagram.com/aera-legacy" }
+    ],
+    "contact": {
+      "phone": "(626) 555-9911",
+      "email": "legacy@example.com",
+      "address": "9911 Legacy Avenue"
+    },
+    "layout": "five_columns",
+    "showLegal": true,
+    "showSocial": true,
+    "customFooterFlag": "preserve-me"
+  },
+  "defaultContact": {
+    "phone": "(626) 555-9911",
+    "email": "legacy@example.com",
+    "address": "9911 Legacy Avenue"
+  },
+  "businessHours": [
+    { "day": "Mon", "isOpen": true, "startTime": "9:30 AM", "endTime": "6:30 PM", "note": "late opening" },
+    { "day": "Monday", "isOpen": true, "startTime": "10:00", "endTime": "17:00" },
+    { "day": "Tue", "isOpen": true, "startTime": null, "endTime": null },
+    { "day": "Sat", "closed": false, "open": "10 AM", "close": "5 PM" }
+  ],
+  "bookingPolicies": {
+    "minAdvanceHours": 4,
+    "legacyPolicyLabel": "preserve-policy-metadata"
+  },
+  "defaultShareImage": {
+    "src": "/uploads/production-share.webp"
+  },
+  "social": {
+    "instagram": "https://instagram.com/aera-legacy",
+    "facebook": "https://facebook.com/aera-legacy",
+    "tiktok": "https://tiktok.com/@aera-legacy"
+  },
+  "extraProductionField": {
+    "owner": "legacy-system",
+    "preserve": true
+  }
+}

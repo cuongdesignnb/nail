@@ -496,6 +496,22 @@ export const defaultGlobalContent: GlobalContent = {
     email: "hello@aeranailounge.com",
     address: "123 Luxe Ave, Suite 100, Los Angeles, CA 90001",
     hours: "Mon – Sun: 10:00 AM – 8:00 PM",
+    website: "",
+  },
+  businessHours: [
+    { day: "Monday", isOpen: true, startTime: "09:00", endTime: "19:00" },
+    { day: "Tuesday", isOpen: true, startTime: "09:00", endTime: "19:00" },
+    { day: "Wednesday", isOpen: true, startTime: "09:00", endTime: "19:00" },
+    { day: "Thursday", isOpen: true, startTime: "09:00", endTime: "19:00" },
+    { day: "Friday", isOpen: true, startTime: "09:00", endTime: "19:00" },
+    { day: "Saturday", isOpen: true, startTime: "10:00", endTime: "18:00" },
+    { day: "Sunday", isOpen: false, startTime: "10:00", endTime: "18:00" },
+  ],
+  bookingPolicies: {
+    minAdvanceHours: 2,
+    maxAdvanceDays: 30,
+    cancellationWindowHours: 24,
+    bufferMinutes: 15,
   },
   defaultShareImage: {
     src: "/images/about-hero-nail.jpg",

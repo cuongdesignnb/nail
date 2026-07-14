@@ -12,7 +12,7 @@ import { SettingsStatusFooter } from "./SettingsStatusFooter";
 
 export default function BrandingSettings() {
   const toast = useToast();
-  const form = useSettingsForm<BrandingData>({ url: "/api/admin/settings/branding" });
+  const form = useSettingsForm<BrandingData>({ url: "/api/admin/settings/branding", label: "Branding" });
   const profile = useSettingsForm<Pick<SalonProfileSettings, "name">>({
     url: "/api/admin/settings/salon-profile",
     select: (value) => ({ name: (value as SalonProfileSettings).name }),

@@ -9,6 +9,7 @@ import { unstable_cache } from "next/cache";
 import { ContentPageKey } from "./content.types";
 import { getPublishedContent } from "./content.repository";
 import { contentCacheTag, CONTENT_CACHE_REVALIDATE } from "./content-cache";
+import { normalizeGlobalContent } from "@/lib/settings/normalize-global-content";
 
 /* ------------------------------------------------------------------ */
 /*  Cached Published Content Getters                                  */
@@ -50,7 +51,10 @@ import type { GalleryPageContent } from "@/types/gallery";
 import type { PackagesPageContent } from "@/types/packages";
 import type { BlogPageContent } from "@/types/blog";
 
-export const getPublishedGlobalContent = createCachedGetter<GlobalContent>("global");
+const getPublishedGlobalContentRaw = createCachedGetter<GlobalContent>("global");
+export async function getPublishedGlobalContent(): Promise<GlobalContent> {
+  return normalizeGlobalContent(await getPublishedGlobalContentRaw());
+}
 export const getPublishedHomeContent = createCachedGetter<HomePageContent>("home");
 export const getPublishedAboutContent = createCachedGetter<AboutPageContent>("about");
 export const getPublishedServicesPageContent = createCachedGetter<ServicesPageContent>("services");

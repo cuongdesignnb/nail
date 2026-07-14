@@ -92,7 +92,7 @@ export async function handleGlobalSettingsPut<S extends GlobalSettingsSection>(i
       return settingsFailure("Please correct the highlighted fields.", "VALIDATION_ERROR", 400, zodIssues(error));
     }
     if (error && typeof error === "object" && "zodError" in error && error.zodError instanceof z.ZodError) {
-      return settingsFailure("The merged global settings are invalid.", "VALIDATION_ERROR", 400, zodIssues(error.zodError));
+      return settingsFailure("The merged global settings are invalid.", "GLOBAL_CONTENT_INVALID", 400, zodIssues(error.zodError));
     }
     const named = error as Error & { field?: string };
     if (named.name === "VERSION_CONFLICT") return settingsFailure(named.message, "VERSION_CONFLICT", 409);

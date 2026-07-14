@@ -15,6 +15,7 @@ export default function BusinessHoursSettings() {
   const toast = useToast();
   const form = useSettingsForm<HoursForm>({
     url: "/api/admin/settings/business-hours",
+    label: "Business Hours",
     select: (value) => ({ businessHours: (value as { businessHours: BusinessHour[] }).businessHours }),
   });
   React.useEffect(() => { form.load().catch(() => undefined); }, []); // eslint-disable-line react-hooks/exhaustive-deps

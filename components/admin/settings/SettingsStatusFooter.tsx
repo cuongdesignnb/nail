@@ -1,3 +1,5 @@
+import { humanizeGlobalIssuePath } from "@/lib/settings/settings-validation-errors";
+
 type Props = {
   isDirty: boolean;
   saving: boolean;
@@ -5,6 +7,7 @@ type Props = {
   updatedBy: string | null;
   publicRevalidated: boolean;
   error?: string | null;
+  fieldErrors?: Record<string, string[]>;
   conflict?: boolean;
   onReload?: () => void;
 };
@@ -26,6 +29,15 @@ export function SettingsStatusFooter(props: Props) {
         <span>Public site refreshed: <b>{props.publicRevalidated ? "Yes" : "No"}</b></span>
       </div>
       {props.error && <p className="mt-2 text-red-600">{props.error}</p>}
+      {props.error && props.fieldErrors && Object.keys(props.fieldErrors).length > 0 && (
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-red-600">
+          {Object.entries(props.fieldErrors).flatMap(([path, messages]) =>
+            messages.map((message) => (
+              <li key={`${path}:${message}`}>{humanizeGlobalIssuePath(path)} <span className="sr-only">{message}</span></li>
+            )),
+          )}
+        </ul>
+      )}
       {props.conflict && props.onReload && (
         <button type="button" onClick={props.onReload} className="mt-2 font-bold text-[var(--admin-accent)] underline">Reload latest values</button>
       )}

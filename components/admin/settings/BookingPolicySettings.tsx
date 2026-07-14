@@ -18,7 +18,7 @@ const inputClass = "w-full rounded-xl border border-[var(--admin-border-strong)]
 
 export default function BookingPolicySettings() {
   const toast = useToast();
-  const form = useSettingsForm<BookingPolicies>({ url: "/api/admin/settings/booking-policies" });
+  const form = useSettingsForm<BookingPolicies>({ url: "/api/admin/settings/booking-policies", label: "Booking Policies" });
   React.useEffect(() => { form.load().catch(() => undefined); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   if (form.loading && !form.data) return <p className="p-6 text-xs text-[var(--admin-muted)]">Loading booking policies...</p>;
   if (!form.data) return <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-xs text-red-700">{form.error || "Unable to load settings."} <button onClick={() => form.reload().catch(() => undefined)} className="font-bold underline">Retry</button></div>;

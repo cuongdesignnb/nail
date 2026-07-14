@@ -373,7 +373,7 @@ export type GlobalContent = {
     facebookUrl: string;
     tiktokUrl: string;
   };
-  defaultContact: ContactField;
+  defaultContact: ContactField & { website?: string };
   businessHours?: Array<{
     day: string;
     isOpen: boolean;

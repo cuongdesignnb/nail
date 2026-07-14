@@ -11,6 +11,7 @@ export type AdminSettingsResponse<T> = {
 
 export type AdminSettingsErrorCode =
   | "VALIDATION_ERROR"
+  | "GLOBAL_CONTENT_INVALID"
   | "VERSION_CONFLICT"
   | "DATABASE_ERROR"
   | "UNAUTHORIZED"

@@ -13,7 +13,7 @@ const inputClass = "w-full rounded-xl border border-[var(--admin-border-strong)]
 
 export default function SalonInfoSettings() {
   const toast = useToast();
-  const form = useSettingsForm<SalonProfileSettings>({ url: "/api/admin/settings/salon-profile" });
+  const form = useSettingsForm<SalonProfileSettings>({ url: "/api/admin/settings/salon-profile", label: "Salon Info" });
   React.useEffect(() => { form.load().catch(() => undefined); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function save() {

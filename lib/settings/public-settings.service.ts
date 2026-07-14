@@ -5,6 +5,7 @@ import type { GlobalContent } from "@/lib/content/content.types";
 import { getBusinessSettings } from "./settings.service";
 import { prisma } from "@/lib/db";
 import { mapPublicSiteSettings } from "./public-settings.mapper";
+import { normalizeGlobalContent } from "./normalize-global-content";
 
 async function loadPublicSiteSettings(options?: { uncached?: boolean }) {
   const [global, business, seo] = await Promise.all([
@@ -14,7 +15,7 @@ async function loadPublicSiteSettings(options?: { uncached?: boolean }) {
     getBusinessSettings(),
     prisma.seoSiteSetting.findUnique({ where: { key: "default" }, select: { googleMapsUrl: true } }),
   ]);
-  return mapPublicSiteSettings({ global, business: business.data, googleMapsUrl: seo?.googleMapsUrl });
+  return mapPublicSiteSettings({ global: normalizeGlobalContent(global), business: business.data, googleMapsUrl: seo?.googleMapsUrl });
 }
 
 const cachedPublicSiteSettings = unstable_cache(

@@ -2,7 +2,6 @@ import { Prisma } from "@prisma/client";
 import sanitizeHtml from "sanitize-html";
 import { prisma } from "@/lib/db";
 import { defaultGlobalContent } from "@/lib/content/content-defaults";
-import { mergeWithDefaults } from "@/lib/content/content-mapper";
 import { globalContentSchema } from "@/validations/content/global.schema";
 import type { MediaReference } from "@/lib/media/media.types";
 import type {
@@ -13,6 +12,7 @@ import type {
   SalonProfileSettings,
 } from "./settings.types";
 import { hydrateBrandingContent } from "./branding-persistence";
+import { normalizeGlobalContent } from "./normalize-global-content";
 import {
   buildBusinessHoursSummary,
   canonicalizeBusinessHours,
@@ -29,13 +29,7 @@ export type GlobalSettingsSliceMap = {
 };
 
 function mergedGlobal(content: unknown): GlobalRecord {
-  const persisted = content && typeof content === "object" && !Array.isArray(content)
-    ? content as GlobalRecord
-    : {};
-  return mergeWithDefaults(
-    persisted,
-    defaultGlobalContent as unknown as GlobalRecord,
-  );
+  return normalizeGlobalContent(content) as unknown as GlobalRecord;
 }
 
 function recordValue(value: unknown): GlobalRecord {
@@ -62,9 +56,15 @@ export function extractGlobalSettingsSlice<S extends GlobalSettingsSection>(
     } as GlobalSettingsSliceMap[S];
   }
   if (section === "business-hours") {
-    const hours = Array.isArray(content.businessHours) && content.businessHours.length === 7
+    const persistedHours = Array.isArray(content.businessHours) && content.businessHours.length === 7
       ? content.businessHours as BusinessHour[]
       : DEFAULT_BUSINESS_HOURS as BusinessHour[];
+    const hours = persistedHours.map((entry) => ({
+      day: entry.day,
+      isOpen: entry.isOpen,
+      startTime: entry.startTime,
+      endTime: entry.endTime,
+    }));
     const summary = String(contact.hours ?? buildBusinessHoursSummary(hours as never));
     return { businessHours: hours, summary } as GlobalSettingsSliceMap[S];
   }
@@ -207,17 +207,35 @@ export async function saveAndPublishGlobalSettingsSlice<S extends GlobalSettings
       throw Object.assign(new Error("Settings were updated by another administrator."), { name: "VERSION_CONFLICT" });
     }
 
-    const nextDraft = applyGlobalSettingsSlice(mergedGlobal(record.draftContent), input.section, input.patch);
-    const nextPublished = applyGlobalSettingsSlice(
-      mergedGlobal(record.publishedContent ?? record.draftContent),
+    const normalizedDraft = normalizeGlobalContent(record.draftContent) as unknown as GlobalRecord;
+    const normalizedPublished = normalizeGlobalContent(
+      record.publishedContent ?? record.draftContent,
+    ) as unknown as GlobalRecord;
+    const nextDraft = normalizeGlobalContent(
+      applyGlobalSettingsSlice(normalizedDraft, input.section, input.patch),
+    );
+    const nextPublished = normalizeGlobalContent(applyGlobalSettingsSlice(
+      normalizedPublished,
       input.section,
       input.patch,
-    );
+    ));
     const draftValidation = globalContentSchema.safeParse(nextDraft);
     const publishedValidation = globalContentSchema.safeParse(nextPublished);
     if (!draftValidation.success || !publishedValidation.success) {
-      const error = !draftValidation.success ? draftValidation.error : publishedValidation.error;
-      throw Object.assign(new Error("The complete global settings document is invalid."), {
+      const error = !draftValidation.success
+        ? draftValidation.error
+        : !publishedValidation.success
+          ? publishedValidation.error
+          : null;
+      if (!error) throw new Error("Global settings validation failed without validation details.");
+      console.error(JSON.stringify({
+        event: "GLOBAL_SETTINGS_VALIDATION_FAILED",
+        section: input.section,
+        version: record.version,
+        document: !draftValidation.success ? "draft" : "published",
+        issuePaths: error.issues.map((issue) => issue.path.join(".") || "_root"),
+      }));
+      throw Object.assign(new Error("The merged global settings are invalid."), {
         name: "GLOBAL_VALIDATION_ERROR", zodError: error,
       });
     }
@@ -225,8 +243,8 @@ export async function saveAndPublishGlobalSettingsSlice<S extends GlobalSettings
     const result = await tx.sitePageContent.updateMany({
       where: { slug: "global", version: record.version },
       data: {
-        draftContent: nextDraft as Prisma.InputJsonValue,
-        publishedContent: nextPublished as Prisma.InputJsonValue,
+        draftContent: draftValidation.data as Prisma.InputJsonValue,
+        publishedContent: publishedValidation.data as Prisma.InputJsonValue,
         version: { increment: 1 },
         updatedBy: input.actor,
         publishedBy: input.actor,

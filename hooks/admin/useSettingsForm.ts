@@ -20,6 +20,7 @@ export type SettingsFormState<T> = {
 
 type Options<T> = {
   url: string;
+  label?: string;
   normalize?: (value: T) => T;
   select?: (responseData: unknown) => T;
 };
@@ -28,6 +29,7 @@ const NO_STORE = { cache: "no-store" as const, headers: { "Cache-Control": "no-c
 
 export function useSettingsForm<T>({
   url,
+  label = "these settings",
   normalize = (value) => value,
   select = (value) => value as T,
 }: Options<T>) {
@@ -96,10 +98,13 @@ export function useSettingsForm<T>({
       });
       const json = await response.json();
       if (!response.ok || !json.success) {
+        const errorMessage = json.code === "GLOBAL_CONTENT_INVALID"
+          ? `Unable to save ${label} because the current global settings contain incompatible legacy data.`
+          : json.error || "Unable to save settings.";
         setState((value) => ({
           ...value,
           saving: false,
-          error: json.error || "Unable to save settings.",
+          error: errorMessage,
           fieldErrors: json.issues ?? {},
           conflict: response.status === 409 || json.code === "VERSION_CONFLICT",
         }));
@@ -122,7 +127,7 @@ export function useSettingsForm<T>({
       setState((value) => ({ ...value, saving: false, error: message }));
       return null;
     }
-  }, [applyCanonical, normalize, select, url]);
+  }, [applyCanonical, label, normalize, select, url]);
 
   const setData = useCallback((next: T | ((current: T) => T)) => {
     setState((current) => {
