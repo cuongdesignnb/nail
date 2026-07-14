@@ -10,7 +10,6 @@ import {
   imageFieldSchema,
   buttonFieldSchema,
   navLinkSchema,
-  contactFieldSchema,
   hrefSchema,
   uniqueIds,
   makeDraftSchema,
@@ -30,6 +29,13 @@ const legacyCompatibleMediaReferenceSchema = z.preprocess(
       : value,
   mediaReferenceSchema.nullable(),
 );
+
+const globalContactSchema = z.object({
+  phone: z.string().trim().max(40),
+  email: z.union([z.literal(""), z.string().trim().email().max(160)]),
+  address: z.string().trim().max(300),
+  hours: z.string().trim().max(500),
+});
 
 /* ------------------------------------------------------------------ */
 /*  Publish (strict) schema                                           */
@@ -51,7 +57,7 @@ export const globalContentSchema = z.object({
     cta: buttonFieldSchema,
   }),
   footer: z.object({
-    brandText: requiredText(500),
+    brandText: z.string().trim().max(3000),
     quickLinks: z
       .array(navLinkSchema)
       .max(10)
@@ -60,7 +66,7 @@ export const globalContentSchema = z.object({
       .array(navLinkSchema)
       .max(10)
       .refine(uniqueIds, "Service link IDs must be unique"),
-    contact: contactFieldSchema,
+    contact: globalContactSchema,
     newsletter: z.object({
       title: requiredText(120),
       description: requiredText(300),
@@ -73,7 +79,7 @@ export const globalContentSchema = z.object({
     facebookUrl: hrefSchema,
     tiktokUrl: hrefSchema,
   }),
-  defaultContact: contactFieldSchema.extend({
+  defaultContact: globalContactSchema.extend({
     website: optionalText(500),
     hours: optionalText(500),
   }).passthrough(),

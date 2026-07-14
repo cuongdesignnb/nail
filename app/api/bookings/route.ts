@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { getBookings } from "@/lib/store";
-import { bookingSchema, buildBooking } from "@/lib/booking";
-import { createBooking } from "@/lib/store";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,8 +9,6 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const input = bookingSchema.parse(await request.json());
-  const booking = await buildBooking(input);
-  await createBooking(booking);
-  return NextResponse.json({ data: booking }, { status: 201 });
+  await request.body?.cancel().catch(() => undefined);
+  return NextResponse.json({ success: false, error: "This legacy endpoint is retired. Use /api/public/bookings; payment is collected at the salon." }, { status: 410 });
 }

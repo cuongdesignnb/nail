@@ -13,7 +13,9 @@ import PaymentSettings from "./PaymentSettings";
 import AiContentSettings from "./AiContentSettings";
 import SeoSiteSettings from "./SeoSiteSettings";
 import SmtpSettingsForm from "./SmtpSettingsForm";
-import { usePersistedSettings } from "@/hooks/admin/usePersistedSettings";
+import { useSettingsForm } from "@/hooks/admin/useSettingsForm";
+import { SettingsStatusFooter } from "./SettingsStatusFooter";
+import { useToast } from "@/components/admin/ui/AdminToastProvider";
 import type { BusinessSettings } from "@/lib/settings/settings.types";
 
 const SETTINGS_TABS = [
@@ -59,17 +61,21 @@ export default function SettingsDashboard() {
 }
 
 function GeneralSettings() {
-  const settings = usePersistedSettings<BusinessSettings>({ url: "/api/admin/settings" });
+  const settings = useSettingsForm<BusinessSettings>({ url: "/api/admin/settings/general" });
+  const toast = useToast();
+  const [paypalCurrency, setPaypalCurrency] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     settings.load().catch(() => undefined);
+    fetch("/api/admin/settings/payments/paypal", { cache: "no-store" }).then((response) => response.json()).then((json) => { if (json.success) setPaypalCurrency(json.data.currency); }).catch(() => undefined);
     // The hook owns load state and keeps failed requests from hydrating defaults.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSave = async () => {
     if (!settings.data) return;
-    await settings.save(settings.data).catch(() => undefined);
+    const saved = await settings.save();
+    saved ? toast.success("General settings saved and verified.") : toast.error(settings.error || "Unable to save general settings.");
   };
 
   const inputClass =
@@ -99,6 +105,7 @@ function GeneralSettings() {
             <option value="Asia/Ho_Chi_Minh">Vietnam (ICT)</option>
           </select>
         </div>
+        {paypalCurrency && paypalCurrency !== settings.data.currency && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">Gift Card PayPal currency is {paypalCurrency}, which differs from the General currency {settings.data.currency}.</p>}
 
         <div className="space-y-1.5">
           <label className="block text-xs font-semibold text-[var(--admin-ink)]">Currency</label>
@@ -116,9 +123,9 @@ function GeneralSettings() {
           disabled={settings.loading || settings.saving || !settings.isDirty}
           className="rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-40"
         >
-          {settings.saving ? "Saving..." : settings.lastSavedAt ? "Settings saved and verified." : "Save Changes"}
+          {settings.saving ? "Saving..." : "Save Changes"}
         </button>
-        {settings.error && <p className="text-xs text-red-600">{settings.error}</p>}
+        <SettingsStatusFooter {...settings} onReload={() => settings.reload().catch(() => undefined)} />
       </div>
     </div>
   );

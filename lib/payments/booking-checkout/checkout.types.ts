@@ -1,4 +1,4 @@
-export type ChargeMode = "deposit" | "full";
+export type ChargeMode = "deposit" | "full" | "pay_at_salon";
 
 export type BookingCustomerPayload = {
   firstName: string;

@@ -5,6 +5,7 @@ import { bookingCompletedEmail } from "@/emails/BookingCompletedEmail";
 import { bookingConfirmedEmail } from "@/emails/BookingConfirmedEmail";
 import { bookingRequestReceivedEmail } from "@/emails/BookingRequestReceivedEmail";
 import { sendTransactionalEmail } from "./mail.service";
+import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
 
 function customerName(booking: Awaited<ReturnType<typeof loadBooking>>) {
   return `${booking?.customer.firstName || ""} ${booking?.customer.lastName || ""}`.trim() || "there";
@@ -14,8 +15,8 @@ function serviceNames(booking: Awaited<ReturnType<typeof loadBooking>>) {
   return booking?.items.map((item) => item.serviceNameSnapshot || item.service.name).join(", ") || "Selected services";
 }
 
-function whenLabel(date?: Date | null) {
-  return date ? date.toLocaleString("en-US", { timeZone: "America/Los_Angeles", dateStyle: "medium", timeStyle: "short" }) : "To be confirmed";
+function whenLabel(date: Date | null | undefined, timeZone: string) {
+  return date ? date.toLocaleString("en-US", { timeZone, dateStyle: "medium", timeStyle: "short" }) : "To be confirmed";
 }
 
 async function loadBooking(id: string) {
@@ -26,14 +27,14 @@ async function loadBooking(id: string) {
 }
 
 export async function sendBookingRequestReceivedEmail(bookingId: string) {
-  const booking = await loadBooking(bookingId);
+  const [booking, settings] = await Promise.all([loadBooking(bookingId), getPublicSiteSettings()]);
   if (!booking) return;
   const email = bookingRequestReceivedEmail({
     customerName: customerName(booking),
     bookingCode: booking.bookingCode,
     services: serviceNames(booking),
     technician: booking.technician?.name,
-    when: whenLabel(booking.scheduledStartAt),
+    when: whenLabel(booking.scheduledStartAt, settings.timezone),
     status: booking.status,
   });
   await sendTransactionalEmail({
@@ -47,9 +48,9 @@ export async function sendBookingRequestReceivedEmail(bookingId: string) {
 }
 
 export async function sendBookingStatusEmail(bookingId: string, status: string) {
-  const booking = await loadBooking(bookingId);
+  const [booking, settings] = await Promise.all([loadBooking(bookingId), getPublicSiteSettings()]);
   if (!booking) return;
-  const base = { customerName: customerName(booking), bookingCode: booking.bookingCode, services: serviceNames(booking), when: whenLabel(booking.scheduledStartAt) };
+  const base = { customerName: customerName(booking), bookingCode: booking.bookingCode, services: serviceNames(booking), when: whenLabel(booking.scheduledStartAt, settings.timezone) };
   const normalized = status.toUpperCase();
   const rendered =
     normalized === "CONFIRMED" ? { kind: TransactionalEmailKind.BOOKING_CONFIRMED, email: bookingConfirmedEmail(base) } :

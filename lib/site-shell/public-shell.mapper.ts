@@ -1,6 +1,7 @@
 import type { GlobalContent, ImageField } from "@/lib/content/content.types";
 import type { NavigationMenuItem, NavigationMenuSettingDTO } from "@/lib/navigation/navigation.types";
 import type { PublicShellData } from "./public-shell.types";
+import type { PublicSiteSettings } from "@/lib/settings/public-settings.types";
 
 function safeItems(value: unknown): NavigationMenuItem[] {
   if (!Array.isArray(value)) return [];
@@ -34,14 +35,15 @@ export function mapPublicShellData(input: {
   legalMenu: NavigationMenuItem[];
   socialMenu: NavigationMenuItem[];
   settings: NavigationMenuSettingDTO;
+  publicSettings?: PublicSiteSettings;
 }): PublicShellData {
   const global = input.global;
   const settings = input.settings;
   return {
     brand: {
-      name: global.brand?.name || "Aera Nail Lounge",
-      logo: safeLogo(global.brand?.logo),
-      tagline: global.brand?.tagline || null,
+      name: input.publicSettings?.brand.name || global.brand?.name || "Aera Nail Lounge",
+      logo: safeLogo(input.publicSettings?.brand.logo || global.brand?.logo),
+      tagline: input.publicSettings?.brand.tagline || global.brand?.tagline || null,
     },
     header: {
       primaryMenu: safeItems(input.primaryMenu),
@@ -55,7 +57,12 @@ export function mapPublicShellData(input: {
       exploreMenu: safeItems(input.exploreMenu),
       legalMenu: settings.footerShowLegal ? safeItems(input.legalMenu) : [],
       socialMenu: settings.footerShowSocial ? safeItems(input.socialMenu) : [],
-      contact: global.footer?.contact || global.defaultContact || null,
+      contact: input.publicSettings ? {
+        phone: input.publicSettings.contact.phone,
+        email: input.publicSettings.contact.email,
+        address: input.publicSettings.contact.address,
+        hours: input.publicSettings.businessHoursSummary,
+      } : global.footer?.contact || global.defaultContact || null,
       newsletter: global.footer?.newsletter || null,
       copyright: global.footer?.copyright || null,
       layout: footerLayout(settings.footerLayout),

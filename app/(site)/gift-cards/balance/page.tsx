@@ -1,5 +1,7 @@
 import { GiftCardBalanceForm } from "@/components/gift-cards/GiftCardBalanceForm";
 
+export const dynamic = "force-dynamic";
+
 export default function GiftCardBalancePage() {
   return (
     <main className="bg-[#fbf4e8] px-4 py-16 text-[#3d2d24]">

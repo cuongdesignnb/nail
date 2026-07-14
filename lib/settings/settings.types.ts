@@ -3,8 +3,9 @@ export type AdminSettingsResponse<T> = {
   data: T;
   meta: {
     version?: number;
-    updatedAt?: string | null;
-    updatedBy?: string | null;
+    updatedAt: string;
+    updatedBy: string | null;
+    publicRevalidated: boolean;
   };
 };
 
@@ -13,7 +14,9 @@ export type AdminSettingsErrorCode =
   | "VERSION_CONFLICT"
   | "DATABASE_ERROR"
   | "UNAUTHORIZED"
-  | "PERSISTENCE_VERIFICATION_FAILED";
+  | "FORBIDDEN"
+  | "PERSISTENCE_VERIFICATION_FAILED"
+  | "PUBLIC_REVALIDATION_FAILED";
 
 export type AdminSettingsError = {
   success: false;
@@ -41,3 +44,22 @@ export type BookingPolicies = {
   bufferMinutes: number;
 };
 
+export type SalonProfileSettings = {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  website: string;
+  description: string;
+};
+
+export type BrandingSettings = {
+  logo: import("@/lib/media/media.types").MediaReference | null;
+  favicon: import("@/lib/media/media.types").MediaReference | null;
+};
+
+export type GlobalSettingsSection =
+  | "salon-profile"
+  | "business-hours"
+  | "booking-policies"
+  | "branding";

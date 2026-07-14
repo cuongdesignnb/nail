@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { PageShell } from "@/components/shared/PageShell";
 import { buildPageMetadata } from "@/lib/seo/build-metadata";
 
+export const dynamic = "force-dynamic";
+
 export function generateMetadata(): Metadata {
   return buildPageMetadata({
     pageTitle: "Booking Request Received",

@@ -1,9 +1,7 @@
 import { z } from "zod";
+import { generalSettingsSchema } from "./schemas/general.schema";
 
-export const businessSettingsSchema = z.object({
-  timezone: z.string().trim().min(1).max(100),
-  currency: z.string().trim().length(3).transform((value) => value.toUpperCase()),
-});
+export const businessSettingsSchema = generalSettingsSchema;
 
 export const businessHoursSchema = z.array(z.object({
   day: z.string().trim().min(1),
@@ -18,4 +16,3 @@ export const bookingPoliciesSchema = z.object({
   cancellationWindowHours: z.coerce.number().int().min(0),
   bufferMinutes: z.coerce.number().int().min(0),
 });
-

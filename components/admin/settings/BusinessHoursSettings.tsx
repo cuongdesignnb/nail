@@ -1,257 +1,47 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import React from "react";
 import { Clock, Save } from "lucide-react";
 import { AdminToggle } from "@/components/admin/ui";
-import { settingsEqual } from "@/lib/settings/normalize-settings";
+import { useToast } from "@/components/admin/ui/AdminToastProvider";
+import { useSettingsForm } from "@/hooks/admin/useSettingsForm";
+import type { BusinessHour } from "@/lib/settings/settings.types";
+import { SettingsStatusFooter } from "./SettingsStatusFooter";
 
-interface DaySchedule {
-  day: string;
-  isOpen: boolean;
-  startTime: string;
-  endTime: string;
-}
-
-const DEFAULT_HOURS: DaySchedule[] = [
-  { day: "Monday", isOpen: true, startTime: "09:00", endTime: "19:00" },
-  { day: "Tuesday", isOpen: true, startTime: "09:00", endTime: "19:00" },
-  { day: "Wednesday", isOpen: true, startTime: "09:00", endTime: "19:00" },
-  { day: "Thursday", isOpen: true, startTime: "09:00", endTime: "20:00" },
-  { day: "Friday", isOpen: true, startTime: "09:00", endTime: "20:00" },
-  { day: "Saturday", isOpen: true, startTime: "10:00", endTime: "18:00" },
-  { day: "Sunday", isOpen: false, startTime: "10:00", endTime: "16:00" },
-];
-
-function formatBusinessHoursString(hoursList: DaySchedule[]): string {
-  const openDays = hoursList.filter((d) => d.isOpen);
-  if (openDays.length === 0) return "Closed";
-
-  const formatTime = (t: string) => {
-    const [h, m] = t.split(":");
-    const hr = parseInt(h);
-    const ampm = hr >= 12 ? "PM" : "AM";
-    const hour12 = hr % 12 || 12;
-    return `${hour12}:${m} ${ampm}`;
-  };
-
-  const groups: { [key: string]: string[] } = {};
-  hoursList.forEach((day) => {
-    if (!day.isOpen) {
-      const key = "Closed";
-      groups[key] = groups[key] || [];
-      groups[key].push(day.day.slice(0, 3));
-    } else {
-      const key = `${formatTime(day.startTime)} – ${formatTime(day.endTime)}`;
-      groups[key] = groups[key] || [];
-      groups[key].push(day.day.slice(0, 3));
-    }
-  });
-
-  return Object.entries(groups)
-    .map(([times, days]) => {
-      if (days.length === 7) return `Mon – Sun: ${times}`;
-      if (
-        days.length === 5 &&
-        days.includes("Mon") &&
-        days.includes("Fri") &&
-        !days.includes("Sat") &&
-        !days.includes("Sun")
-      ) {
-        return `Mon – Fri: ${times}`;
-      }
-      return `${days.join(", ")}: ${times}`;
-    })
-    .join(" | ");
-}
+type HoursForm = { businessHours: BusinessHour[] };
+const inputClass = "rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2 text-xs focus:border-[var(--admin-accent)] focus:outline-none";
 
 export default function BusinessHoursSettings() {
-  const [hours, setHours] = useState<DaySchedule[]>(DEFAULT_HOURS);
-  const [version, setVersion] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [isDirty, setIsDirty] = useState(false);
+  const toast = useToast();
+  const form = useSettingsForm<HoursForm>({
+    url: "/api/admin/settings/business-hours",
+    select: (value) => ({ businessHours: (value as { businessHours: BusinessHour[] }).businessHours }),
+  });
+  React.useEffect(() => { form.load().catch(() => undefined); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  if (form.loading && !form.data) return <p className="p-6 text-xs text-[var(--admin-muted)]">Loading business hours...</p>;
+  if (!form.data) return <LoadError error={form.error} retry={() => form.reload().catch(() => undefined)} />;
 
-  const load = React.useCallback(async () => {
-      setLoading(true);
-      setLoadError(null);
-      try {
-        const res = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-        const json = await res.json();
-        if (!res.ok || !json.success || !json.data) throw new Error(json.error || "Unable to load settings.");
-          const content = json.data.draftContent || {};
-          if (Array.isArray(content.businessHours)) {
-            setHours(content.businessHours);
-          } else {
-            setHours(DEFAULT_HOURS);
-          }
-          setVersion(json.data.version || 1);
-          setIsDirty(false);
-      } catch (err) {
-        setLoadError(err instanceof Error ? err.message : "Unable to load settings.");
-      } finally {
-        setLoading(false);
-      }
-  }, []);
-  useEffect(() => { load().catch(() => undefined); }, [load]);
-
-  const updateDay = (index: number, field: keyof DaySchedule, value: string | boolean) => {
-    setHours((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index], [field]: value };
-      return next;
-    });
-    setSaved(false);
-    setIsDirty(true);
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const getRes = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-      const getJson = await getRes.json();
-      if (!getRes.ok || !getJson.success || !getJson.data) throw new Error(getJson.error || "Unable to load settings.");
-      const currentContent = getJson.data.draftContent;
-      const currentVersion = getJson.data.version;
-
-      const hoursString = formatBusinessHoursString(hours);
-
-      const updatedContent = {
-        ...currentContent,
-        businessHours: hours,
-        defaultContact: {
-          ...(currentContent as any).defaultContact,
-          hours: hoursString,
-        },
-        footer: {
-          ...(currentContent as any).footer,
-          contact: {
-            ...(currentContent as any).footer?.contact,
-            hours: hoursString,
-          },
-        },
-      };
-
-      const putRes = await fetch("/api/admin/content/global", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: updatedContent, version: currentVersion }),
-      });
-      const putJson = await putRes.json();
-      if (!putRes.ok || !putJson.success) {
-        throw new Error(putJson.error || "Failed to save draft");
-      }
-
-      const nextVersion = putJson.data.version;
-
-      const publishRes = await fetch("/api/admin/content/global/publish", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ version: nextVersion }),
-      });
-      const publishJson = await publishRes.json();
-      if (!publishRes.ok || !publishJson.success) {
-        throw new Error(publishJson.error || "Failed to publish");
-      }
-
-      const verifyRes = await fetch("/api/admin/content/global", { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
-      const verifyJson = await verifyRes.json();
-      const verified = verifyJson.data?.draftContent?.businessHours;
-      if (!verifyRes.ok || !verifyJson.success || !settingsEqual(hours, verified)) throw new Error("Your changes could not be verified after saving. Please reload and try again.");
-      setHours(verified);
-      setVersion(verifyJson.data.version);
-      setIsDirty(false);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to save business hours");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const inputClass =
-    "rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
-
-  if (loading) {
-    return <div className="p-6 text-xs text-[var(--admin-muted)]">Loading business hours...</div>;
+  function update(index: number, key: keyof BusinessHour, value: string | boolean) {
+    form.setData((current) => ({ businessHours: current.businessHours.map((day, i) => i === index ? { ...day, [key]: value } : day) }));
   }
-  if (loadError) return <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-xs text-red-700"><p>Unable to load settings.</p><button type="button" onClick={() => load().catch(() => undefined)} className="mt-3 font-bold underline">Retry</button></div>;
-
+  async function save() {
+    const saved = await form.save();
+    saved ? toast.success("Business hours saved and verified.") : toast.error(form.error || "Unable to save business hours.");
+  }
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="max-w-4xl space-y-6"
-    >
-      <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--admin-surface-muted)]">
-            <Clock className="h-4.5 w-4.5 text-[var(--admin-accent)]" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-[var(--admin-ink)]">Business Hours</h3>
-            <p className="text-[11px] text-[var(--admin-muted)]">Set operating hours for each day of the week</p>
-          </div>
+    <div className="max-w-4xl space-y-5 rounded-2xl border border-[var(--admin-border)] bg-white p-6">
+      <div className="flex items-center gap-3"><Clock size={18} /><div><h3 className="text-sm font-bold">Business Hours</h3><p className="text-[11px] text-[var(--admin-muted)]">Controls public hours and booking availability</p></div></div>
+      <div className="space-y-3">{form.data.businessHours.map((day, index) => (
+        <div key={day.day} className="flex flex-wrap items-center gap-4 rounded-xl bg-[var(--admin-surface-muted)] p-3">
+          <span className="w-28 text-xs font-semibold">{day.day}</span><AdminToggle checked={day.isOpen} onChange={(value) => update(index, "isOpen", value)} />
+          {day.isOpen ? <><input type="time" className={inputClass} value={day.startTime} onChange={(event) => update(index, "startTime", event.target.value)} /><span>–</span><input type="time" className={inputClass} value={day.endTime} onChange={(event) => update(index, "endTime", event.target.value)} /></> : <em className="text-xs text-[var(--admin-muted)]">Closed</em>}
+          {form.fieldErrors[`businessHours.${index}.endTime`]?.map((error) => <span key={error} className="w-full text-xs text-red-600">{error}</span>)}
         </div>
-
-        <div className="space-y-3">
-          {hours.map((day, i) => (
-            <div
-              key={day.day}
-              className={`flex items-center gap-4 rounded-xl p-3 transition-colors ${
-                day.isOpen ? "bg-[var(--admin-surface-muted)]" : "bg-gray-50"
-              }`}
-            >
-              <div className="w-28 shrink-0">
-                <span className={`text-xs font-semibold ${day.isOpen ? "text-[var(--admin-ink)]" : "text-[var(--admin-muted)]"}`}>
-                  {day.day}
-                </span>
-              </div>
-
-              <AdminToggle
-                checked={day.isOpen}
-                onChange={(val) => updateDay(i, "isOpen", val)}
-              />
-
-              {day.isOpen ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="time"
-                    value={day.startTime}
-                    onChange={(e) => updateDay(i, "startTime", e.target.value)}
-                    className={inputClass}
-                  />
-                  <span className="text-xs text-[var(--admin-muted)]">–</span>
-                  <input
-                    type="time"
-                    value={day.endTime}
-                    onChange={(e) => updateDay(i, "endTime", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-              ) : (
-                <span className="text-xs text-[var(--admin-muted)] italic">Closed</span>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6">
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={loading || saving || !isDirty}
-            className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-colors hover:bg-[var(--admin-accent-hover)] disabled:opacity-40"
-          >
-            <Save className="h-3.5 w-3.5" />
-            {saving ? "Saving..." : saved ? "Settings saved and verified." : "Save Hours"}
-          </button>
-        </div>
-      </div>
-    </motion.div>
+      ))}</div>
+      <button type="button" onClick={save} disabled={form.saving || !form.isDirty} className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase text-white disabled:opacity-40"><Save size={14} />{form.saving ? "Saving..." : "Save Hours"}</button>
+      <SettingsStatusFooter {...form} onReload={() => form.reload().catch(() => undefined)} />
+    </div>
   );
 }
+
+function LoadError({ error, retry }: { error: string | null; retry: () => void }) { return <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-xs text-red-700">{error || "Unable to load settings."} <button onClick={retry} className="font-bold underline">Retry</button></div>; }

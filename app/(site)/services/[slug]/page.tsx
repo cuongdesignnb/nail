@@ -10,6 +10,7 @@ import { buildEntityPageMetadata } from "@/lib/seo/seo.service";
 import { buildAbsoluteUrl } from "@/lib/seo/site-url";
 import { buildServiceSchema } from "@/lib/seo/schema/service.schema";
 import { buildOfferSchema } from "@/lib/seo/schema/offer.schema";
+import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
 
 export const dynamic = "force-dynamic";
 
@@ -36,9 +37,10 @@ export function generateMetadata({ params }: { params: { slug: string } }): Prom
   });
 }
 
-export default function ServiceDetailPage({ params }: { params: { slug: string } }) {
+export default async function ServiceDetailPage({ params }: { params: { slug: string } }) {
   const service = services.find((item) => item.slug === params.slug);
   if (!service) notFound();
+  const settings = await getPublicSiteSettings();
   const availableTechs = technicians.filter((tech) => service.technicianIds.includes(tech.id));
   const url = buildAbsoluteUrl(`/services/${service.slug}`);
   const serviceSchema = buildServiceSchema({
@@ -46,13 +48,13 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
     description: service.longDescription || service.description,
     image: service.image,
     url,
-    providerName: "Aera Nail Lounge",
+    providerName: settings.brand.name,
   });
   const offerSchema = buildOfferSchema({
     name: service.name,
     url,
     price: service.price,
-    priceCurrency: "USD",
+    priceCurrency: settings.currency,
   });
   return (
     <PageShell eyebrow={service.category} title={service.name} copy={service.longDescription}>
@@ -67,7 +69,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
         <aside className="lux-card detail-panel">
           <h3>Service Summary</h3>
           <p><Clock3 size={16} /> {service.duration} minutes</p>
-          <p className="detail-price">${service.price}</p>
+          <p className="detail-price">{new Intl.NumberFormat("en-US", { style: "currency", currency: settings.currency }).format(service.price)}</p>
           <h4>Compatible Add-ons</h4>
           {addons.filter((addon) => service.addons.includes(addon.id)).map((addon) => (
             <p key={addon.id}><Check size={15} /> {addon.name} · ${addon.price}</p>

@@ -1,16 +1,15 @@
-import crypto from "crypto";
 import { Prisma } from "@prisma/client";
 import { addMinutes } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 import { prisma } from "@/lib/db";
 import { sendBookingRequestReceivedEmail } from "@/lib/email/booking-mail.service";
-import { createPayPalOrder } from "@/lib/payments/paypal/paypal.orders";
-import { getOrCreatePayPalConfig } from "@/lib/payments/paypal/paypal.config";
 import type { BookingCustomerPayload, BookingPayload, QuoteSnapshot } from "./checkout.types";
 import { generateBookingCode } from "./checkout-finalizer";
+import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
+import { validateBookingWindow } from "@/lib/settings/booking-policy";
 
 const TAX_RATE = 0.095;
-const BUFFER_MINUTES = 15;
+const SLOT_INTERVAL_MINUTES = 30;
 const BLOCKING_BOOKING_STATUSES = [
   "CONFIRMED",
   "PENDING",
@@ -27,16 +26,12 @@ function round(value: number) {
   return Math.round(value * 100) / 100;
 }
 
-function makeToken() {
-  return crypto.randomBytes(24).toString("base64url");
-}
-
 function asMoney(value: Prisma.Decimal | number | null | undefined) {
   return Number(value ?? 0);
 }
 
 export async function getBookingCatalog() {
-  const [services, addons, packages, technicians, promotions, business, paymentConfig] = await Promise.all([
+  const [services, addons, packages, technicians, promotions, publicSettings] = await Promise.all([
     prisma.service.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
@@ -65,12 +60,7 @@ export async function getBookingCatalog() {
       orderBy: { code: "asc" },
       select: { id: true, code: true, title: true, amount: true, type: true, firstBookingOnly: true, validUntil: true },
     }),
-    prisma.businessSetting.upsert({
-      where: { key: "default" },
-      create: { key: "default" },
-      update: {},
-    }),
-    getOrCreatePayPalConfig(),
+    getPublicSiteSettings(),
   ]);
 
   return {
@@ -83,13 +73,17 @@ export async function getBookingCatalog() {
     packages: packages.map((p) => ({ ...p, price: asMoney(p.price) })),
     technicians: technicians.map((t) => ({ ...t, rating: Number(t.rating) })),
     promotions: promotions.map((p) => ({ ...p, amount: asMoney(p.amount) })),
-    business: { timezone: business.timezone, currency: business.currency },
-    payment: {
-      enabled: Boolean(paymentConfig.isEnabled && paymentConfig.clientId && paymentConfig.encryptedClientSecret),
-      currency: paymentConfig.currency,
-      chargeMode: paymentConfig.chargeMode,
-      depositPercentage: Number(paymentConfig.depositPercentage),
-      bookingHoldMinutes: paymentConfig.bookingHoldMinutes,
+    business: {
+      timezone: publicSettings.timezone,
+      currency: publicSettings.currency,
+      bookingPolicies: publicSettings.bookingPolicies,
+      businessHours: publicSettings.businessHours,
+      policyVersion: [
+        publicSettings.bookingPolicies.minAdvanceHours,
+        publicSettings.bookingPolicies.maxAdvanceDays,
+        publicSettings.bookingPolicies.cancellationWindowHours,
+        publicSettings.bookingPolicies.bufferMinutes,
+      ].join("-"),
     },
   };
 }
@@ -100,8 +94,8 @@ export async function calculateBookingQuote(input: {
   promotionCode?: string;
   customerEmail?: string;
 }): Promise<QuoteSnapshot> {
-  const [paymentConfig, services, addons] = await Promise.all([
-    getOrCreatePayPalConfig(),
+  const [publicSettings, services, addons] = await Promise.all([
+    getPublicSiteSettings(),
     prisma.service.findMany({ where: { id: { in: input.serviceIds }, isActive: true } }),
     input.addonIds.length
       ? prisma.serviceAddon.findMany({ where: { id: { in: input.addonIds }, isActive: true } })
@@ -150,11 +144,6 @@ export async function calculateBookingQuote(input: {
   const taxable = Math.max(0, subtotal - discountAmount);
   const taxAmount = round(taxable * TAX_RATE);
   const totalAmount = round(taxable + taxAmount);
-  const chargeMode = paymentConfig.chargeMode === "full" ? "full" : "deposit";
-  const depositPercentage = Number(paymentConfig.depositPercentage || 25);
-  const paymentAmount =
-    chargeMode === "full" ? totalAmount : round(totalAmount * (depositPercentage / 100));
-
   return {
     services: serviceSnapshots,
     addons: addonSnapshots,
@@ -162,38 +151,38 @@ export async function calculateBookingQuote(input: {
     discountAmount,
     taxAmount,
     totalAmount,
-    paymentAmount,
-    remainingAmount: round(totalAmount - paymentAmount),
-    chargeMode,
-    depositPercentage,
-    currency: paymentConfig.currency || "USD",
+    paymentAmount: 0,
+    remainingAmount: totalAmount,
+    chargeMode: "pay_at_salon",
+    depositPercentage: 0,
+    currency: publicSettings.currency,
     durationMinutes,
     promotionCode: promotionCode || null,
   };
 }
 
 export async function getBusinessTimezone() {
-  const business = await prisma.businessSetting.upsert({
-    where: { key: "default" },
-    create: { key: "default" },
-    update: {},
-  });
-  return business.timezone || "America/Los_Angeles";
+  return (await getPublicSiteSettings()).timezone;
 }
 
 export async function resolveSchedule(input: { date: string; time: string; durationMinutes: number }) {
-  const timezone = await getBusinessTimezone();
-  const globalRecord = await prisma.sitePageContent.findUnique({
-    where: { slug: "global" },
-    select: { publishedContent: true },
-  });
-  const content = globalRecord?.publishedContent as any;
-  const buffer = typeof content?.bookingPolicies?.bufferMinutes === "number"
-    ? content.bookingPolicies.bufferMinutes
-    : BUFFER_MINUTES;
-
+  const settings = await getPublicSiteSettings();
+  const timezone = settings.timezone;
+  const buffer = settings.bookingPolicies.bufferMinutes;
   const start = fromZonedTime(`${input.date}T${input.time}:00`, timezone);
   const end = addMinutes(start, input.durationMinutes + buffer);
+  const now = new Date();
+  const window = validateBookingWindow({ start, now, policies: settings.bookingPolicies });
+  if (window.reason === "MIN_ADVANCE") throw new Error(`Appointments require at least ${settings.bookingPolicies.minAdvanceHours} hours advance notice.`);
+  if (window.reason === "MAX_ADVANCE") throw new Error(`Appointments can only be booked ${settings.bookingPolicies.maxAdvanceDays} days in advance.`);
+  const weekday = new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: timezone }).format(start);
+  const hours = settings.businessHours.find((entry) => entry.day === weekday);
+  if (!hours?.isOpen) throw new Error("The salon is closed on the selected date.");
+  const minutes = (value: string) => { const [hour, minute] = value.split(":").map(Number); return hour * 60 + minute; };
+  const appointmentStart = minutes(input.time);
+  if (appointmentStart < minutes(hours.startTime) || appointmentStart + input.durationMinutes + buffer > minutes(hours.endTime)) {
+    throw new Error("The selected appointment does not fit within business hours.");
+  }
   return { start, end, timezone };
 }
 
@@ -258,11 +247,29 @@ export async function getAvailability(input: {
       : { isActive: true },
     orderBy: { name: "asc" },
   });
-  const slots = ["10:00", "10:30", "11:00", "12:00", "13:30", "14:00", "15:30", "16:00", "17:30", "18:00"];
+  const settings = await getPublicSiteSettings();
+  const dateAtNoon = fromZonedTime(`${input.date}T12:00:00`, settings.timezone);
+  const weekday = new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: settings.timezone }).format(dateAtNoon);
+  const dayHours = settings.businessHours.find((entry) => entry.day === weekday);
+  if (!dayHours?.isOpen) return { availableSlots: [], durationMinutes: quote.durationMinutes, availableTechnicians: [] };
+  const toMinutes = (value: string) => { const [hour, minute] = value.split(":").map(Number); return hour * 60 + minute; };
+  const toTime = (value: number) => `${String(Math.floor(value / 60)).padStart(2, "0")}:${String(value % 60).padStart(2, "0")}`;
+  const slots: string[] = [];
+  for (
+    let minute = toMinutes(dayHours.startTime);
+    minute + quote.durationMinutes + settings.bookingPolicies.bufferMinutes <= toMinutes(dayHours.endTime);
+    minute += SLOT_INTERVAL_MINUTES
+  ) slots.push(toTime(minute));
   const availableSlots: string[] = [];
   const availableTechnicianIds = new Set<string>();
   for (const slot of slots) {
-    const { start, end } = await resolveSchedule({ date: input.date, time: slot, durationMinutes: quote.durationMinutes });
+    let schedule;
+    try {
+      schedule = await resolveSchedule({ date: input.date, time: slot, durationMinutes: quote.durationMinutes });
+    } catch {
+      continue;
+    }
+    const { start, end } = schedule;
     for (const tech of technicians) {
       if (!(await hasSlotConflict({ technicianId: tech.id, start, end }))) {
         availableSlots.push(slot);
@@ -277,93 +284,6 @@ export async function getAvailability(input: {
     availableTechnicians: technicians
       .filter((tech) => availableTechnicianIds.has(tech.id))
       .map((tech) => ({ id: tech.id, name: tech.name, role: tech.role, specialty: tech.specialty })),
-  };
-}
-
-export async function createBookingCheckout(input: BookingPayload & { customer: BookingCustomerPayload }) {
-  const paymentConfig = await getOrCreatePayPalConfig();
-  if (!paymentConfig.isEnabled || !paymentConfig.clientId || !paymentConfig.encryptedClientSecret) {
-    throw new Error("Online PayPal payment is not configured yet.");
-  }
-
-  const quote = await calculateBookingQuote({
-    serviceIds: input.serviceIds,
-    addonIds: input.addonIds,
-    promotionCode: input.promotionCode,
-    customerEmail: input.customer.email,
-  });
-  const { start, end } = await resolveSchedule({
-    date: input.date,
-    time: input.time,
-    durationMinutes: quote.durationMinutes,
-  });
-  const technician = await chooseTechnician({ technicianId: input.technicianId, start, end });
-  const publicToken = makeToken();
-  const idempotencyKey = crypto.randomUUID();
-  const expiresAt = addMinutes(new Date(), paymentConfig.bookingHoldMinutes || 15);
-
-  const session = await prisma.bookingCheckoutSession.create({
-    data: {
-      publicToken,
-      customerPayload: input.customer as unknown as Prisma.InputJsonValue,
-      bookingPayload: {
-        serviceIds: input.serviceIds,
-        addonIds: input.addonIds,
-        technicianId: technician.id,
-        date: input.date,
-        time: input.time,
-        promotionCode: input.promotionCode,
-        notes: input.notes,
-        policyAccepted: input.policyAccepted,
-        policyVersion: input.policyVersion,
-      } satisfies BookingPayload as unknown as Prisma.InputJsonValue,
-      quoteSnapshot: quote as unknown as Prisma.InputJsonValue,
-      technicianId: technician.id,
-      scheduledStartAt: start,
-      scheduledEndAt: end,
-      currency: quote.currency,
-      totalAmount: quote.totalAmount,
-      paymentAmount: quote.paymentAmount,
-      chargeMode: quote.chargeMode,
-      expiresAt,
-      idempotencyKey,
-    },
-  });
-
-  const order = await createPayPalOrder({
-    sessionId: session.id,
-    publicToken,
-    amount: quote.paymentAmount,
-    currency: quote.currency,
-    description: "Aera Nail Lounge booking payment",
-    idempotencyKey,
-  });
-
-  await prisma.bookingCheckoutSession.update({
-    where: { id: session.id },
-    data: { paypalOrderId: order.id },
-  });
-
-  await prisma.auditLog.create({
-    data: {
-      actor: "public",
-      action: "PAYPAL_CHECKOUT_CREATED",
-      entity: `BookingCheckoutSession:${session.id}`,
-      entityType: "BookingCheckoutSession",
-      entityId: session.id,
-      details: { paypalOrderId: order.id, publicToken },
-    },
-  }).catch(() => undefined);
-
-  return {
-    publicToken,
-    paypalOrderId: order.id,
-    expiresAt: expiresAt.toISOString(),
-    paymentAmount: quote.paymentAmount,
-    totalAmount: quote.totalAmount,
-    remainingAmount: quote.remainingAmount,
-    currency: quote.currency,
-    chargeMode: quote.chargeMode,
   };
 }
 
@@ -422,6 +342,7 @@ export async function createManualBookingRequest(input: BookingPayload & { custo
         status: "PENDING",
         paymentStatus: "UNPAID",
         paymentMethod: "PAY_AT_SALON",
+        policyVersion: input.policyVersion,
         scheduledStartAt: start,
         scheduledEndAt: end,
         subtotal: quote.subtotal,

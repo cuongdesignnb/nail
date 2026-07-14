@@ -4,12 +4,27 @@ import { getRuntimeSmtpConfig } from "./smtp-config.service";
 import { sanitizeMailError } from "./smtp-crypto";
 import { createSmtpTransporter } from "./smtp-transporter";
 import type { SendTransactionalEmailInput } from "./mail.types";
+import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
 
 function backoff(attempts: number) {
   return new Date(Date.now() + Math.min(60, 2 ** Math.max(1, attempts)) * 60_000);
 }
 
 export async function sendTransactionalEmail(input: SendTransactionalEmailInput) {
+  const publicSettings = await getPublicSiteSettings();
+  const escapedBrand = publicSettings.brand.name.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character] || character));
+  const logo = publicSettings.brand.logo?.src
+    ? `<img src="${publicSettings.brand.logo.src}" alt="${publicSettings.brand.logo.alt}" style="display:block;max-width:180px;max-height:70px;margin-bottom:12px" />`
+    : "";
+  const brandedInput = {
+    ...input,
+    subject: input.subject.replaceAll("Aera Nail Lounge", publicSettings.brand.name),
+    html: input.html
+      .replace("<div style=\"font-family:Georgia,serif;font-size:28px;font-weight:700;color:#7a4f32\">", `${logo}<div style="font-family:Georgia,serif;font-size:28px;font-weight:700;color:#7a4f32">`)
+      .replaceAll("Aera Nail Lounge", escapedBrand)
+      .replace("Los Angeles</div>", `${publicSettings.contact.address}</div>`),
+    text: input.text?.replaceAll("Aera Nail Lounge", publicSettings.brand.name),
+  };
   const shouldDedupe = input.kind !== TransactionalEmailKind.SMTP_TEST;
   const existing = shouldDedupe && input.entityType && input.entityId
     ? await prisma.transactionalEmailLog.findFirst({
@@ -28,13 +43,13 @@ export async function sendTransactionalEmail(input: SendTransactionalEmailInput)
     data: {
       kind: input.kind,
       recipient: input.to,
-      subject: input.subject,
+      subject: brandedInput.subject,
       entityType: input.entityType,
       entityId: input.entityId,
-      metadata: { ...(input.metadata || {}), html: input.html, text: input.text },
+      metadata: { ...(input.metadata || {}), html: brandedInput.html, text: brandedInput.text },
     },
   });
-  return attemptTransactionalEmail(log.id, input);
+  return attemptTransactionalEmail(log.id, brandedInput);
 }
 
 export async function attemptTransactionalEmail(logId: string, payload?: SendTransactionalEmailInput) {

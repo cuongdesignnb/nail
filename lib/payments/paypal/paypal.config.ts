@@ -2,7 +2,7 @@ import type { PaymentGatewayConfig } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { DEFAULT_PAYMENT_CONFIG, PAYPAL_PROVIDER } from "./paypal.constants";
 import { decryptSecret, encryptSecret, maskValue } from "./paypal.crypto";
-import type { PayPalChargeMode, PayPalConfigView, PayPalEnvironment } from "./paypal.types";
+import type { PayPalConfigView, PayPalEnvironment } from "./paypal.types";
 
 export async function getOrCreatePayPalConfig() {
   return prisma.paymentGatewayConfig.upsert({
@@ -14,7 +14,6 @@ export async function getOrCreatePayPalConfig() {
 
 export function serializePayPalConfig(config: PaymentGatewayConfig): PayPalConfigView {
   const environment = (config.environment === "live" ? "live" : "sandbox") as PayPalEnvironment;
-  const chargeMode = (config.chargeMode === "full" ? "full" : "deposit") as PayPalChargeMode;
   const ready = Boolean(
     config.isEnabled &&
       config.clientId &&
@@ -30,10 +29,6 @@ export function serializePayPalConfig(config: PaymentGatewayConfig): PayPalConfi
     clientSecretConfigured: Boolean(config.encryptedClientSecret),
     webhookId: config.webhookId,
     currency: config.currency || DEFAULT_PAYMENT_CONFIG.currency,
-    chargeMode,
-    depositPercentage: Number(config.depositPercentage),
-    bookingHoldMinutes: config.bookingHoldMinutes,
-    autoConfirmAfterPayment: config.autoConfirmAfterPayment,
     ready,
   };
 }
@@ -45,8 +40,6 @@ export async function getPublicPayPalConfig() {
     clientId: config.clientId,
     currency: config.currency,
     intent: "capture" as const,
-    chargeMode: config.chargeMode,
-    depositPercentage: Number(config.depositPercentage),
   };
 }
 
@@ -57,10 +50,6 @@ export async function updatePayPalConfig(input: {
   clientSecret?: string;
   webhookId?: string;
   currency?: string;
-  chargeMode?: string;
-  depositPercentage?: number;
-  bookingHoldMinutes?: number;
-  autoConfirmAfterPayment?: boolean;
 }) {
   const existing = await getOrCreatePayPalConfig();
   const encryptedClientSecret = input.clientSecret?.trim()
@@ -86,11 +75,6 @@ export async function updatePayPalConfig(input: {
       encryptedClientSecret,
       webhookId: input.webhookId?.trim() || existing.webhookId,
       currency: input.currency ?? existing.currency,
-      chargeMode: input.chargeMode ?? existing.chargeMode,
-      depositPercentage: input.depositPercentage ?? existing.depositPercentage,
-      bookingHoldMinutes: input.bookingHoldMinutes ?? existing.bookingHoldMinutes,
-      autoConfirmAfterPayment:
-        input.autoConfirmAfterPayment ?? existing.autoConfirmAfterPayment,
     },
   });
 }

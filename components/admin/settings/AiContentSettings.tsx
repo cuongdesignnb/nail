@@ -1,150 +1,80 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Bot, CheckCircle2, KeyRound, Save, ShieldAlert, Trash2, Zap } from "lucide-react";
+import React from "react";
+import { Bot, Save, Trash2, Zap } from "lucide-react";
+import { useToast } from "@/components/admin/ui/AdminToastProvider";
+import { settingsEqual } from "@/lib/settings/normalize-settings";
+import { SettingsStatusFooter } from "./SettingsStatusFooter";
 
 type AiSettings = {
-  isEnabled: boolean;
-  apiKeyConfigured: boolean;
-  apiKeyLastFour: string | null;
-  textModel: string;
-  imageModel: string;
-  defaultOutputLanguage: string;
-  defaultArticleLength: number;
-  defaultGenerateImage: boolean;
-  maxKeywordsPerBatch: number;
-  maxConcurrentJobs: number;
-  maxRetriesPerJob: number;
-  humanReviewRequired: boolean;
-  autoScheduleEnabled: boolean;
-  lastTestStatus: string | null;
+  isEnabled: boolean; apiKeyConfigured: boolean; apiKeyLastFour: string | null;
+  textModel: string; imageModel: string; defaultOutputLanguage: string; defaultArticleTone: string;
+  defaultArticleLength: number; defaultGenerateImage: boolean; defaultImageSize: string; defaultImageQuality: string;
+  maxKeywordsPerBatch: number; maxConcurrentJobs: number; maxRetriesPerJob: number; monthlyBudgetLimit: number | null;
+  humanReviewRequired: boolean; autoScheduleEnabled: boolean; lastTestStatus: string | null;
 };
 
-const inputClass = "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2.5 text-xs text-[var(--admin-ink)] focus:border-[var(--admin-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--admin-accent)]/20";
+const editableKeys: Array<keyof AiSettings> = [
+  "isEnabled", "textModel", "imageModel", "defaultOutputLanguage", "defaultArticleTone", "defaultArticleLength",
+  "defaultGenerateImage", "defaultImageSize", "defaultImageQuality", "maxKeywordsPerBatch", "maxConcurrentJobs",
+  "maxRetriesPerJob", "monthlyBudgetLimit", "humanReviewRequired", "autoScheduleEnabled",
+];
+const inputClass = "w-full rounded-xl border border-[var(--admin-border-strong)] bg-white px-3 py-2.5 text-xs focus:border-[var(--admin-accent)] focus:outline-none";
+
+function editable(settings: AiSettings) { return Object.fromEntries(editableKeys.map((key) => [key, settings[key]])); }
 
 export default function AiContentSettings() {
-  const [settings, setSettings] = useState<AiSettings | null>(null);
-  const [apiKey, setApiKey] = useState("");
-  const [message, setMessage] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [testing, setTesting] = useState(false);
+  const toast = useToast();
+  const [settings, setSettings] = React.useState<AiSettings | null>(null);
+  const [initial, setInitial] = React.useState<AiSettings | null>(null);
+  const [apiKey, setApiKey] = React.useState("");
+  const [error, setError] = React.useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string[]>>({});
+  const [saving, setSaving] = React.useState(false);
+  const [testing, setTesting] = React.useState(false);
+  const [lastSavedAt, setLastSavedAt] = React.useState<string | null>(null);
 
-  async function load() {
-    const res = await fetch("/api/admin/settings/ai-content");
-    const json = await res.json();
-    if (json.success) setSettings(json.data);
-    else setMessage(json.error || "Unable to load AI settings.");
-  }
-
-  useEffect(() => {
-    load();
+  const load = React.useCallback(async () => {
+    const response = await fetch("/api/admin/settings/ai-content", { cache: "no-store" });
+    const json = await response.json();
+    if (!response.ok || !json.success) { setError(json.error || "Unable to load AI settings."); return; }
+    setSettings(json.data); setInitial(json.data); setError(null);
   }, []);
+  React.useEffect(() => { load(); }, [load]);
+  const dirty = Boolean(apiKey) || (settings && initial ? !settingsEqual(editable(settings), editable(initial)) : false);
+  function update<K extends keyof AiSettings>(key: K, value: AiSettings[K]) { if (settings) setSettings({ ...settings, [key]: value }); }
 
-  async function submit(endpoint = "/api/admin/settings/ai-content", body?: Record<string, unknown>) {
-    if (!settings) return;
-    setSaving(true);
-    setMessage("");
-    try {
-      const res = await fetch(endpoint, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body ?? { ...settings, apiKey: apiKey || undefined }),
-      });
-      const json = await res.json();
-      if (!res.ok || !json.success) throw new Error(json.error || "Save failed.");
-      setSettings(json.data);
-      setApiKey("");
-      setMessage("AI settings saved.");
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Save failed.");
-    } finally {
-      setSaving(false);
-    }
+  async function save() {
+    if (!settings || !dirty) return;
+    setSaving(true); setError(null); setFieldErrors({});
+    const payload = { ...editable(settings), ...(apiKey.trim() ? { apiKey: apiKey.trim() } : {}) };
+    const response = await fetch("/api/admin/settings/ai-content", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    const json = await response.json();
+    if (!response.ok || !json.success) { setError(json.error || "Unable to save AI settings."); setFieldErrors(json.issues || {}); setSaving(false); return; }
+    const verifyResponse = await fetch("/api/admin/settings/ai-content", { cache: "no-store" });
+    const verifyJson = await verifyResponse.json();
+    setSaving(false);
+    if (!verifyResponse.ok || !verifyJson.success || !settingsEqual(editable(settings), editable(verifyJson.data))) { setError("AI settings were saved but could not be verified."); return; }
+    setSettings(verifyJson.data); setInitial(verifyJson.data); setApiKey(""); setLastSavedAt(verifyJson.meta?.updatedAt || new Date().toISOString());
+    toast.success("AI settings saved and verified.");
   }
 
-  async function postAction(url: string, successText: string) {
-    setMessage("");
-    setTesting(url.includes("test"));
-    try {
-      const res = await fetch(url, { method: "POST" });
-      const json = await res.json();
-      if (!res.ok || !json.success) throw new Error(json.error || "Action failed.");
-      setSettings(json.data);
-      setMessage(successText);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Action failed.");
-    } finally {
-      setTesting(false);
-    }
-  }
-
-  if (!settings) return <div className="text-xs text-[var(--admin-muted)]">Loading AI settings...</div>;
-
-  return (
-    <div className="max-w-3xl space-y-6">
-      <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-6 space-y-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h3 className="text-sm font-bold text-[var(--admin-ink)] flex items-center gap-2"><Bot size={16} /> AI Content Studio</h3>
-            <p className="mt-1 text-xs text-[var(--admin-muted)]">OpenAI provider, model defaults, batch limits, and human review policy.</p>
-          </div>
-          <label className="flex items-center gap-2 text-xs font-semibold text-[var(--admin-ink)]">
-            <input type="checkbox" checked={settings.isEnabled} onChange={(e) => setSettings({ ...settings, isEnabled: e.target.checked })} />
-            Enabled
-          </label>
-        </div>
-
-        {message && (
-          <div className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] px-3 py-2 text-xs text-[var(--admin-ink)]">{message}</div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="block text-xs font-semibold text-[var(--admin-ink)]">OpenAI API Key</label>
-            <div className="flex gap-2">
-              <input value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder={settings.apiKeyConfigured ? `Configured ending ${settings.apiKeyLastFour}` : "sk-..."} className={inputClass} type="password" />
-              <button type="button" onClick={() => postAction("/api/admin/settings/ai-content/remove-key", "API key removed.")} className="rounded-xl border border-rose-200 px-3 text-rose-600"><Trash2 size={14} /></button>
-            </div>
-          </div>
-
-          <Field label="Text Model" value={settings.textModel} onChange={(v) => setSettings({ ...settings, textModel: v })} />
-          <Field label="Image Model" value={settings.imageModel} onChange={(v) => setSettings({ ...settings, imageModel: v })} />
-          <Field label="Output Language" value={settings.defaultOutputLanguage} onChange={(v) => setSettings({ ...settings, defaultOutputLanguage: v })} />
-          <Field label="Article Length" type="number" value={String(settings.defaultArticleLength)} onChange={(v) => setSettings({ ...settings, defaultArticleLength: Number(v) })} />
-          <Field label="Max Keywords / Batch" type="number" value={String(settings.maxKeywordsPerBatch)} onChange={(v) => setSettings({ ...settings, maxKeywordsPerBatch: Number(v) })} />
-          <Field label="Max Retries / Job" type="number" value={String(settings.maxRetriesPerJob)} onChange={(v) => setSettings({ ...settings, maxRetriesPerJob: Number(v) })} />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Toggle icon={KeyRound} label="Generate Images" checked={settings.defaultGenerateImage} onChange={(v) => setSettings({ ...settings, defaultGenerateImage: v })} />
-          <Toggle icon={ShieldAlert} label="Human Review" checked={settings.humanReviewRequired} onChange={(v) => setSettings({ ...settings, humanReviewRequired: v })} />
-          <Toggle icon={CheckCircle2} label="Auto Schedule" checked={settings.autoScheduleEnabled} onChange={(v) => setSettings({ ...settings, autoScheduleEnabled: v })} />
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          <button type="button" onClick={() => submit()} disabled={saving} className="rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold text-white inline-flex items-center gap-2 disabled:opacity-40"><Save size={14} /> {saving ? "Saving..." : "Save AI Settings"}</button>
-          <button type="button" onClick={() => postAction("/api/admin/settings/ai-content/test", "OpenAI connection test passed.")} disabled={testing} className="rounded-full border border-[var(--admin-border)] px-5 py-2 text-xs font-bold text-[var(--admin-ink)] inline-flex items-center gap-2"><Zap size={14} /> {testing ? "Testing..." : "Test Connection"}</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (value: string) => void; type?: string }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-xs font-semibold text-[var(--admin-ink)]">{label}</label>
-      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} className={inputClass} />
-    </div>
-  );
-}
-
-function Toggle({ icon: Icon, label, checked, onChange }: { icon: any; label: string; checked: boolean; onChange: (value: boolean) => void }) {
-  return (
-    <label className="flex items-center gap-2 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] px-3 py-3 text-xs font-semibold text-[var(--admin-ink)]">
-      <Icon size={14} className="text-[var(--admin-accent)]" />
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      {label}
-    </label>
-  );
+  async function action(url: string, text: string) { setTesting(true); const response = await fetch(url, { method: "POST" }); const json = await response.json(); setTesting(false); if (!response.ok || !json.success) { setError(json.error || "Action failed."); return; } setSettings(json.data); setInitial(json.data); setApiKey(""); toast.success(text); }
+  if (!settings && error) return <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-xs text-red-700">{error} <button className="font-bold underline" onClick={load}>Retry</button></div>;
+  if (!settings) return <p className="text-xs text-[var(--admin-muted)]">Loading AI settings...</p>;
+  const fields: Array<[keyof AiSettings, string, string]> = [
+    ["textModel", "Text Model", "text"], ["imageModel", "Image Model", "text"], ["defaultOutputLanguage", "Output Language", "text"],
+    ["defaultArticleTone", "Article Tone", "text"], ["defaultArticleLength", "Article Length", "number"], ["defaultImageSize", "Image Size", "text"],
+    ["defaultImageQuality", "Image Quality", "text"], ["maxKeywordsPerBatch", "Max Keywords / Batch", "number"], ["maxConcurrentJobs", "Concurrent Jobs", "number"],
+    ["maxRetriesPerJob", "Retries / Job", "number"], ["monthlyBudgetLimit", "Monthly Budget", "number"],
+  ];
+  return <div className="max-w-4xl space-y-5 rounded-2xl border border-[var(--admin-border)] bg-white p-6">
+    <div className="flex items-center gap-2"><Bot size={17} /><div><h3 className="text-sm font-bold">AI Content Studio</h3><p className="text-[11px] text-[var(--admin-muted)]">UTF-8 safe, write-only API key, explicit persisted fields.</p></div></div>
+    <label className="flex gap-2 text-xs font-semibold"><input type="checkbox" checked={settings.isEnabled} onChange={(event) => update("isEnabled", event.target.checked)} />Enabled</label>
+    <label className="block text-xs font-semibold">OpenAI API Key<div className="mt-1 flex gap-2"><input className={inputClass} type="password" value={apiKey} onChange={(event) => setApiKey(event.target.value)} placeholder={settings.apiKeyConfigured ? `Configured ending ${settings.apiKeyLastFour}` : "sk-..."} /><button onClick={() => action("/api/admin/settings/ai-content/remove-key", "API key removed.")} className="rounded-xl border border-rose-200 px-3 text-rose-600"><Trash2 size={14} /></button></div></label>
+    <div className="grid gap-4 md:grid-cols-2">{fields.map(([key, label, type]) => <label key={key} className="text-xs font-semibold">{label}<input className={inputClass} type={type} value={settings[key] == null ? "" : String(settings[key])} onChange={(event) => update(key, (type === "number" ? (event.target.value === "" ? null : Number(event.target.value)) : event.target.value) as never)} />{fieldErrors[key]?.[0] && <span className="text-red-600">{fieldErrors[key][0]}</span>}</label>)}</div>
+    <div className="flex flex-wrap gap-4">{(["defaultGenerateImage", "humanReviewRequired", "autoScheduleEnabled"] as const).map((key) => <label key={key} className="text-xs font-semibold"><input type="checkbox" checked={Boolean(settings[key])} onChange={(event) => update(key, event.target.checked)} /> {key.replace(/([A-Z])/g, " $1")}</label>)}</div>
+    <div className="flex gap-3"><button onClick={save} disabled={saving || !dirty} className="inline-flex items-center gap-2 rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold text-white disabled:opacity-40"><Save size={14} />{saving ? "Saving..." : "Save AI Settings"}</button><button onClick={() => action("/api/admin/settings/ai-content/test", "OpenAI connection verified.")} disabled={testing} className="inline-flex items-center gap-2 rounded-full border px-5 py-2 text-xs font-bold"><Zap size={14} />{testing ? "Testing..." : "Test Connection"}</button></div>
+    <SettingsStatusFooter isDirty={dirty} saving={saving} lastSavedAt={lastSavedAt} updatedBy={null} publicRevalidated={Boolean(lastSavedAt)} error={error} />
+  </div>;
 }

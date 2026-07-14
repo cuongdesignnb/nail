@@ -1,6 +1,4 @@
 export type PayPalEnvironment = "sandbox" | "live";
-export type PayPalChargeMode = "deposit" | "full";
-
 export type PayPalConfigView = {
   provider: "paypal";
   isEnabled: boolean;
@@ -10,10 +8,6 @@ export type PayPalConfigView = {
   clientSecretConfigured: boolean;
   webhookId: string | null;
   currency: string;
-  chargeMode: PayPalChargeMode;
-  depositPercentage: number;
-  bookingHoldMinutes: number;
-  autoConfirmAfterPayment: boolean;
   ready: boolean;
 };
 

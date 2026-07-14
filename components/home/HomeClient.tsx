@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   ArrowRight,
   Award,
@@ -20,30 +20,13 @@ import {
   Star,
   WandSparkles
 } from "lucide-react";
-import { business, gallery as galleryItems, packages as packageItems, services as serviceItems, technicians } from "@/lib/data";
+import type { PublicSiteSettings } from "@/lib/settings/public-settings.types";
+import type { PublicHomeData } from "@/lib/home/home-data.service";
 import { PromotionCarousel } from "@/components/promotions/PromotionCarousel";
 import { PromotionPopupController } from "@/components/promotions/PromotionPopupController";
 import type { PublicPromotionCampaign } from "@/lib/promotions/promotion.types";
 
 const serviceIconMap = [HeartHandshake, Sparkles, WandSparkles, Gem, Award, Scissors];
-const services = serviceItems.slice(0, 6).map((service, index) => ({
-  title: service.name.replace("Classic ", "").replace("Luxury ", ""),
-  copy: service.description,
-  href: `/services/${service.slug}`,
-  icon: serviceIconMap[index] ?? Sparkles
-}));
-
-const gallery = galleryItems.slice(0, 6).map((item) => item.image);
-const packages = packageItems.map((pkg) => ({
-  name: pkg.name,
-  price: `$${pkg.price}`,
-  copy: pkg.description,
-  items: pkg.serviceIds.map((id) => serviceItems.find((service) => service.id === id)?.name ?? id),
-  popular: pkg.featured
-}));
-
-const experts = technicians.slice(0, 3).map((tech) => ({ name: tech.name, role: tech.role, img: tech.avatar }));
-
 const features = [
   { title: "Premium Quality", copy: "Top-tier products for beautiful, long-lasting nails.", icon: Award },
   { title: "Sanitized & Safe", copy: "Your safety is our priority with strict hygiene.", icon: ShieldCheck },
@@ -112,31 +95,30 @@ function RevealDiv({ children, className = "", delay = 0 }: { children: React.Re
   );
 }
 
-export function HomeClient() {
-  const [campaigns, setCampaigns] = useState<PublicPromotionCampaign[]>([]);
-  const [popupCampaign, setPopupCampaign] = useState<PublicPromotionCampaign | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    async function loadPromotions() {
-      try {
-        const [activeRes, popupRes] = await Promise.all([
-          fetch("/api/promotions/active", { cache: "no-store" }),
-          fetch("/api/promotions/active-popup", { cache: "no-store" }),
-        ]);
-        const [activeJson, popupJson] = await Promise.all([activeRes.json(), popupRes.json()]);
-        if (!mounted) return;
-        if (activeJson.success) setCampaigns(activeJson.data || []);
-        if (popupJson.success) setPopupCampaign(popupJson.data || null);
-      } catch (error) {
-        console.error("Failed to load homepage promotions:", error);
-      }
-    }
-    loadPromotions();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+export function HomeClient({
+  settings,
+  homeData,
+  campaigns,
+  popupCampaign,
+}: {
+  settings: PublicSiteSettings;
+  homeData: PublicHomeData;
+  campaigns: PublicPromotionCampaign[];
+  popupCampaign: PublicPromotionCampaign | null;
+}) {
+  const services = homeData.services.map((service, index) => ({
+    title: service.name.replace("Classic ", "").replace("Luxury ", ""),
+    copy: service.description,
+    href: `/services/${service.slug}`,
+    icon: serviceIconMap[index] ?? Sparkles,
+  }));
+  const gallery = homeData.gallery;
+  const packages = homeData.packages.map((item) => ({
+    ...item,
+    price: item.price ? new Intl.NumberFormat("en-US", { style: "currency", currency: settings.currency }).format(Number(item.price)) : "",
+    copy: item.description,
+  }));
+  const experts = homeData.technicians.map((item) => ({ ...item, img: item.avatar }));
 
   return (
     <main id="home">
@@ -225,10 +207,10 @@ export function HomeClient() {
             </div>
           </div>
           <div className="about-copy">
-            <span className="section-kicker">About Aera Nail Lounge</span>
+            <span className="section-kicker">About {settings.brand.name}</span>
             <h2>Where Luxury Meets Care & Perfection</h2>
             <p>
-              At Aera Nail Lounge, we believe self-care is essential. Our expert nail technicians, premium products,
+              At {settings.brand.name}, we believe self-care is essential. Our expert nail technicians, premium products,
               and hygienic practices ensure an exceptional experience every time you visit.
             </p>
             <div className="about-points">
@@ -269,9 +251,9 @@ export function HomeClient() {
             <a href="#contact">View All Gallery <ArrowRight size={14} /></a>
           </div>
           <div className="gallery-grid">
-            {gallery.map((src, index) => (
-              <RevealDiv className="gallery-item" key={`gallery-${index}`} delay={index * 80}>
-                <Image src={src} alt={`Aera nail design ${index + 1}`} fill sizes="(max-width: 700px) 45vw, 15vw" />
+            {gallery.map((item, index) => (
+              <RevealDiv className="gallery-item" key={`${item.image}-${index}`} delay={index * 80}>
+                <Image src={item.image} alt={item.alt} fill sizes="(max-width: 700px) 45vw, 15vw" />
               </RevealDiv>
             ))}
           </div>
@@ -372,9 +354,9 @@ export function HomeClient() {
           <a className="primary-btn pulse-btn" href="/booking">Book Your Appointment <ArrowRight size={15} /></a>
         </div>
         <address>
-          <span><Phone size={26} /><b>Phone</b> {business.phone}</span>
-          <span><MapPin size={26} /><b>Location</b> {business.address}</span>
-          <span><Clock3 size={26} /><b>Hours</b> {business.hours}</span>
+          <span><Phone size={26} /><b>Phone</b> {settings.contact.phone}</span>
+          <span><MapPin size={26} /><b>Location</b> {settings.contact.address}</span>
+          <span><Clock3 size={26} /><b>Hours</b> {settings.businessHoursSummary}</span>
         </address>
       </Reveal>
 
@@ -383,16 +365,16 @@ export function HomeClient() {
 
       {/* ── PC Right Sidebar (Shake icons) ── */}
       <div className="pc-sidebar">
-        <a href={`tel:+${business.rawPhone}`} className="sidebar-icon shake-icon" aria-label="Call us" style={{ animationDelay: "0s" }}>
+        <a href={`tel:${settings.contact.phoneE164}`} className="sidebar-icon shake-icon" aria-label="Call us" style={{ animationDelay: "0s" }}>
           <Phone size={22} />
         </a>
         <a href="#contact" className="sidebar-icon shake-icon" aria-label="Book appointment" style={{ animationDelay: "0.3s" }}>
           <CalendarCheck size={22} />
         </a>
-        <a href={`https://wa.me/${business.rawPhone}`} target="_blank" rel="noopener noreferrer" className="sidebar-icon shake-icon whatsapp-icon" aria-label="WhatsApp" style={{ animationDelay: "0.6s" }}>
+        <a href={`https://wa.me/${settings.contact.phoneDigits}`} target="_blank" rel="noopener noreferrer" className="sidebar-icon shake-icon whatsapp-icon" aria-label="WhatsApp" style={{ animationDelay: "0.6s" }}>
           <MessageCircle size={22} />
         </a>
-        <a href={`https://maps.google.com/?q=${encodeURIComponent(business.address)}`} target="_blank" rel="noopener noreferrer" className="sidebar-icon shake-icon" aria-label="Find us on map" style={{ animationDelay: "0.9s" }}>
+        <a href={settings.contact.mapsUrl} target="_blank" rel="noopener noreferrer" className="sidebar-icon shake-icon" aria-label="Find us on map" style={{ animationDelay: "0.9s" }}>
           <MapPin size={22} />
         </a>
       </div>

@@ -7,6 +7,7 @@ import {
   updatePayPalConfig,
 } from "@/lib/payments/paypal/paypal.config";
 import { prisma } from "@/lib/db";
+import { SETTINGS_NO_STORE_HEADERS, settingsFailure, zodIssues } from "@/lib/settings/settings-api";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -26,21 +27,17 @@ const schema = z.object({
     (value) => (value === null ? undefined : value),
     z.string().trim().toUpperCase().min(3).max(3).optional()
   ),
-  chargeMode: z.enum(["deposit", "full"]).optional(),
-  depositPercentage: z.coerce.number().min(1).max(100).optional(),
-  bookingHoldMinutes: z.coerce.number().int().min(5).max(120).optional(),
-  autoConfirmAfterPayment: z.boolean().optional(),
 });
 
 export async function GET() {
   try {
     requireAdmin();
     const config = await getOrCreatePayPalConfig();
-    return Response.json({ success: true, data: serializePayPalConfig(config) }, { headers: { "Cache-Control": "no-store" } });
+    return Response.json({ success: true, data: serializePayPalConfig(config), meta: { updatedAt: config.updatedAt.toISOString(), updatedBy: null, publicRevalidated: true } }, { headers: SETTINGS_NO_STORE_HEADERS });
   } catch (error) {
     const auth = authErrorResponse(error);
     if (auth) return auth;
-    return Response.json({ success: false, error: "Failed to load PayPal settings" }, { status: 500 });
+    return settingsFailure("Failed to load PayPal settings", "DATABASE_ERROR", 500);
   }
 }
 
@@ -55,18 +52,18 @@ export async function PUT(req: Request) {
         action: "PAYPAL_CONFIG_UPDATED",
         entity: "PaymentGatewayConfig:paypal",
         entityType: "PaymentGatewayConfig",
-        details: { environment: config.environment, isEnabled: config.isEnabled, chargeMode: config.chargeMode },
+        details: { environment: config.environment, isEnabled: config.isEnabled, scope: "gift-cards-only" },
       },
     }).catch(() => undefined);
-    return Response.json({ success: true, data: serializePayPalConfig(config) });
+    return Response.json({ success: true, data: serializePayPalConfig(config), meta: { updatedAt: config.updatedAt.toISOString(), updatedBy: session.email, publicRevalidated: true } }, { headers: SETTINGS_NO_STORE_HEADERS });
   } catch (error) {
     const role = roleErrorResponse(error);
     if (role) return role;
     const auth = authErrorResponse(error);
     if (auth) return auth;
     if (error instanceof z.ZodError) {
-      return Response.json({ success: false, error: "Validation failed", issues: error.issues }, { status: 400 });
+      return settingsFailure("Please correct the highlighted fields.", "VALIDATION_ERROR", 400, zodIssues(error));
     }
-    return Response.json({ success: false, error: error instanceof Error ? error.message : "Failed to save PayPal settings" }, { status: 400 });
+    return settingsFailure(error instanceof Error ? error.message : "Failed to save PayPal settings", "DATABASE_ERROR", 400);
   }
 }

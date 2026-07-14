@@ -44,9 +44,6 @@ const siteSettingsFallback: SeoSiteSettings = {
   bingSiteVerification: null,
 };
 
-let seoSiteSettingsPromise: Promise<SeoSiteSettings> | null = null;
-const publishedContentPromises = new Map<ContentPageKey, Promise<unknown>>();
-
 function sanitizeRobots(value: string | null | undefined, fallback: RobotsDirective): RobotsDirective {
   if (
     value === "index,follow" ||
@@ -74,9 +71,7 @@ function mapSiteSettings(record: Record<string, unknown> | null | undefined): Se
 }
 
 export async function getSeoSiteSettings(): Promise<SeoSiteSettings> {
-  if (seoSiteSettingsPromise) return seoSiteSettingsPromise;
-  seoSiteSettingsPromise = loadSeoSiteSettings();
-  return seoSiteSettingsPromise;
+  return loadSeoSiteSettings();
 }
 
 async function loadSeoSiteSettings(): Promise<SeoSiteSettings> {
@@ -94,11 +89,7 @@ async function loadSeoSiteSettings(): Promise<SeoSiteSettings> {
 }
 
 async function getPublishedContentDirect<T>(pageKey: ContentPageKey): Promise<T> {
-  const cached = publishedContentPromises.get(pageKey);
-  if (cached) return cached as Promise<T>;
-  const promise = loadPublishedContentDirect<T>(pageKey);
-  publishedContentPromises.set(pageKey, promise as Promise<unknown>);
-  return promise;
+  return loadPublishedContentDirect<T>(pageKey);
 }
 
 async function loadPublishedContentDirect<T>(pageKey: ContentPageKey): Promise<T> {

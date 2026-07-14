@@ -9,7 +9,13 @@ type Catalog = {
   services: Array<{ id: string; name: string; shortDescription?: string | null; durationMinutes: number; price: number }>;
   addons: Array<{ id: string; name: string; description?: string | null; price: number }>;
   technicians: Array<{ id: string; name: string; role: string; specialty: string; rating: number }>;
-  payment: { enabled: boolean; currency: string; chargeMode: string; depositPercentage: number; bookingHoldMinutes: number };
+  business: {
+    timezone: string;
+    currency: string;
+    bookingPolicies: { minAdvanceHours: number; maxAdvanceDays: number; cancellationWindowHours: number; bufferMinutes: number };
+    businessHours: Array<{ day: string; isOpen: boolean; startTime: string; endTime: string }>;
+    policyVersion: string;
+  };
 };
 
 type Quote = {
@@ -19,7 +25,7 @@ type Quote = {
   totalAmount: number;
   paymentAmount: number;
   remainingAmount: number;
-  chargeMode: "deposit" | "full";
+  chargeMode: "pay_at_salon";
   depositPercentage: number;
   currency: string;
   durationMinutes: number;
@@ -125,6 +131,7 @@ export function BookingClient() {
   }
 
   async function submitManualBookingRequest() {
+    if (!catalog) return;
     setProcessing(true);
     setError("");
     try {
@@ -141,7 +148,7 @@ export function BookingClient() {
           customer,
           notes,
           policyAccepted,
-          policyVersion: "current-policy-version",
+          policyVersion: catalog.business.policyVersion,
         }),
       });
       const json = await res.json();
@@ -201,7 +208,7 @@ export function BookingClient() {
                   <button className={serviceIds.includes(service.id) ? "selected" : ""} key={service.id} onClick={() => toggle(serviceIds, service.id, setServiceIds)}>
                     <Sparkles size={18} />
                     <b>{service.name}</b>
-                    <span>{service.durationMinutes} min - {money(service.price, quote?.currency || catalog.payment.currency)}</span>
+                    <span>{service.durationMinutes} min - {money(service.price, quote?.currency || catalog.business.currency)}</span>
                   </button>
                 ))}
               </div>
@@ -210,7 +217,7 @@ export function BookingClient() {
                 {catalog.addons.map((addon) => (
                   <button className={addonIds.includes(addon.id) ? "selected" : ""} key={addon.id} onClick={() => toggle(addonIds, addon.id, setAddonIds)}>
                     <b>{addon.name}</b>
-                    <span>+{money(addon.price, quote?.currency || catalog.payment.currency)}</span>
+                    <span>+{money(addon.price, quote?.currency || catalog.business.currency)}</span>
                   </button>
                 ))}
               </div>
@@ -240,7 +247,7 @@ export function BookingClient() {
           {step === 3 && (
             <div className="booking-panel">
               <h3>Pick Date & Time</h3>
-              <label>Date<input type="date" min={today} value={date} onChange={(event) => setDate(event.target.value)} /></label>
+              <label>Date<input type="date" min={new Date(Date.now() + catalog.business.bookingPolicies.minAdvanceHours * 3_600_000).toISOString().slice(0, 10)} max={new Date(Date.now() + catalog.business.bookingPolicies.maxAdvanceDays * 86_400_000).toISOString().slice(0, 10)} value={date} onChange={(event) => setDate(event.target.value)} /></label>
               <div className="booking-options compact-options">
                 {availableSlots.map((slot) => (
                   <button className={time === slot ? "selected" : ""} key={slot} onClick={() => setTime(slot)}><Clock3 size={16} /> {slot}</button>
@@ -296,12 +303,12 @@ export function BookingClient() {
           {addonIds.map((id) => <p key={id}><Check size={15} /> {catalog.addons.find((addon) => addon.id === id)?.name}</p>)}
           <hr />
           <p>Duration <b>{quote?.durationMinutes ?? 0} min</b></p>
-          <p>Subtotal <b>{money(quote?.subtotal || 0, quote?.currency || catalog.payment.currency)}</b></p>
-          <p>Discount <b>-{money(quote?.discountAmount || 0, quote?.currency || catalog.payment.currency)}</b></p>
-          <p>Tax <b>{money(quote?.taxAmount || 0, quote?.currency || catalog.payment.currency)}</b></p>
-          <p>Due Today <b>{money(0, quote?.currency || catalog.payment.currency)}</b></p>
+          <p>Subtotal <b>{money(quote?.subtotal || 0, quote?.currency || catalog.business.currency)}</b></p>
+          <p>Discount <b>-{money(quote?.discountAmount || 0, quote?.currency || catalog.business.currency)}</b></p>
+          <p>Tax <b>{money(quote?.taxAmount || 0, quote?.currency || catalog.business.currency)}</b></p>
+          <p>Due Today <b>{money(0, quote?.currency || catalog.business.currency)}</b></p>
           <p className="form-helper">Payment is collected at the salon after your appointment.</p>
-          <h3>Total {money(quote?.totalAmount || 0, quote?.currency || catalog.payment.currency)}</h3>
+          <h3>Total {money(quote?.totalAmount || 0, quote?.currency || catalog.business.currency)}</h3>
         </aside>
       </section>
     </PageShell>

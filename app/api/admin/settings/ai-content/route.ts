@@ -3,6 +3,7 @@ import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
 import { requireRole, roleErrorResponse } from "@/lib/auth/require-role";
 import { prisma } from "@/lib/db";
 import { getOrCreateAiSettings, serializeAiSettings, updateAiSettings } from "@/lib/ai/ai-settings.service";
+import { SETTINGS_NO_STORE_HEADERS, settingsFailure, zodIssues } from "@/lib/settings/settings-api";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -30,11 +31,11 @@ export async function GET() {
   try {
     requireAdmin();
     const settings = await getOrCreateAiSettings();
-    return Response.json({ success: true, data: serializeAiSettings(settings) }, { headers: { "Cache-Control": "no-store" } });
+    return Response.json({ success: true, data: serializeAiSettings(settings), meta: { updatedAt: settings.updatedAt.toISOString(), updatedBy: null, publicRevalidated: true } }, { headers: SETTINGS_NO_STORE_HEADERS });
   } catch (error) {
     const auth = authErrorResponse(error);
     if (auth) return auth;
-    return Response.json({ success: false, error: "Failed to load AI settings" }, { status: 500 });
+    return settingsFailure("Failed to load AI settings", "DATABASE_ERROR", 500);
   }
 }
 
@@ -52,15 +53,15 @@ export async function PUT(req: Request) {
         details: { isEnabled: settings.isEnabled, textModel: settings.textModel, imageModel: settings.imageModel },
       },
     }).catch(() => undefined);
-    return Response.json({ success: true, data: serializeAiSettings(settings) });
+    return Response.json({ success: true, data: serializeAiSettings(settings), meta: { updatedAt: settings.updatedAt.toISOString(), updatedBy: session.email, publicRevalidated: true } }, { headers: SETTINGS_NO_STORE_HEADERS });
   } catch (error) {
     const role = roleErrorResponse(error);
     if (role) return role;
     const auth = authErrorResponse(error);
     if (auth) return auth;
     if (error instanceof z.ZodError) {
-      return Response.json({ success: false, error: "Validation failed", issues: error.issues }, { status: 400 });
+      return settingsFailure("Please correct the highlighted fields.", "VALIDATION_ERROR", 400, zodIssues(error));
     }
-    return Response.json({ success: false, error: error instanceof Error ? error.message : "Failed to save AI settings" }, { status: 400 });
+    return settingsFailure(error instanceof Error ? error.message : "Failed to save AI settings", "DATABASE_ERROR", 400);
   }
 }

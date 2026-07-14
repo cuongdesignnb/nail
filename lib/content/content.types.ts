@@ -374,5 +374,17 @@ export type GlobalContent = {
     tiktokUrl: string;
   };
   defaultContact: ContactField;
+  businessHours?: Array<{
+    day: string;
+    isOpen: boolean;
+    startTime: string;
+    endTime: string;
+  }>;
+  bookingPolicies?: {
+    minAdvanceHours: number;
+    maxAdvanceDays: number;
+    cancellationWindowHours: number;
+    bufferMinutes: number;
+  };
   defaultShareImage: ImageField;
 };

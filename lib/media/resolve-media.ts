@@ -4,16 +4,14 @@ type LegacyMediaValue = MediaReference | string | null | undefined;
 
 export function normalizeMediaUrl(url: string | null | undefined): string {
   if (!url) return "";
-  // If it's a relative path to a local upload (e.g. "b0eda75c..." or "branding/70dfa3..."),
-  // and doesn't start with "/" or "http" or "/uploads/" or "/images/", prepend "/uploads/"
+  // Preserve canonical absolute and root-relative URLs exactly. Only legacy bare
+  // storage keys (for example "branding/70dfa3...") belong under /uploads/.
   if (
     !url.startsWith("http") &&
     !url.startsWith("data:") &&
-    !url.startsWith("/uploads/") &&
-    !url.startsWith("/images/")
+    !url.startsWith("/")
   ) {
-    const clean = url.startsWith("/") ? url.substring(1) : url;
-    return `/uploads/${clean}`;
+    return `/uploads/${url}`;
   }
   return url;
 }
@@ -37,4 +35,3 @@ export function resolveMedia(reference: LegacyMediaValue, fallbackAlt = "") {
     mediaId: reference.mediaId ?? null,
   };
 }
-

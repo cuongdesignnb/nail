@@ -1,6 +1,11 @@
-export default function GiftCardTermsPage() {
+import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
+
+export const dynamic = "force-dynamic";
+
+export default async function GiftCardTermsPage() {
+  const settings = await getPublicSiteSettings();
   const terms = [
-    "Gift Cards are redeemable in salon at Aera Nail Lounge.",
+    `Gift Cards are redeemable in salon at ${settings.brand.name}, ${settings.contact.address}.`,
     "Amount Gift Cards may be used partially until the remaining balance is depleted.",
     "Service Gift Cards are valid for the selected service snapshot. Upgrades may be paid in person at the salon.",
     "Gift Cards are not redeemable for cash and are not automatically applied during online booking.",

@@ -6,21 +6,28 @@ import { prisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const email = String(body.email ?? "");
+  const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
   const adminEmail = process.env.ADMIN_EMAIL || "admin@aeranailounge.com";
   const adminPassword = process.env.ADMIN_PASSWORD || "AeraAdmin123!";
 
-  const passwordMatches = adminPassword.startsWith("$2")
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { name: true, role: true, password: true },
+  });
+  const databasePasswordMatches = Boolean(
+    user?.password && await bcrypt.compare(password, user.password),
+  );
+  const environmentPasswordMatches = adminPassword.startsWith("$2")
     ? await bcrypt.compare(password, adminPassword)
     : password === adminPassword;
+  const environmentLogin = email === adminEmail.trim().toLowerCase() && environmentPasswordMatches;
+  const databaseLogin = Boolean(user && ["Owner", "Manager"].includes(user.role) && databasePasswordMatches);
 
-  if (email !== adminEmail || !passwordMatches) {
+  if (!databaseLogin && !environmentLogin) {
     return NextResponse.json({ success: false, error: "Invalid email or password" }, { status: 401 });
   }
 
-  // Look up user name from DB
-  const user = await prisma.user.findUnique({ where: { email }, select: { name: true, role: true } });
   const role = (user?.role as "Owner" | "Manager") || "Owner";
   const displayName = user?.name?.split(" ")[0] || "Admin";
 

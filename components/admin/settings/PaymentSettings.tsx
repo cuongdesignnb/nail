@@ -2,6 +2,8 @@
 
 import React from "react";
 import { CheckCircle2, Copy, EyeOff, ShieldCheck, TestTube2, XCircle } from "lucide-react";
+import { settingsEqual } from "@/lib/settings/normalize-settings";
+import { SettingsStatusFooter } from "./SettingsStatusFooter";
 
 type PayPalSettings = {
   isEnabled: boolean;
@@ -11,10 +13,6 @@ type PayPalSettings = {
   clientSecretConfigured: boolean;
   webhookId: string | null;
   currency: string;
-  chargeMode: "deposit" | "full";
-  depositPercentage: number;
-  bookingHoldMinutes: number;
-  autoConfirmAfterPayment: boolean;
   ready: boolean;
 };
 
@@ -28,6 +26,9 @@ export default function PaymentSettings() {
   const [testing, setTesting] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
+  const [loadError, setLoadError] = React.useState("");
+  const [lastSavedAt, setLastSavedAt] = React.useState<string | null>(null);
+  const [initialSettings, setInitialSettings] = React.useState<PayPalSettings | null>(null);
 
   const webhookEndpoint =
     typeof window !== "undefined"
@@ -37,7 +38,8 @@ export default function PaymentSettings() {
   const load = React.useCallback(async () => {
     const res = await fetch("/api/admin/settings/payments/paypal", { cache: "no-store" });
     const json = await res.json();
-    if (json.success) setSettings(json.data);
+    if (json.success) { setSettings(json.data); setInitialSettings(json.data); setLoadError(""); }
+    else setLoadError(json.error || "Unable to load PayPal settings.");
   }, []);
 
   React.useEffect(() => {
@@ -52,14 +54,30 @@ export default function PaymentSettings() {
     const res = await fetch("/api/admin/settings/payments/paypal", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...settings, clientSecret: clientSecret.trim() || undefined }),
+      body: JSON.stringify({
+        isEnabled: settings.isEnabled,
+        environment: settings.environment,
+        clientId: settings.clientId,
+        clientSecret: clientSecret.trim() || undefined,
+        webhookId: settings.webhookId,
+        currency: settings.currency,
+      }),
     });
     const json = await res.json();
     setSaving(false);
     if (json.success) {
-      setSettings(json.data);
+      const verifyRes = await fetch("/api/admin/settings/payments/paypal", { cache: "no-store" });
+      const verifyJson = await verifyRes.json();
+      const fields = ["isEnabled", "environment", "clientId", "webhookId", "currency"] as const;
+      if (!verifyRes.ok || !verifyJson.success || fields.some((key) => verifyJson.data[key] !== json.data[key])) {
+        setError("PayPal settings were saved but could not be verified.");
+        return;
+      }
+      setSettings(verifyJson.data);
+      setInitialSettings(verifyJson.data);
       setClientSecret("");
-      setMessage("PayPal settings saved.");
+      setLastSavedAt(verifyJson.meta?.updatedAt || new Date().toISOString());
+      setMessage("PayPal Gift Card settings saved and verified.");
     } else {
       setError(json.error || "Unable to save PayPal settings.");
     }
@@ -92,16 +110,19 @@ export default function PaymentSettings() {
     }
   }
 
+  if (!settings && loadError) return <p className="rounded-xl border border-red-200 bg-red-50 p-5 text-xs text-red-700">{loadError} <button className="font-bold underline" onClick={load}>Retry</button></p>;
   if (!settings) {
     return <p className="text-xs text-[var(--admin-muted)]">Loading payment settings...</p>;
   }
+  const editable = (value: PayPalSettings) => ({ isEnabled: value.isEnabled, environment: value.environment, clientId: value.clientId, webhookId: value.webhookId, currency: value.currency });
+  const isDirty = Boolean(clientSecret) || !initialSettings || !settingsEqual(editable(settings), editable(initialSettings));
 
   return (
     <div className="max-w-3xl space-y-6">
       <div className="rounded-2xl border border-[var(--admin-border)] bg-white p-6 space-y-5">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm font-bold text-[var(--admin-ink)]">PayPal Payments</h3>
+            <h3 className="text-sm font-bold text-[var(--admin-ink)]">PayPal — Gift Cards Only</h3>
             <p className="mt-1 text-xs text-[var(--admin-muted)]">Configure secure PayPal checkout for Gift Card purchases only.</p>
           </div>
           <div className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold ${settings.ready ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
@@ -119,7 +140,7 @@ export default function PaymentSettings() {
             checked={settings.isEnabled}
             onChange={(e) => setSettings({ ...settings, isEnabled: e.target.checked })}
           />
-          Enable PayPal Payments
+          Enable PayPal for Gift Cards
         </label>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -148,31 +169,7 @@ export default function PaymentSettings() {
             Webhook ID
             <input className={inputClass} value={settings.webhookId || ""} onChange={(e) => setSettings({ ...settings, webhookId: e.target.value })} />
           </label>
-          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
-            Charge Mode
-            <select className={inputClass} value={settings.chargeMode} onChange={(e) => setSettings({ ...settings, chargeMode: e.target.value as "deposit" | "full" })}>
-              <option value="deposit">Deposit</option>
-              <option value="full">Full Payment</option>
-            </select>
-          </label>
-          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
-            Deposit Percentage
-            <input className={inputClass} type="number" min={1} max={100} value={settings.depositPercentage} onChange={(e) => setSettings({ ...settings, depositPercentage: Number(e.target.value) })} disabled={settings.chargeMode === "full"} />
-          </label>
-          <label className="space-y-1.5 text-xs font-semibold text-[var(--admin-ink)]">
-            Booking Hold Minutes
-            <input className={inputClass} type="number" min={5} max={120} value={settings.bookingHoldMinutes} onChange={(e) => setSettings({ ...settings, bookingHoldMinutes: Number(e.target.value) })} />
-          </label>
         </div>
-
-        <label className="flex items-center gap-2 text-xs font-semibold text-[var(--admin-ink)]">
-          <input
-            type="checkbox"
-            checked={settings.autoConfirmAfterPayment}
-            onChange={(e) => setSettings({ ...settings, autoConfirmAfterPayment: e.target.checked })}
-          />
-          Gift Card orders are issued after successful payment
-        </label>
 
         <div className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-muted)] p-4 text-xs text-[var(--admin-ink)]">
           <div className="mb-2 flex items-center gap-2 font-bold"><ShieldCheck size={14} /> Webhook Setup</div>
@@ -186,7 +183,7 @@ export default function PaymentSettings() {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button type="button" onClick={save} disabled={saving} className="rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[var(--admin-accent-hover)] disabled:opacity-40">
+          <button type="button" onClick={save} disabled={saving || !isDirty} className="rounded-full bg-[var(--admin-accent)] px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[var(--admin-accent-hover)] disabled:opacity-40">
             {saving ? "Saving..." : "Save Payments"}
           </button>
           <button type="button" onClick={testConnection} disabled={testing} className="inline-flex items-center gap-1.5 rounded-full border border-[var(--admin-border)] px-5 py-2 text-xs font-bold text-[var(--admin-ink)] hover:border-[var(--admin-accent)] disabled:opacity-40">
@@ -196,6 +193,8 @@ export default function PaymentSettings() {
             Disable & Remove Secret
           </button>
         </div>
+        <p className="text-[11px] text-[var(--admin-muted)]">Last saved: {lastSavedAt ? new Date(lastSavedAt).toLocaleString() : "—"} · Secret is write-only · Normal bookings use PAY_AT_SALON.</p>
+        <SettingsStatusFooter isDirty={isDirty} saving={saving} lastSavedAt={lastSavedAt} updatedBy={null} publicRevalidated={Boolean(lastSavedAt)} error={error || loadError} />
       </div>
     </div>
   );

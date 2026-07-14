@@ -12,6 +12,7 @@ import {
 } from "@/lib/navigation/navigation.service";
 import { mapPublicShellData } from "./public-shell.mapper";
 import type { PublicShellData, PublicShellMode } from "./public-shell.types";
+import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
 
 async function loadPublishedPublicShellData(): Promise<PublicShellData> {
   const [
@@ -24,6 +25,7 @@ async function loadPublishedPublicShellData(): Promise<PublicShellData> {
     legalMenu,
     socialMenu,
     settings,
+    publicSettings,
   ] = await Promise.all([
     getPublishedGlobalContent(),
     getPublishedPrimaryMenu(),
@@ -34,6 +36,7 @@ async function loadPublishedPublicShellData(): Promise<PublicShellData> {
     getPublishedFooterLegalMenu(),
     getPublishedFooterSocialMenu(),
     getNavigationSettings(),
+    getPublicSiteSettings(),
   ]);
 
   return mapPublicShellData({
@@ -46,6 +49,7 @@ async function loadPublishedPublicShellData(): Promise<PublicShellData> {
     legalMenu,
     socialMenu,
     settings,
+    publicSettings,
   });
 }
 

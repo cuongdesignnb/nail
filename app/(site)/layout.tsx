@@ -5,13 +5,15 @@ import { getSeoSiteSettings } from "@/lib/seo/seo.service";
 import { buildAbsoluteUrl } from "@/lib/seo/site-url";
 import { DEFAULT_DESCRIPTION } from "@/lib/seo/seo.constants";
 import { normalizeMediaUrl } from "@/lib/media/resolve-media";
+import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [globalContent, settings] = await Promise.all([
+  const [globalContent, settings, publicSettings] = await Promise.all([
     getPublishedGlobalContent(),
     getSeoSiteSettings(),
+    getPublicSiteSettings(),
   ]);
-  const siteName = globalContent.brand?.name || "Aera Nail Lounge";
+  const siteName = publicSettings.brand.name;
   const shareImageSrc = normalizeMediaUrl(globalContent.defaultShareImage?.src);
   const shareImage = shareImageSrc
     ? buildAbsoluteUrl(shareImageSrc)
@@ -28,6 +30,11 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: siteName }],
     creator: siteName,
     publisher: siteName,
+    icons: publicSettings.brand.favicon?.src ? {
+      icon: normalizeMediaUrl(publicSettings.brand.favicon.src),
+      shortcut: normalizeMediaUrl(publicSettings.brand.favicon.src),
+      apple: normalizeMediaUrl(publicSettings.brand.favicon.src),
+    } : undefined,
     openGraph: {
       siteName,
       type: "website",
