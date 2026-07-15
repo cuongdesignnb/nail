@@ -14,24 +14,7 @@ import {
   FileImage,
 } from "lucide-react";
 import { MediaDeleteDialog } from "./MediaDeleteDialog";
-
-interface MediaAsset {
-  id: string;
-  fileName: string;
-  originalName: string | null;
-  url: string;
-  mimeType: string | null;
-  size: number | null;
-  width: number | null;
-  height: number | null;
-  alt: string | null;
-  title: string | null;
-  folder: string | null;
-  storageKey: string | null;
-  provider: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { MediaAssetDto } from "@/lib/media/media-asset.dto";
 
 interface MediaFolder {
   id: string;
@@ -40,7 +23,7 @@ interface MediaFolder {
 }
 
 interface MediaDetailsPanelProps {
-  asset: MediaAsset | null;
+  asset: MediaAssetDto | null;
   onUpdate: (id: string, data: Record<string, unknown>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   folders?: MediaFolder[];

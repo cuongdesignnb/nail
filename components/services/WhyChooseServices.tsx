@@ -8,6 +8,7 @@ import { AnimatedButton } from "@/components/common/AnimatedButton";
 import { getIcon } from "@/lib/icons";
 import { staggerContainer, fadeUp } from "@/components/common/FloatingOrnaments";
 import { ServicesPageContent } from "@/types/services";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export function WhyChooseServices({ data }: { data: ServicesPageContent["whyChoose"] }) {
   return (
@@ -28,7 +29,7 @@ export function WhyChooseServices({ data }: { data: ServicesPageContent["whyChoo
               className="col-span-8 aspect-[4/5] rounded-[2rem] overflow-hidden shadow-luxury border-4 border-aera-bg relative"
             >
               <Image
-                src={data.image.src || "/images/about-salon.jpg"}
+                src={normalizeMediaUrl(data.image.src) || "/images/about-salon.jpg"}
                 alt={data.image.alt || "Luxury Salon"}
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-700"

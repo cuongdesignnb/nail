@@ -129,11 +129,10 @@ export function AboutSalonExperienceSectionEditor({ data, onChange }: Props) {
               </div>
 
               <MediaPickerField
+                valueMode="reference"
                 label="Gallery Image"
                 value={item.image ?? null}
-                alt={item.image?.alt ?? ''}
                 onChange={(image) => updateImageItem(i, { image: image ?? { mediaId: null, src: '', alt: '' } })}
-                onAltChange={(alt) => updateImageConfig(i, { alt })}
                 folder="salon-experience"
               />
             </div>

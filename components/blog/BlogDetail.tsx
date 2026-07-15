@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowLeft, ArrowRight, User, Sparkles } from "lucide-react";
 import { BlogPostDTO } from "@/types/blog";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface BlogDetailProps {
   post: BlogPostDTO;
@@ -93,7 +94,7 @@ export function BlogDetail({ post, related }: BlogDetailProps) {
         <div className="relative aspect-[16/9] w-full rounded-[2.5rem] overflow-hidden border border-aera-champagne shadow-luxury bg-white p-2">
           <div className="relative w-full h-full rounded-[2rem] overflow-hidden">
             <Image
-              src={post.coverImage || "/images/blog-hero.jpg"}
+              src={normalizeMediaUrl(post.coverImage) || "/images/blog-hero.jpg"}
               alt={post.coverImageAlt || post.title}
               fill
               className="object-cover"
@@ -138,7 +139,7 @@ export function BlogDetail({ post, related }: BlogDetailProps) {
                   className="group bg-white border border-aera-champagne/45 rounded-3xl overflow-hidden shadow-sm hover:shadow-luxury transition-all duration-300 flex flex-col justify-between"
                 >
                   <div className="relative aspect-[16/10] bg-aera-cream overflow-hidden">
-                    <Image src={item.coverImage || "/images/blog-1.jpg"} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <Image src={normalizeMediaUrl(item.coverImage) || "/images/blog-1.jpg"} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                   </div>
                   <div className="p-4 flex-grow flex flex-col justify-between space-y-2">
                     <h4 className="font-heading text-xs text-aera-ink group-hover:text-aera-accent transition-colors font-semibold line-clamp-2 leading-snug">

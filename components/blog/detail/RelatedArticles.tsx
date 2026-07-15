@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { BlogPostDTO } from "@/types/blog";
 import { motion } from "framer-motion";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface RelatedArticlesProps {
   posts: BlogPostDTO[];
@@ -55,7 +56,7 @@ export function RelatedArticles({ posts }: RelatedArticlesProps) {
                 </span>
               )}
               <Image
-                src={post.coverImage || "/images/blog-1.jpg"}
+                src={normalizeMediaUrl(post.coverImage) || "/images/blog-1.jpg"}
                 alt={post.coverImageAlt || post.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 30vw"

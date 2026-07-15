@@ -240,9 +240,10 @@ export function NailPackageForm({ categories, initialData, onSave, onCancel }: N
 
         <div className="mb-6">
           <MediaPickerField
+            valueMode="url"
             label="Package Image"
             value={image}
-            onChange={(url) => setImage(url)}
+            onChange={(url) => setImage(url || "")}
             alt={imageAlt}
             onAltChange={(altVal) => setImageAlt(altVal)}
             folder="packages"

@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import { Percent, Calendar, Gift, Gem, LucideIcon } from "lucide-react";
 import { staggerContainer, fadeUp } from "@/components/common/FloatingOrnaments";
 import { PackagesPageContent } from "@/types/packages";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 const iconMap: Record<string, LucideIcon> = {
   percent: Percent,
@@ -64,7 +65,7 @@ export function MembershipRewards({ data }: { data: PackagesPageContent["rewards
             {/* Promo image background or vignette */}
             <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-6 border border-white/60 shadow-sm">
               <Image
-                src={data.promo.image?.src || "/images/about-hero-nail.jpg"}
+                src={normalizeMediaUrl(data.promo.image?.src) || "/images/about-hero-nail.jpg"}
                 alt={data.promo.image?.alt || "Promo offer"}
                 fill
                 className="object-cover"

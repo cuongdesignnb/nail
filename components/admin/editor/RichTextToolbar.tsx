@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { RichTextLinkDialog } from './RichTextLinkDialog';
 import { MediaPickerDialog } from '@/components/admin/media/MediaPickerDialog';
+import { MEDIA_FOLDERS } from '@/lib/media/media-folders';
 
 interface RichTextToolbarProps {
   editor: Editor;
@@ -256,6 +257,8 @@ export function RichTextToolbar({ editor }: RichTextToolbarProps) {
       <MediaPickerDialog
         open={imageDialogOpen}
         onClose={() => setImageDialogOpen(false)}
+        folder={MEDIA_FOLDERS.RICH_TEXT}
+        applyUploadedAssetImmediately
         onSelect={(asset) => {
           const selectedAsset = Array.isArray(asset) ? asset[0] : asset;
           if (selectedAsset?.url) {

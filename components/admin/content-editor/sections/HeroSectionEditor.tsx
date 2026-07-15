@@ -69,11 +69,10 @@ export function HeroSectionEditor({ data, onChange }: Props) {
           Hero Image
         </label>
         <MediaPickerField
+          valueMode="reference"
           label="Hero Image"
           value={data.image ?? null}
-          alt={data.image?.alt ?? ''}
           onChange={(image) => update({ image: image ?? { mediaId: null, src: '', alt: '' } })}
-          onAltChange={(alt) => update({ image: { ...data.image, alt } })}
           folder="heroes"
           aspectRatio="16/9"
         />

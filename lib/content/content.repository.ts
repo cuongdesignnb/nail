@@ -10,7 +10,8 @@ import { prisma } from "@/lib/db";
 import { ContentPageKey, ContentPageMeta, ContentPageData } from "./content.types";
 import { isValidPageKey } from "./content-registry";
 import { computeContentStatus, computeCompletion } from "./content-status";
-import { mergeWithDefaults } from "./content-mapper";
+import { normalizePageContent } from "./normalize-page-content";
+import { canonicalContentEqual } from "./content-equality";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */
@@ -42,11 +43,7 @@ async function withDefaultContent(
   pageKey: ContentPageKey,
   content: unknown
 ): Promise<Record<string, unknown>> {
-  const defaults = await getDefaultForPage(pageKey);
-  if (!content || typeof content !== "object" || Array.isArray(content)) {
-    return defaults;
-  }
-  return mergeWithDefaults(content as Record<string, unknown>, defaults);
+  return normalizePageContent(content, pageKey);
 }
 
 async function audit(action: string, actor: string, pageKey: string) {
@@ -84,7 +81,7 @@ export async function getPageContent(pageKey: ContentPageKey): Promise<ContentPa
     publishedAt: record.publishedAt?.toISOString() ?? null,
     publishedBy: record.publishedBy ?? null,
     hasUnpublishedChanges: published
-      ? JSON.stringify(draft) !== JSON.stringify(published)
+      ? !canonicalContentEqual(draft, published, pageKey)
       : true,
   };
 }
@@ -108,7 +105,7 @@ export async function getAllPageMeta(): Promise<ContentPageMeta[]> {
       ? await withDefaultContent(pageKey, record.publishedContent)
       : null;
     const hasUnpublishedChanges = published
-      ? JSON.stringify(draft) !== JSON.stringify(published)
+      ? !canonicalContentEqual(draft, published, pageKey)
       : true;
 
     const completion = computeCompletion(draft, pageKey);
@@ -170,6 +167,7 @@ export async function saveDraftContent(input: {
   }
 
   const record = await ensurePageRecord(input.pageKey);
+  const canonicalContent = normalizePageContent(input.content, input.pageKey);
 
   if (record.version !== input.version) {
     throw Object.assign(
@@ -182,7 +180,7 @@ export async function saveDraftContent(input: {
     const result = await tx.sitePageContent.updateMany({
       where: { slug: input.pageKey, version: input.version },
       data: {
-        draftContent: input.content as unknown as Prisma.InputJsonValue,
+        draftContent: canonicalContent as unknown as Prisma.InputJsonValue,
         version: { increment: 1 },
         updatedBy: input.actor,
       },
@@ -210,6 +208,7 @@ export async function publishContent(input: {
   }
 
   const record = await ensurePageRecord(input.pageKey);
+  const canonicalDraft = normalizePageContent(record.draftContent, input.pageKey);
 
   if (record.version !== input.version) {
     throw Object.assign(
@@ -222,7 +221,8 @@ export async function publishContent(input: {
     const result = await tx.sitePageContent.updateMany({
       where: { slug: input.pageKey, version: input.version },
       data: {
-        publishedContent: record.draftContent as Prisma.InputJsonValue,
+        draftContent: canonicalDraft as unknown as Prisma.InputJsonValue,
+        publishedContent: canonicalDraft as unknown as Prisma.InputJsonValue,
         publishedAt: new Date(),
         publishedBy: input.actor,
         updatedBy: input.actor,

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
 import { mediaUpdateSchema } from "@/lib/validations/media.schema";
 import { getStorageAdapter } from "@/lib/storage";
+import { serializeMediaAsset } from "@/lib/media/media-asset.dto";
 
 export async function GET(
   req: Request,
@@ -22,7 +23,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data: asset });
+    return NextResponse.json({ success: true, data: serializeMediaAsset(asset) });
   } catch (error) {
     const authRes = authErrorResponse(error);
     if (authRes) return authRes;
@@ -64,7 +65,7 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json({ success: true, data: updated });
+    return NextResponse.json({ success: true, data: serializeMediaAsset(updated) });
   } catch (error) {
     const authRes = authErrorResponse(error);
     if (authRes) return authRes;
@@ -115,7 +116,7 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      data: deleted,
+      data: serializeMediaAsset(deleted),
     });
   } catch (error) {
     const authRes = authErrorResponse(error);

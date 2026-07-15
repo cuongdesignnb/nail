@@ -101,6 +101,7 @@ export function TestimonialsSectionEditor({ data, onChange }: Props) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <MediaPickerField
+                valueMode="reference"
                 label="Avatar"
                 value={item.avatar ?? null}
                 onChange={(avatar) => updateItem(i, { avatar: avatar ?? undefined })}

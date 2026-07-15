@@ -248,9 +248,10 @@ export function PackageSettingsForm() {
         />
         <div className="mb-6">
           <MediaPickerField
+            valueMode="url"
             label="Hero Image"
             value={heroImage}
-            onChange={(url) => setHeroImage(url)}
+            onChange={(url) => setHeroImage(url || "")}
             alt={heroImageAlt}
             onAltChange={(altVal) => setHeroImageAlt(altVal)}
             folder="packages"
@@ -322,9 +323,10 @@ export function PackageSettingsForm() {
         />
         <div className="mb-6">
           <MediaPickerField
+            valueMode="url"
             label="Benefits Image"
             value={benefitsImage}
-            onChange={(url) => setBenefitsImage(url)}
+            onChange={(url) => setBenefitsImage(url || "")}
             alt={benefitsImageAlt}
             onAltChange={(altVal) => setBenefitsImageAlt(altVal)}
             folder="packages"

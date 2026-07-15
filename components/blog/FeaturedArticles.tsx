@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { BlogPostDTO } from "@/types/blog";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface FeaturedArticlesProps {
   featuredPost?: BlogPostDTO;
@@ -41,7 +42,7 @@ export function FeaturedArticles({ featuredPost, sidePosts }: FeaturedArticlesPr
                   FEATURED
                 </span>
                 <Image
-                  src={featuredPost.coverImage || "/images/blog-featured.jpg"}
+                  src={normalizeMediaUrl(featuredPost.coverImage) || "/images/blog-featured.jpg"}
                   alt={featuredPost.coverImageAlt || featuredPost.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -109,7 +110,7 @@ export function FeaturedArticles({ featuredPost, sidePosts }: FeaturedArticlesPr
               {/* Thumbnail */}
               <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-aera-cream shrink-0 border border-aera-champagne/20">
                 <Image
-                  src={post.coverImage || "/images/blog-side-1.jpg"}
+                  src={normalizeMediaUrl(post.coverImage) || "/images/blog-side-1.jpg"}
                   alt={post.coverImageAlt || post.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"

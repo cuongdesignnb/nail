@@ -6,6 +6,7 @@ import { Container } from "@/components/common/Container";
 import { AnimatedButton } from "@/components/common/AnimatedButton";
 import { Sparkle, OvalLine, Watermark, fadeUp, staggerContainer } from "@/components/common/FloatingOrnaments";
 import { ServicesPageContent } from "@/types/services";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export function ServicesHero({ data }: { data: ServicesPageContent["hero"] }) {
   return (
@@ -81,7 +82,7 @@ export function ServicesHero({ data }: { data: ServicesPageContent["hero"] }) {
               className="w-full max-w-[420px] aspect-[4/5] rounded-[3rem] overflow-hidden shadow-luxury border-4 border-aera-champagne relative"
             >
               <Image
-                src={data.image.src}
+                src={normalizeMediaUrl(data.image.src)}
                 alt={data.image.alt}
                 fill
                 priority

@@ -7,6 +7,7 @@ import { AnimatedButton } from "@/components/common/AnimatedButton";
 import { Sparkles, Calendar, BadgeCheck, Gem, LucideIcon } from "lucide-react";
 import { staggerContainer, fadeUp } from "@/components/common/FloatingOrnaments";
 import { PackagesPageContent } from "@/types/packages";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 const iconMap: Record<string, LucideIcon> = {
   sparkles: Sparkles,
@@ -34,7 +35,7 @@ export function PackageBenefits({ data }: { data: PackagesPageContent["benefits"
                 className="rounded-[2.5rem] overflow-hidden aspect-[4/5] relative shadow-md border-2 border-white"
               >
                 <Image
-                  src={data.image.src}
+                  src={normalizeMediaUrl(data.image.src)}
                   alt={data.image.alt}
                   fill
                   className="object-cover"

@@ -2,28 +2,15 @@
 
 import React from "react";
 import { MediaCard } from "./MediaCard";
-
-interface MediaAsset {
-  id: string;
-  fileName: string;
-  originalName: string | null;
-  url: string;
-  mimeType: string | null;
-  size: number | null;
-  width: number | null;
-  height: number | null;
-  alt: string | null;
-  title: string | null;
-  folder: string | null;
-  createdAt: string;
-}
+import type { MediaAssetDto } from "@/lib/media/media-asset.dto";
 
 interface MediaGridProps {
-  items: MediaAsset[];
+  items: MediaAssetDto[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   multiSelect?: boolean;
   selectedIds?: string[];
+  storageStatuses?: Record<string, "uploaded" | "missing-file" | "failed">;
 }
 
 export function MediaGrid({
@@ -32,6 +19,7 @@ export function MediaGrid({
   onSelect,
   multiSelect = false,
   selectedIds = [],
+  storageStatuses = {},
 }: MediaGridProps) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
@@ -45,6 +33,7 @@ export function MediaGrid({
               : selectedId === asset.id
           }
           onSelect={() => onSelect(asset.id)}
+          storageStatus={storageStatuses[asset.id]}
         />
       ))}
     </div>

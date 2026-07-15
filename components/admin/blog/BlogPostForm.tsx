@@ -228,7 +228,7 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-[var(--admin-border)]/20 pt-6">
-          <MediaPickerField label="Cover Image" value={coverImage} onChange={setCoverImage} alt={coverImageAlt} onAltChange={setCoverImageAlt} folder="blog" aspectRatio="16/9" required />
+          <MediaPickerField valueMode="reference" label="Cover Image" value={coverImage} onChange={(image) => { setCoverImage(image); setCoverImageAlt(image?.alt || ""); }} folder="blog" aspectRatio="16/9" required />
 
           <div className="space-y-4">
             <label className="block text-xs font-semibold text-[var(--admin-ink)] uppercase tracking-wider">Author Details</label>
@@ -236,7 +236,7 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
               <FormField label="Author Name" value={authorName} onChange={(e) => setAuthorName(e.target.value)} />
               <FormField label="Author Role" value={authorRole} onChange={(e) => setAuthorRole(e.target.value)} />
             </div>
-            <MediaPickerField label="Author Avatar" value={authorAvatar} onChange={setAuthorAvatar} folder="blog" aspectRatio="1/1" allowAltOverride={false} />
+            <MediaPickerField valueMode="url" label="Author Avatar" value={authorAvatar} onChange={(value) => setAuthorAvatar(value || "")} folder="blog" aspectRatio="1/1" allowAltOverride={false} />
           </div>
         </div>
 
@@ -279,7 +279,7 @@ export function BlogPostForm({ categories, initialData, onSave, onCancel }: Blog
           onAdd={() => setProducts([...products, { image: "", name: "", description: "", shopUrl: "" }])}
           render={(prod, idx) => (
             <>
-              <MediaPickerField label="Product Image" value={prod.image} onChange={(value) => updateProduct(idx, { image: value })} folder="blog" aspectRatio="1/1" allowAltOverride={false} />
+              <MediaPickerField valueMode="url" label="Product Image" value={prod.image} onChange={(value) => updateProduct(idx, { image: value || "" })} folder="blog" aspectRatio="1/1" allowAltOverride={false} />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField label="Product Name" value={prod.name} onChange={(e) => updateProduct(idx, { name: e.target.value })} />
                 <FormField label="Description" value={prod.description} onChange={(e) => updateProduct(idx, { description: e.target.value })} />

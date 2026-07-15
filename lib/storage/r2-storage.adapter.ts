@@ -2,6 +2,7 @@ import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
+  HeadObjectCommand,
 } from "@aws-sdk/client-s3";
 import path from "path";
 import { StorageAdapter, UploadResult } from "./storage.types";
@@ -32,9 +33,13 @@ export class R2StorageAdapter implements StorageAdapter {
     });
   }
 
-  async upload(file: Buffer, filename: string, mimeType: string): Promise<UploadResult> {
-    const ext = path.extname(filename) || this.mimeToExt(mimeType);
-    const storageKey = `media/${crypto.randomUUID()}${ext}`;
+  async upload(file: Buffer, requestedKey: string, mimeType: string): Promise<UploadResult> {
+    const normalized = requestedKey.replace(/\\/g, "/").replace(/^\/+/, "");
+    if (!normalized || normalized.split("/").includes("..")) {
+      throw new Error("Invalid storage key.");
+    }
+    const ext = path.posix.extname(normalized) || this.mimeToExt(mimeType);
+    const storageKey = path.posix.extname(normalized) ? normalized : `${normalized}${ext}`;
 
     await this.client.send(
       new PutObjectCommand({
@@ -61,6 +66,23 @@ export class R2StorageAdapter implements StorageAdapter {
         Key: storageKey,
       })
     );
+  }
+
+  async exists(storageKey: string): Promise<boolean> {
+    try {
+      await this.client.send(
+        new HeadObjectCommand({
+          Bucket: this.bucket,
+          Key: storageKey,
+        })
+      );
+      return true;
+    } catch (error) {
+      const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode;
+      const name = (error as { name?: string }).name;
+      if (status === 404 || name === "NotFound" || name === "NoSuchKey") return false;
+      throw error;
+    }
   }
 
   getUrl(storageKey: string): string {

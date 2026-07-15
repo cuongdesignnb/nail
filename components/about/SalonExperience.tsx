@@ -6,6 +6,7 @@ import { AboutPageContent } from "@/types/about";
 import { Container } from "@/components/common/Container";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { fadeUp, staggerContainer } from "@/components/common/FloatingOrnaments";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface SalonExperienceProps {
   data: AboutPageContent["salonExperience"];
@@ -35,7 +36,7 @@ export function SalonExperience({ data }: SalonExperienceProps) {
               className="relative aspect-square rounded-[20px] overflow-hidden group shadow-md"
             >
               <Image
-                src={item.image.src}
+                src={normalizeMediaUrl(item.image.src)}
                 alt={item.image.alt}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"

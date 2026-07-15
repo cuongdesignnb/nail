@@ -224,11 +224,10 @@ export function PackagesRewardsSectionEditor({ data, onChange }: Props) {
         </div>
 
         <MediaPickerField
+          valueMode="reference"
           label="Promo Image"
           value={data.promo.image ?? null}
-          alt={data.promo.image?.alt ?? ''}
           onChange={(image) => update({ promo: { ...data.promo, image: image ?? { mediaId: null, src: '', alt: '' } } })}
-          onAltChange={(alt) => update({ promo: { ...data.promo, image: { ...data.promo.image, src: data.promo.image?.src || '', alt: alt || '' } } })}
           folder="packages"
         />
 

@@ -160,11 +160,10 @@ export function AboutExpertsSectionEditor({ data, onChange }: Props) {
             </div>
 
             <MediaPickerField
+              valueMode="reference"
               label="Avatar Image"
               value={member.avatar ?? null}
-              alt={member.avatar?.alt ?? ''}
               onChange={(avatar) => updateMember(i, { avatar: avatar ?? { mediaId: null, src: '', alt: '' } })}
-              onAltChange={(alt) => updateMember(i, { avatar: { ...member.avatar, alt } })}
               folder="team"
             />
 

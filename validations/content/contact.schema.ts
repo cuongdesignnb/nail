@@ -46,7 +46,7 @@ export const contactPageContentSchema = z.object({
   }),
   mapLocation: z.object({
     title: requiredText(160),
-    googleMapsEmbedUrl: z.string().url(),
+    googleMapsEmbedUrl: z.string().url().or(z.literal("")),
   }),
   contactForm: z.object({
     title: requiredText(160),

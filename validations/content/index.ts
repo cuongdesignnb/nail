@@ -13,6 +13,7 @@ import type { ContentPageKey } from "@/lib/content/content.types";
 /* ------------------------------------------------------------------ */
 
 export * from "./shared.schema";
+export * from "./media-reference.schema";
 
 /* ------------------------------------------------------------------ */
 /*  Re-exports: page schemas                                          */

@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import { Star } from "lucide-react";
 import { staggerContainer, fadeUp } from "@/components/common/FloatingOrnaments";
 import { GalleryTestimonialDTO } from "@/types/gallery";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export function GalleryTestimonials({ items }: { items: GalleryTestimonialDTO[] }) {
   return (
@@ -62,7 +63,7 @@ export function GalleryTestimonials({ items }: { items: GalleryTestimonialDTO[] 
               <div className="flex items-center gap-3 relative z-10">
                 <div className="relative w-9 h-9 rounded-full overflow-hidden bg-aera-champagne/15 border border-aera-champagne/30">
                   <Image
-                    src={test.avatar || "/images/client-1.jpg"}
+                    src={normalizeMediaUrl(test.avatar) || "/images/client-1.jpg"}
                     alt={test.avatarAlt || test.name}
                     fill
                     className="object-cover"

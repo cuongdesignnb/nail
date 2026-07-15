@@ -6,6 +6,7 @@ import { AboutPageContent } from "@/types/about";
 import { Container } from "@/components/common/Container";
 import { AnimatedButton } from "@/components/common/AnimatedButton";
 import { Sparkle, OvalLine, Watermark, fadeUp, fadeLeft } from "@/components/common/FloatingOrnaments";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface AboutHeroProps {
   data: AboutPageContent["hero"];
@@ -103,7 +104,7 @@ export function AboutHero({ data }: AboutHeroProps) {
             {/* Elegant Image Border Wrapper */}
             <div className="relative w-full max-w-[480px] aspect-[4/5] rounded-[60px] rounded-tl-[180px] rounded-br-[180px] overflow-hidden border-[8px] border-white shadow-luxury">
               <Image
-                src={data.image.src}
+                src={normalizeMediaUrl(data.image.src)}
                 alt={data.image.alt}
                 fill
                 priority

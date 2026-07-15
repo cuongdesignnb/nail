@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import { Sparkles, Heart, Gift, Gem, LucideIcon } from "lucide-react";
 import { staggerContainer, fadeUp } from "@/components/common/FloatingOrnaments";
 import { PackageOccasionDTO } from "@/types/packages";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 const iconMap: Record<string, LucideIcon> = {
   gem: Gem,
@@ -44,7 +45,7 @@ export function OccasionCards({ data }: { data: { title: string; items: PackageO
                 {occ.image && (
                   <div className="relative w-full aspect-[4/3] bg-aera-champagne/15 overflow-hidden">
                     <Image
-                      src={occ.image}
+                      src={normalizeMediaUrl(occ.image)}
                       alt={occ.imageAlt || occ.title}
                       fill
                       className="object-cover group-hover:scale-103 transition-transform duration-500"

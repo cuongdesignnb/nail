@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { ImageConfig, ButtonConfig } from "@/types/blog";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface BlogHeroProps {
   data: {
@@ -76,7 +77,7 @@ export function BlogHero({ data }: BlogHeroProps) {
             <div className="relative aspect-[4/3] md:aspect-[16/11] rounded-[2.5rem] overflow-hidden border border-aera-champagne shadow-luxury bg-white p-2">
               <div className="relative w-full h-full rounded-[2rem] overflow-hidden">
                 <Image
-                  src={data.image.src || "/images/blog-hero.jpg"}
+                  src={normalizeMediaUrl(data.image.src) || "/images/blog-hero.jpg"}
                   alt={data.image.alt || "Luxury Nail Editorial"}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"

@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import ts from "typescript";
 
 type Finding = {
   filePath: string;
@@ -23,23 +24,9 @@ const FILE_EXCEPTIONS = [
   "components/admin/settings/SalonInfoSettings.tsx",
 ];
 
-const forbiddenPatterns = [
-  /Image URL/i,
-  /Image Path/i,
-  /imageUrl/i,
-  /imagePath/i,
-  /imageSrc/i,
-  /thumbnailUrl/i,
-  /coverImageUrl/i,
-  /bannerImageUrl/i,
-  /avatarUrl/i,
-  /ogImageUrl/i,
-  /type=["']url["']/i,
-];
-
-const allowedContext = [
-  /CTA|button|href|social|facebook|instagram|tiktok|canonical|map|mailto|tel|booking|external article/i,
-];
+const imageFieldPattern = /\b(?:imageUrl|imagePath|imageSrc|thumbnailUrl|coverImageUrl|bannerImageUrl|avatarUrl|ogImageUrl)\b/i;
+const imageUrlLabelPattern = /image\s+(?:url|path)/i;
+const inputTags = new Set(["input", "textarea", "Input", "TextInput", "FormInput"]);
 
 function walk(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -55,6 +42,40 @@ function toRepoPath(filePath: string) {
   return path.relative(ROOT, filePath).replace(/\\/g, "/");
 }
 
+function collectDirectImageInputs(filePath: string, content: string) {
+  const extension = path.extname(filePath).toLowerCase();
+  if (![".tsx", ".jsx"].includes(extension)) return [];
+  const source = ts.createSourceFile(
+    filePath,
+    content,
+    ts.ScriptTarget.Latest,
+    true,
+    extension === ".tsx" ? ts.ScriptKind.TSX : ts.ScriptKind.JSX,
+  );
+  const matches: Array<{ line: number; matchedText: string }> = [];
+
+  function visit(node: ts.Node) {
+    if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+      const tag = node.tagName.getText(source);
+      if (inputTags.has(tag)) {
+        const control = node.getText(source);
+        const hasImageBinding = imageFieldPattern.test(control);
+        const hasImageUrlLabel = imageUrlLabelPattern.test(control);
+        if (hasImageBinding || hasImageUrlLabel) {
+          matches.push({
+            line: source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1,
+            matchedText: control.replace(/\s+/g, " ").trim().slice(0, 220),
+          });
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  }
+
+  visit(source);
+  return matches;
+}
+
 function main() {
   const findings: Finding[] = [];
   for (const dir of SCAN_DIRS) {
@@ -62,13 +83,11 @@ function main() {
       const repoPath = toRepoPath(file);
       if (FILE_EXCEPTIONS.includes(repoPath)) continue;
       const content = fs.readFileSync(file, "utf8");
-      content.split(/\r?\n/).forEach((lineText, index) => {
-        if (!forbiddenPatterns.some((pattern) => pattern.test(lineText))) return;
-        if (allowedContext.some((pattern) => pattern.test(lineText))) return;
+      collectDirectImageInputs(file, content).forEach((match) => {
         findings.push({
           filePath: repoPath,
-          line: index + 1,
-          matchedText: lineText.trim().slice(0, 220),
+          line: match.line,
+          matchedText: match.matchedText,
           status: EXCEPTIONS.includes(repoPath) ? "exception" : "pending",
           requiredReplacement: "Replace direct image URL editing with MediaPickerField or MediaGalleryPickerField.",
         });
@@ -96,7 +115,9 @@ function main() {
     ].join("\n")
   );
 
-  console.log(`Image Library audit complete. ${findings.length} findings written to reports/.`);
+  const pending = findings.filter((finding) => finding.status === "pending").length;
+  console.log(`${pending === 0 ? "PASS" : "FAIL"} Image Library audit: ${pending} pending, ${findings.length - pending} documented exceptions.`);
+  if (pending > 0) process.exitCode = 1;
 }
 
 main();

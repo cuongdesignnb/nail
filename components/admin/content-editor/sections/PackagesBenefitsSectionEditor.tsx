@@ -105,11 +105,10 @@ export function PackagesBenefitsSectionEditor({ data, onChange }: Props) {
       </div>
 
       <MediaPickerField
+        valueMode="reference"
         label="Benefits Section Image"
         value={data.image ?? null}
-        alt={data.image?.alt ?? ''}
         onChange={(image) => update({ image: image ?? { mediaId: null, src: '', alt: '' } })}
-        onAltChange={(alt) => update({ image: { ...data.image, alt } })}
         folder="packages"
       />
 

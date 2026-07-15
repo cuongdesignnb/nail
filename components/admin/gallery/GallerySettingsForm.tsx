@@ -234,9 +234,10 @@ export function GallerySettingsForm() {
         />
         <div className="mb-6">
           <MediaPickerField
+            valueMode="url"
             label="Hero Image"
             value={heroImage}
-            onChange={(url) => setHeroImage(url)}
+            onChange={(url) => setHeroImage(url || "")}
             alt={heroImageAlt}
             onAltChange={(altVal) => setHeroImageAlt(altVal)}
             folder="gallery"
@@ -308,9 +309,10 @@ export function GallerySettingsForm() {
         />
         <div className="mb-6">
           <MediaPickerField
+            valueMode="url"
             label="Why Choose Section Image"
             value={whyImage}
-            onChange={(url) => setWhyImage(url)}
+            onChange={(url) => setWhyImage(url || "")}
             alt={whyImageAlt}
             onAltChange={(altVal) => setWhyImageAlt(altVal)}
             folder="gallery"

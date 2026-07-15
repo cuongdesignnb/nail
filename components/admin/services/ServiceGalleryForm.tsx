@@ -206,10 +206,11 @@ export function ServiceGalleryForm() {
           )}
 
           <MediaPickerField
+            valueMode="url"
             label="Gallery Image"
             value={image}
             alt={imageAlt}
-            onChange={(url) => setImage(url)}
+            onChange={(url) => setImage(url || "")}
             onAltChange={(alt) => setImageAlt(alt)}
             folder="services"
             required

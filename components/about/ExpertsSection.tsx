@@ -7,6 +7,7 @@ import { Container } from "@/components/common/Container";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { Instagram, Facebook, Share2 } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/components/common/FloatingOrnaments";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface ExpertsSectionProps {
   data: AboutPageContent["experts"];
@@ -36,7 +37,7 @@ export function ExpertsSection({ data }: ExpertsSectionProps) {
               {/* Member Image Wrapper */}
               <div className="relative w-full aspect-[3/4] rounded-[24px] overflow-hidden border-[6px] border-white shadow-luxury mb-5">
                 <Image
-                  src={member.avatar.src}
+                  src={normalizeMediaUrl(member.avatar.src)}
                   alt={member.avatar.alt}
                   fill
                   sizes="(max-width: 768px) 100vw, 300px"

@@ -258,7 +258,7 @@ export default function PromotionForm({ promotionId }: { promotionId?: string })
               <AdminToggle label="Popup" checked={form.popupEnabled} onChange={(value) => update("popupEnabled", value)} />
             </div>
             <div className="md:col-span-3">
-              <MediaPickerField label="Campaign Image" value={form.imageUrl} onChange={(url) => update("imageUrl", url)} folder="promotions" aspectRatio="4/3" />
+              <MediaPickerField valueMode="url" label="Campaign Image" value={form.imageUrl} onChange={(url) => update("imageUrl", url || "")} folder="promotions" aspectRatio="4/3" />
             </div>
           </div>
         </AdminSectionCard>

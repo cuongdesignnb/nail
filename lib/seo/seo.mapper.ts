@@ -1,6 +1,7 @@
 import type { ImageField, SeoFields } from "@/lib/content/content.types";
 import type { EntitySeoRecord, SeoMetadataInput } from "./seo.types";
 import { normalizeCanonicalPath } from "./site-url";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export function keywordsToArray(value: string | string[] | null | undefined): string[] | undefined {
   if (Array.isArray(value)) {
@@ -14,8 +15,8 @@ export function keywordsToArray(value: string | string[] | null | undefined): st
 
 export function imageToUrl(value: string | ImageField | null | undefined): string | undefined {
   if (!value) return undefined;
-  if (typeof value === "string") return value || undefined;
-  return value.src || undefined;
+  if (typeof value === "string") return normalizeMediaUrl(value) || undefined;
+  return normalizeMediaUrl(value.src) || undefined;
 }
 
 export function imageToAlt(value: string | ImageField | null | undefined, explicitAlt?: string | null): string | undefined {
@@ -70,4 +71,3 @@ export function stripDuplicateTitleSuffix(title: string, siteName: string) {
   }
   return next;
 }
-

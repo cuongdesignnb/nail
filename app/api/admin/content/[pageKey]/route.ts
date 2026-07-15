@@ -5,6 +5,8 @@ import { getPageContent, saveDraftContent } from "@/lib/content/content.reposito
 import type { ContentPageKey } from "@/lib/content/content.types";
 import { getSchemaForPage } from "@/validations/content";
 import { hydrateBrandingContent } from "@/lib/settings/branding-persistence";
+import { normalizePageContent } from "@/lib/content/normalize-page-content";
+import { validateMediaReferenceIntegrity } from "@/lib/media/media-reference-integrity";
 
 export async function GET(
   _request: NextRequest,
@@ -79,9 +81,11 @@ export async function PUT(
       );
     }
 
-    // Relaxed draft validation
+    const canonicalContent = normalizePageContent(content, pageKey as ContentPageKey);
+
+    // Validate the canonical draft so legacy image strings cannot leak back to storage.
     const draftSchema = getSchemaForPage(pageKey as ContentPageKey, "draft");
-    const parseResult = draftSchema.safeParse(content);
+    const parseResult = draftSchema.safeParse(canonicalContent);
     if (!parseResult.success) {
       return NextResponse.json(
         {
@@ -93,8 +97,25 @@ export async function PUT(
       );
     }
 
+    const mediaIntegrity = await validateMediaReferenceIntegrity(canonicalContent);
+    if (!mediaIntegrity.valid) {
+      const issues = mediaIntegrity.issues.reduce<Record<string, string[]>>((result, issue) => {
+        (result[issue.path] ||= []).push(issue.message);
+        return result;
+      }, {});
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Media reference validation failed",
+          code: "MEDIA_REFERENCE_INVALID",
+          issues,
+        },
+        { status: 400 },
+      );
+    }
+
     if (pageKey === "global") {
-      const selected = hydrateBrandingContent(content);
+      const selected = hydrateBrandingContent(canonicalContent);
       console.info(JSON.stringify({
         event: "BRANDING_SAVE_REQUEST",
         adminEmail: admin.email,
@@ -106,7 +127,7 @@ export async function PUT(
 
     await saveDraftContent({
       pageKey: pageKey as ContentPageKey,
-      content,
+      content: canonicalContent,
       version,
       actor: admin.email,
     });

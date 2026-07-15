@@ -47,6 +47,17 @@ export async function listActiveHomepageCampaigns() {
   });
 }
 
+export async function listActivePromotionCampaigns() {
+  return prisma.promotionCampaign.findMany({
+    where: {
+      ...activeWindowWhere(),
+      displayLocation: { in: ["PROMOTIONS_PAGE", "ALL", "HOMEPAGE"] },
+    },
+    orderBy: [{ sortOrder: "asc" }, { startDate: "desc" }],
+    select: publicCampaignSelect(),
+  });
+}
+
 export async function getActivePopupCampaign() {
   return prisma.promotionCampaign.findFirst({
     where: {

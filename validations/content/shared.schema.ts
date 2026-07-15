@@ -5,6 +5,13 @@
  */
 
 import { z } from "zod";
+import {
+  imageSrcSchema,
+  mediaReferenceSchema,
+  requiredMediaReferenceSchema,
+} from "./media-reference.schema";
+
+export { imageSrcSchema, mediaReferenceSchema } from "./media-reference.schema";
 
 /* ------------------------------------------------------------------ */
 /*  Text helpers                                                      */
@@ -38,19 +45,6 @@ export const hrefSchema = z
     "Use a safe link: /, https://, mailto:, tel:, or #section",
   );
 
-export const imageSrcSchema = z
-  .string()
-  .trim()
-  .refine(
-    (value) =>
-      value.startsWith("/") ||
-      value.startsWith("https://images.unsplash.com/") ||
-      value.startsWith(
-        process.env.NEXT_PUBLIC_CDN_HOST ?? "https://cdn.invalid/",
-      ),
-    "Use a public path, Unsplash URL, or configured CDN URL",
-  );
-
 export const colorSchema = z
   .string()
   .regex(/^#[0-9A-Fa-f]{6}$/)
@@ -61,10 +55,7 @@ export const colorSchema = z
 /* ------------------------------------------------------------------ */
 
 /** Image field — matches ImageField type */
-export const imageFieldSchema = z.object({
-  src: imageSrcSchema,
-  alt: requiredText(160),
-});
+export const imageFieldSchema = requiredMediaReferenceSchema;
 
 /** Optional image field */
 export const optionalImageFieldSchema = imageFieldSchema.optional();

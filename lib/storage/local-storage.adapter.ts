@@ -1,22 +1,20 @@
-import { mkdir, writeFile, unlink } from "fs/promises";
+import { access, mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
-import { StorageAdapter, UploadResult } from "./storage.types";
+import type { StorageAdapter, UploadResult } from "./storage.types";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
 export class LocalStorageAdapter implements StorageAdapter {
-  async upload(file: Buffer, filename: string, mimeType: string): Promise<UploadResult> {
-    await mkdir(UPLOAD_DIR, { recursive: true });
+  async upload(file: Buffer, requestedKey: string, mimeType: string): Promise<UploadResult> {
+    const storageKey = this.normalizeStorageKey(requestedKey, mimeType);
+    const filePath = this.resolveStoragePath(storageKey);
 
-    const ext = path.extname(filename) || this.mimeToExt(mimeType);
-    const uniqueName = `${crypto.randomUUID()}${ext}`;
-    const filePath = path.join(UPLOAD_DIR, uniqueName);
-
+    await mkdir(path.dirname(filePath), { recursive: true });
     await writeFile(filePath, file);
 
     return {
-      url: `/uploads/${uniqueName}`,
-      storageKey: uniqueName,
+      url: this.getUrl(storageKey),
+      storageKey,
       provider: "local",
       size: file.length,
       mimeType,
@@ -24,19 +22,48 @@ export class LocalStorageAdapter implements StorageAdapter {
   }
 
   async delete(storageKey: string): Promise<void> {
-    const filePath = path.join(UPLOAD_DIR, storageKey);
     try {
-      await unlink(filePath);
-    } catch (err: unknown) {
-      if (err instanceof Error && "code" in err && (err as NodeJS.ErrnoException).code !== "ENOENT") {
-        throw err;
-      }
-      // File already gone — not an error
+      await unlink(this.resolveStoragePath(storageKey));
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+  }
+
+  async exists(storageKey: string): Promise<boolean> {
+    try {
+      await access(this.resolveStoragePath(storageKey));
+      return true;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+      throw error;
     }
   }
 
   getUrl(storageKey: string): string {
-    return `/uploads/${storageKey}`;
+    return `/uploads/${storageKey.replace(/\\/g, "/")}`;
+  }
+
+  private normalizeStorageKey(requestedKey: string, mimeType: string): string {
+    const normalized = requestedKey.replace(/\\/g, "/").replace(/^\/+/, "");
+    const parsed = path.posix.parse(normalized);
+    const fileName = parsed.ext
+      ? parsed.base
+      : `${parsed.name || crypto.randomUUID()}${this.mimeToExt(mimeType)}`;
+    return path.posix.join(parsed.dir, fileName);
+  }
+
+  private resolveStoragePath(storageKey: string): string {
+    const normalized = storageKey.replace(/\\/g, "/").replace(/^\/+/, "");
+    if (!normalized || normalized.split("/").includes("..")) {
+      throw new Error("Invalid storage key.");
+    }
+
+    const resolvedRoot = path.resolve(UPLOAD_DIR);
+    const resolvedPath = path.resolve(resolvedRoot, ...normalized.split("/"));
+    if (resolvedPath !== resolvedRoot && !resolvedPath.startsWith(`${resolvedRoot}${path.sep}`)) {
+      throw new Error("Storage key resolves outside the upload directory.");
+    }
+    return resolvedPath;
   }
 
   private mimeToExt(mimeType: string): string {

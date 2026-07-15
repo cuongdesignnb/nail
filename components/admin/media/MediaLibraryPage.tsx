@@ -7,24 +7,7 @@ import { MediaFilterBar } from "./MediaFilterBar";
 import { MediaDetailsPanel } from "./MediaDetailsPanel";
 import { MediaUploadDropzone } from "./MediaUploadDropzone";
 import { MediaEmptyState } from "./MediaEmptyState";
-
-interface MediaAsset {
-  id: string;
-  fileName: string;
-  originalName: string | null;
-  url: string;
-  mimeType: string | null;
-  size: number | null;
-  width: number | null;
-  height: number | null;
-  alt: string | null;
-  title: string | null;
-  folder: string | null;
-  storageKey: string | null;
-  provider: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { MediaAssetDto } from "@/lib/media/media-asset.dto";
 
 interface MediaFolder {
   id: string;
@@ -33,7 +16,7 @@ interface MediaFolder {
 }
 
 export function MediaLibraryPage() {
-  const [assets, setAssets] = useState<MediaAsset[]>([]);
+  const [assets, setAssets] = useState<MediaAssetDto[]>([]);
   const [folders, setFolders] = useState<MediaFolder[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,6 +26,7 @@ export function MediaLibraryPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [storageStatuses, setStorageStatuses] = useState<Record<string, "uploaded" | "missing-file" | "failed">>({});
 
   const fetchAssets = useCallback(async () => {
     setLoading(true);
@@ -57,9 +41,15 @@ export function MediaLibraryPage() {
       const res = await fetch(`/api/admin/media?${params.toString()}`);
       if (res.ok) {
         const json = await res.json();
-        setAssets(json.data.items || []);
+        const items = (json.data.items || []) as MediaAssetDto[];
+        setAssets(items);
         setTotalPages(json.data.totalPages || 1);
         setTotal(json.data.total || 0);
+        if (items.length) {
+          const statusResponse = await fetch(`/api/admin/media/status?ids=${items.map((item) => item.id).join(",")}`, { cache: "no-store" });
+          const statusJson = await statusResponse.json().catch(() => ({}));
+          if (statusResponse.ok && statusJson.success) setStorageStatuses(statusJson.data || {});
+        }
       }
     } catch (err) {
       console.error("Failed to fetch media:", err);
@@ -119,8 +109,11 @@ export function MediaLibraryPage() {
     }
   };
 
-  const handleUploadComplete = () => {
-    fetchAssets();
+  const handleUploadComplete = (asset: MediaAssetDto) => {
+    setAssets((current) => [asset, ...current.filter((item) => item.id !== asset.id)]);
+    setStorageStatuses((current) => ({ ...current, [asset.id]: "uploaded" }));
+    setSelectedId(asset.id);
+    void fetchAssets();
   };
 
   return (
@@ -175,6 +168,7 @@ export function MediaLibraryPage() {
                 items={assets}
                 selectedId={selectedId}
                 onSelect={setSelectedId}
+                storageStatuses={storageStatuses}
               />
 
               {/* Pagination */}

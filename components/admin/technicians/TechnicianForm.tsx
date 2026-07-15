@@ -113,6 +113,7 @@ export function TechnicianForm({
         {/* Avatar */}
         <div className="space-y-1.5">
           <MediaPickerField
+            valueMode="url"
             label="Avatar Photo"
             value={form.avatar}
             onChange={(val) => update("avatar", val)}

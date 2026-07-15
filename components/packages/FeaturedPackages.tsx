@@ -9,6 +9,7 @@ import { Check, Clock, Calendar } from "lucide-react";
 import { getIcon } from "@/lib/icons";
 import { staggerContainer, fadeUp } from "@/components/common/FloatingOrnaments";
 import { NailPackageDTO } from "@/types/packages";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 function PackagesListGrid({ packages }: { packages: NailPackageDTO[] }) {
   const searchParams = useSearchParams();
@@ -66,7 +67,7 @@ function PackagesListGrid({ packages }: { packages: NailPackageDTO[] }) {
                     {pkg.image && (
                       <div className="relative w-full h-48 bg-aera-champagne/10 overflow-hidden">
                         <Image
-                          src={pkg.image}
+                          src={normalizeMediaUrl(pkg.image)}
                           alt={pkg.imageAlt || pkg.name}
                           fill
                           className="object-cover group-hover:scale-103 transition-transform duration-500"

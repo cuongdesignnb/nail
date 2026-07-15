@@ -7,15 +7,7 @@ import { useState } from "react";
 import { MediaPickerDialog } from "./MediaPickerDialog";
 import type { MediaReference } from "@/lib/media/media.types";
 import { asArray } from "@/lib/utils/array";
-
-type MediaAsset = {
-  id: string;
-  fileName: string;
-  originalName: string | null;
-  url: string;
-  alt: string | null;
-  title: string | null;
-};
+import type { MediaAssetDto } from "@/lib/media/media-asset.dto";
 
 type MediaGalleryPickerFieldProps = {
   label: string;
@@ -27,7 +19,7 @@ type MediaGalleryPickerFieldProps = {
   aspectRatio?: string;
 };
 
-function toReference(asset: MediaAsset): MediaReference {
+function toReference(asset: MediaAssetDto): MediaReference {
   return {
     mediaId: asset.id,
     src: asset.url,
@@ -59,8 +51,8 @@ export function MediaGalleryPickerField({
     onChange(items.filter((_, itemIndex) => itemIndex !== index));
   };
 
-  const handleSelect = (selected: MediaAsset | MediaAsset[]) => {
-    const additions = asArray<MediaAsset>(Array.isArray(selected) ? selected : [selected]).map(toReference);
+  const handleSelect = (selected: MediaAssetDto | MediaAssetDto[]) => {
+    const additions = asArray<MediaAssetDto>(Array.isArray(selected) ? selected : [selected]).map(toReference);
     const next = [...items, ...additions];
     onChange(maxItems ? next.slice(0, maxItems) : next);
   };

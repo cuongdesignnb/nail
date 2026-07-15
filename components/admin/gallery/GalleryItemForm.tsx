@@ -177,10 +177,11 @@ export function GalleryItemForm({ categories, initialData, onSave, onCancel }: G
         {/* Right Side */}
         <div className="space-y-4">
           <MediaPickerField
+            valueMode="url"
             label="Gallery Item Image"
             value={image}
             alt={imageAlt}
-            onChange={(url) => setImage(url)}
+            onChange={(url) => setImage(url || "")}
             onAltChange={(alt) => setImageAlt(alt)}
             folder="gallery"
             required

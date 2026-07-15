@@ -3,9 +3,10 @@
 import React, { useState, useRef, useCallback } from "react";
 import { Upload, X, CheckCircle, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { MediaAssetDto } from "@/lib/media/media-asset.dto";
 
 interface MediaUploadDropzoneProps {
-  onUploadComplete: () => void;
+  onUploadComplete: (asset: MediaAssetDto) => void;
   folder?: string;
 }
 
@@ -44,17 +45,17 @@ export function MediaUploadDropzone({
           body: formData,
         });
 
-        if (!res.ok) {
-          const json = await res.json();
-          throw new Error(json.error || "Upload failed");
-        }
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || json?.success === false) throw new Error(json.detail || json.error || "Upload failed");
+        const uploaded = json?.data as MediaAssetDto | undefined;
+        if (!uploaded?.id || !uploaded.url || !uploaded.storageKey) throw new Error("Upload returned an invalid media asset.");
 
         setFiles((prev) =>
           prev.map((f) =>
             f.id === id ? { ...f, progress: 100, status: "done" } : f
           )
         );
-        onUploadComplete();
+        onUploadComplete(uploaded);
       } catch (err) {
         setFiles((prev) =>
           prev.map((f) =>
@@ -123,7 +124,7 @@ export function MediaUploadDropzone({
           type="file"
           accept="image/jpeg,image/png,image/webp,image/avif"
           multiple
-          onChange={(e) => e.target.files && handleFiles(e.target.files)}
+          onChange={(e) => { if (e.target.files) handleFiles(e.target.files); e.currentTarget.value = ""; }}
           className="hidden"
         />
         <Upload

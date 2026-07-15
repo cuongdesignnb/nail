@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { User, Layers, Sparkles, Mail, ArrowRight, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 import { BlogPostDTO, BlogCategoryDTO } from "@/types/blog";
 import { motion } from "framer-motion";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface BlogArticleSidebarProps {
   post: BlogPostDTO;
@@ -163,7 +164,7 @@ export function BlogArticleSidebar({ post, popularCategories, trendingPosts }: B
             <div key={item.id} className="group flex gap-3 items-center">
               {item.coverImage && (
                 <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-aera-cream shrink-0 border border-aera-champagne/20">
-                  <Image src={item.coverImage} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <Image src={normalizeMediaUrl(item.coverImage)} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
               )}
               <div className="space-y-0.5 text-left min-w-0">

@@ -28,10 +28,11 @@ export function SectionMediaField({
   return (
     <div className="space-y-3 p-4 rounded-lg border border-neutral-100 bg-neutral-50/50">
       <MediaPickerField
+        valueMode="url"
         label={label}
         value={value || ''}
         alt={altValue}
-        onChange={onChange}
+        onChange={(url) => onChange(url || "")}
         onAltChange={onAltChange}
         aspectRatio={aspectRatio}
       />

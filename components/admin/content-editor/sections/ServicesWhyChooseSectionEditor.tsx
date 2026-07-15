@@ -95,11 +95,10 @@ export function ServicesWhyChooseSectionEditor({ data, onChange }: Props) {
       </div>
 
       <MediaPickerField
+        valueMode="reference"
         label="Cover Image"
         value={safeData.image ?? null}
-        alt={safeData.image?.alt ?? ''}
         onChange={(image) => update({ image: image ?? { mediaId: null, src: '', alt: '' } })}
-        onAltChange={(alt) => update({ image: { ...safeData.image, alt } })}
         folder="services"
       />
 

@@ -157,10 +157,11 @@ export function ServicesSignatureServicesSectionEditor({ data = [], onChange }: 
           </label>
 
           <MediaPickerField
+            valueMode="url"
             label="Service Image"
             value={service.image ?? ''}
             alt={service.imageAlt ?? ''}
-            onChange={(src) => updateService(i, { image: src })}
+            onChange={(src) => updateService(i, { image: src || "" })}
             onAltChange={(alt) => updateService(i, { imageAlt: alt })}
             folder="services"
           />

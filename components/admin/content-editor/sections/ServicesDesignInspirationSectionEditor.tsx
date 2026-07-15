@@ -119,10 +119,11 @@ export function ServicesDesignInspirationSectionEditor({ data = [], onChange }: 
             </div>
 
             <MediaPickerField
+              valueMode="url"
               label="Inspiration Image"
               value={item.image}
               alt={item.imageAlt ?? ''}
-              onChange={(src) => updateItem(i, { image: src })}
+              onChange={(src) => updateItem(i, { image: src || "" })}
               onAltChange={(alt) => updateItem(i, { imageAlt: alt })}
               folder="gallery"
             />

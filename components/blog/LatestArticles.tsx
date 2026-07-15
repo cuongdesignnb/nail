@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Calendar, Clock, ArrowRight, User } from "lucide-react";
 import { BlogPostDTO } from "@/types/blog";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface LatestArticlesProps {
   posts: BlogPostDTO[];
@@ -37,7 +38,7 @@ export function LatestArticles({ posts }: LatestArticlesProps) {
                 {post.category?.name || "Beauty"}
               </span>
               <Image
-                src={post.coverImage || "/images/blog-1.jpg"}
+                src={normalizeMediaUrl(post.coverImage) || "/images/blog-1.jpg"}
                 alt={post.coverImageAlt || post.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"

@@ -278,9 +278,10 @@ export function ServiceForm({ categories, initialData, onSave, onCancel }: Servi
 
       <div className="mb-6">
         <MediaPickerField
+          valueMode="url"
           label="Service Image"
           value={image}
-          onChange={(url) => setImage(url)}
+          onChange={(url) => setImage(url || "")}
           alt={imageAlt}
           onAltChange={(altVal) => setImageAlt(altVal)}
           folder="services"

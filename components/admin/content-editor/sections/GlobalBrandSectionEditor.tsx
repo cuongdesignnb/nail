@@ -31,10 +31,11 @@ export function GlobalBrandSectionEditor({ data, onChange }: Props) {
       <div className="bg-gray-50 rounded-lg p-4 space-y-3">
         <p className="text-sm font-medium text-[#23212a]">Logo</p>
         <MediaPickerField
+          valueMode="reference"
           label="Logo"
           value={data.logo ?? null}
           onChange={(logo) => update({ logo: logo ?? { mediaId: null, src: '', alt: 'Aera Nail Lounge logo' } })}
-          folder="brand"
+          folder="branding"
           aspectRatio="1/1"
         />
       </div>

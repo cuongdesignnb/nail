@@ -271,10 +271,11 @@ export function GalleryCollectionForm() {
           />
 
           <MediaPickerField
+            valueMode="url"
             label="Collection Image"
             value={image}
             alt={imageAlt}
-            onChange={(url) => setImage(url)}
+            onChange={(url) => setImage(url || "")}
             onAltChange={(alt) => setImageAlt(alt)}
             folder="gallery"
             required

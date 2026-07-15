@@ -1,29 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
-
-interface MediaAsset {
-  id: string;
-  fileName: string;
-  originalName: string | null;
-  url: string;
-  mimeType: string | null;
-  size: number | null;
-  width: number | null;
-  height: number | null;
-  alt: string | null;
-  title: string | null;
-  folder: string | null;
-  createdAt: string;
-}
+import type { MediaAssetDto } from "@/lib/media/media-asset.dto";
 
 interface MediaCardProps {
-  asset: MediaAsset;
+  asset: MediaAssetDto;
   selected: boolean;
   onSelect: () => void;
+  storageStatus?: "uploaded" | "missing-file" | "failed";
 }
 
 function formatSize(bytes: number | null): string {
@@ -33,7 +20,15 @@ function formatSize(bytes: number | null): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
-export function MediaCard({ asset, selected, onSelect }: MediaCardProps) {
+export function MediaCard({ asset, selected, onSelect, storageStatus }: MediaCardProps) {
+  const [broken, setBroken] = useState(false);
+  const statusLabel = broken
+    ? "Broken URL"
+    : storageStatus === "missing-file"
+      ? "Missing file"
+      : storageStatus === "failed"
+        ? "Failed"
+        : "Uploaded";
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -48,14 +43,18 @@ export function MediaCard({ asset, selected, onSelect }: MediaCardProps) {
     >
       {/* Image */}
       <div className="relative w-full h-full">
-        <Image
+        {!broken && <Image
           src={asset.url}
           alt={asset.alt || asset.fileName}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
           className="object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+          onError={() => setBroken(true)}
+        />}
+        {broken && <div className="flex h-full items-center justify-center bg-rose-50 px-3 text-center text-[10px] font-semibold text-rose-700">Image could not be loaded</div>}
       </div>
+
+      <span className={`absolute left-2 top-2 z-10 rounded-full px-2 py-1 text-[8px] font-bold ${statusLabel === "Uploaded" ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>{statusLabel}</span>
 
       {/* Hover overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">

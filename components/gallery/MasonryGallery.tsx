@@ -7,6 +7,7 @@ import { Container } from "@/components/common/Container";
 import { GalleryItemDTO } from "@/types/gallery";
 import { Maximize2, Sparkles } from "lucide-react";
 import clsx from "clsx";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 function GalleryGrid({ items }: { items: GalleryItemDTO[] }) {
   const searchParams = useSearchParams();
@@ -51,7 +52,7 @@ function GalleryGrid({ items }: { items: GalleryItemDTO[] }) {
                   {/* Image container */}
                   <div className="relative w-full h-full">
                     <Image
-                      src={item.image}
+                      src={normalizeMediaUrl(item.image)}
                       alt={item.imageAlt || item.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-700"

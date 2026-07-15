@@ -25,6 +25,8 @@ import type { PublicHomeData } from "@/lib/home/home-data.service";
 import { PromotionCarousel } from "@/components/promotions/PromotionCarousel";
 import { PromotionPopupController } from "@/components/promotions/PromotionPopupController";
 import type { PublicPromotionCampaign } from "@/lib/promotions/promotion.types";
+import type { HomePageContent } from "@/lib/content/content.types";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 const serviceIconMap = [HeartHandshake, Sparkles, WandSparkles, Gem, Award, Scissors];
 const features = [
@@ -98,11 +100,13 @@ function RevealDiv({ children, className = "", delay = 0 }: { children: React.Re
 export function HomeClient({
   settings,
   homeData,
+  homeContent,
   campaigns,
   popupCampaign,
 }: {
   settings: PublicSiteSettings;
   homeData: PublicHomeData;
+  homeContent: HomePageContent;
   campaigns: PublicPromotionCampaign[];
   popupCampaign: PublicPromotionCampaign | null;
 }) {
@@ -112,13 +116,18 @@ export function HomeClient({
     href: `/services/${service.slug}`,
     icon: serviceIconMap[index] ?? Sparkles,
   }));
-  const gallery = homeData.gallery;
+  const gallery = homeData.gallery.map((item) => ({ ...item, image: normalizeMediaUrl(item.image) }));
   const packages = homeData.packages.map((item) => ({
     ...item,
     price: item.price ? new Intl.NumberFormat("en-US", { style: "currency", currency: settings.currency }).format(Number(item.price)) : "",
     copy: item.description,
   }));
-  const experts = homeData.technicians.map((item) => ({ ...item, img: item.avatar }));
+  const experts = homeData.technicians.map((item) => ({ ...item, img: normalizeMediaUrl(item.avatar) }));
+  const heroImage = normalizeMediaUrl(homeContent.hero.image.src) || "/hero-manicure.png";
+  const aboutImage = normalizeMediaUrl(homeContent.aboutPreview.image.src) || "/nail-salon-interior.png";
+  const secondaryAboutImage = gallery[0]?.image || aboutImage;
+  const testimonial = homeContent.testimonials.items[0];
+  const testimonialImage = normalizeMediaUrl(testimonial?.avatar?.src) || aboutImage;
 
   return (
     <main id="home">
@@ -132,12 +141,12 @@ export function HomeClient({
       {/* ── Hero ── */}
       <section className="hero">
         <div className="hero-copy animate-hero">
-          <span className="eyebrow">Elevate Your Beauty</span>
+          <span className="eyebrow">{homeContent.hero.eyebrow}</span>
           <h1>
-            Luxury Nail Care,
-            <em> Designed for You</em>
+            {homeContent.hero.title}
+            <em> {homeContent.hero.highlight}</em>
           </h1>
-          <p>Experience premium nail care in a serene, elegant space where beauty meets relaxation.</p>
+          <p>{homeContent.hero.description}</p>
           <div className="hero-actions">
             <a className="primary-btn pulse-btn" href="#contact">
               Book Your Appointment
@@ -150,8 +159,8 @@ export function HomeClient({
         </div>
         <div className="hero-image animate-hero-img">
           <Image
-            src="/hero-manicure.png"
-            alt="Elegant pink and gold manicure"
+            src={heroImage}
+            alt={homeContent.hero.image.alt}
             fill
             sizes="(max-width: 900px) 100vw, 48vw"
             priority
@@ -164,7 +173,7 @@ export function HomeClient({
       {/* ── Services ── */}
       <Reveal className="services" key="services">
         <div id="services">
-          <h2>Our Signature Services</h2>
+          <h2>{homeContent.signatureServices.title}</h2>
           <div className="service-grid">
             {services.map(({ title, copy, href, icon: Icon }, i) => (
               <RevealDiv className="service-card" key={title} delay={i * 100}>
@@ -186,16 +195,16 @@ export function HomeClient({
           <div className="about-media">
             <div className="salon-shot">
               <Image
-                src="/nail-salon-interior.png"
-                alt="Warm luxury nail lounge interior"
+                src={aboutImage}
+                alt={homeContent.aboutPreview.image.alt}
                 fill
                 sizes="(max-width: 900px) 100vw, 30vw"
               />
             </div>
             <div className="nail-shot">
               <Image
-                src="/nail-art-2.png"
-                alt="Glossy pink manicure with gold detail"
+                src={secondaryAboutImage}
+                alt={gallery[0]?.alt || homeContent.aboutPreview.image.alt}
                 fill
                 sizes="(max-width: 900px) 100vw, 30vw"
               />
@@ -207,12 +216,9 @@ export function HomeClient({
             </div>
           </div>
           <div className="about-copy">
-            <span className="section-kicker">About {settings.brand.name}</span>
-            <h2>Where Luxury Meets Care & Perfection</h2>
-            <p>
-              At {settings.brand.name}, we believe self-care is essential. Our expert nail technicians, premium products,
-              and hygienic practices ensure an exceptional experience every time you visit.
-            </p>
+            <span className="section-kicker">{homeContent.aboutPreview.eyebrow}</span>
+            <h2>{homeContent.aboutPreview.title}</h2>
+            <p>{homeContent.aboutPreview.description}</p>
             <div className="about-points">
               {[
                 ["Premium Products", "We use high-quality, safe and cruelty-free products."],
@@ -240,7 +246,7 @@ export function HomeClient({
       <Reveal className="gallery" key="gallery">
         <div id="gallery">
           <div className="section-heading">
-            <h2>Featured Nail Designs <span>✦</span></h2>
+            <h2>{homeContent.featuredGallery.title} <span>✦</span></h2>
             <div className="filters" aria-label="Gallery filters">
               {["All", "Minimal", "Elegant", "Glitter", "Art"].map((filter) => (
                 <button className={filter === "All" ? "selected" : ""} key={filter}>
@@ -263,7 +269,7 @@ export function HomeClient({
       {/* ── Packages ── */}
       <Reveal className="packages" key="packages">
         <div id="packages" className="packages-list">
-          <h2>Popular Packages <span>✦</span></h2>
+          <h2>{homeContent.packagesPreview.title} <span>✦</span></h2>
           <div className="package-grid">
             {packages.map((pkg, i) => (
               <RevealDiv className={`package-card ${pkg.popular ? "popular" : ""}`} key={pkg.name} delay={i * 120}>
@@ -293,7 +299,7 @@ export function HomeClient({
       <Reveal className="social-proof" key="social-proof">
         <div className="experts">
           <div className="mini-heading">
-            <h2>Meet Our Experts <span>✦</span></h2>
+            <h2>{homeContent.teamPreview.title} <span>✦</span></h2>
             <a href="#contact">View All Team <ArrowRight size={14} /></a>
           </div>
           <div className="expert-grid">
@@ -310,7 +316,7 @@ export function HomeClient({
           </div>
         </div>
         <div className="testimonial">
-          <h2>What Our Clients Say <span>✦</span></h2>
+          <h2>{homeContent.testimonials.title} <span>✦</span></h2>
           <div className="testimonial-card">
             <div className="quote">
               <div className="stars" aria-label="5 star rating">
@@ -318,13 +324,13 @@ export function HomeClient({
                   <Star key={index} size={18} fill="currentColor" />
                 ))}
               </div>
-              <p>The best nail salon experience! The staff is so friendly and talented. My nails have never looked better!</p>
-              <strong>Jessica M.</strong>
+              <p>{testimonial?.quote || "The best nail salon experience."}</p>
+              <strong>{testimonial?.name || settings.brand.name}</strong>
             </div>
             <div className="quote-image">
               <Image
-                src="/nail-art-3.png"
-                alt="Client manicure"
+                src={testimonialImage}
+                alt={testimonial?.avatar?.alt || testimonial?.name || "Client manicure"}
                 fill
                 sizes="(max-width: 900px) 100vw, 24vw"
               />

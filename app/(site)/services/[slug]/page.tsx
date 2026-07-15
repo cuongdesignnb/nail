@@ -11,6 +11,7 @@ import { buildAbsoluteUrl } from "@/lib/seo/site-url";
 import { buildServiceSchema } from "@/lib/seo/schema/service.schema";
 import { buildOfferSchema } from "@/lib/seo/schema/offer.schema";
 import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +66,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
         extraSchemas={[serviceSchema, offerSchema]}
       />
       <section className="detail-layout">
-        <div className="detail-media"><Image src={service.image} alt={service.name} fill sizes="50vw" /></div>
+        <div className="detail-media"><Image src={normalizeMediaUrl(service.image)} alt={service.name} fill sizes="50vw" /></div>
         <aside className="lux-card detail-panel">
           <h3>Service Summary</h3>
           <p><Clock3 size={16} /> {service.duration} minutes</p>

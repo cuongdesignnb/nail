@@ -59,7 +59,7 @@ export const homePageContentSchema = z.object({
     isVisible: z.boolean(),
     title: requiredText(160),
     description: requiredText(500),
-    code: requiredText(40),
+    code: optionalText(40),
     button: buttonFieldSchema,
     featuredPromotionIds: idArraySchema,
   }),

@@ -7,7 +7,8 @@ export interface UploadResult {
 }
 
 export interface StorageAdapter {
-  upload(file: Buffer, filename: string, mimeType: string): Promise<UploadResult>;
+  upload(file: Buffer, storageKey: string, mimeType: string): Promise<UploadResult>;
   delete(storageKey: string): Promise<void>;
+  exists(storageKey: string): Promise<boolean>;
   getUrl(storageKey: string): string;
 }

@@ -58,10 +58,11 @@ export function RichTextImageDialog({
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
             <MediaPickerField
+              valueMode="url"
               label="Image"
               value={src}
               alt={alt}
-              onChange={(url) => setSrc(url)}
+              onChange={(url) => setSrc(url || "")}
               onAltChange={(nextAlt) => setAlt(nextAlt)}
               folder="rich-text"
             />

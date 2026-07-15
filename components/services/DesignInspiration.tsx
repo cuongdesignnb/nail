@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Container } from "@/components/common/Container";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { ServiceGalleryItemDTO } from "@/types/services";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export function DesignInspiration({ items }: { items: ServiceGalleryItemDTO[] }) {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -59,7 +60,7 @@ export function DesignInspiration({ items }: { items: ServiceGalleryItemDTO[] })
                 className="group relative aspect-square rounded-[2rem] overflow-hidden shadow-sm border border-aera-champagne/40 bg-aera-champagne/10 hover:shadow-luxury transition-all duration-500"
               >
                 <Image
-                  src={item.image}
+                  src={normalizeMediaUrl(item.image)}
                   alt={item.imageAlt || item.title || "Nail Inspiration"}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"

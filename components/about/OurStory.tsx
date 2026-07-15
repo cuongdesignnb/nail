@@ -6,6 +6,7 @@ import { AboutPageContent } from "@/types/about";
 import { Container } from "@/components/common/Container";
 import { getIcon } from "@/lib/icons";
 import { fadeUp, fadeRight, staggerContainer } from "@/components/common/FloatingOrnaments";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface OurStoryProps {
   data: AboutPageContent["story"];
@@ -32,7 +33,7 @@ export function OurStory({ data }: OurStoryProps) {
               className="relative w-[75%] aspect-[3/4] rounded-[28px] overflow-hidden border-4 border-white shadow-luxury mr-auto"
             >
               <Image
-                src={data.images[0].src}
+                src={normalizeMediaUrl(data.images[0].src)}
                 alt={data.images[0].alt}
                 fill
                 sizes="(max-width: 768px) 100vw, 400px"
@@ -49,7 +50,7 @@ export function OurStory({ data }: OurStoryProps) {
               className="absolute w-[50%] aspect-square rounded-[28px] overflow-hidden border-[6px] border-white shadow-luxury bottom-[-20px] right-2 z-10"
             >
               <Image
-                src={data.images[1].src}
+                src={normalizeMediaUrl(data.images[1].src)}
                 alt={data.images[1].alt}
                 fill
                 sizes="(max-width: 768px) 50vw, 250px"

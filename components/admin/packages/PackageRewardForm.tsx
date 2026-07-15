@@ -301,10 +301,11 @@ export function PackageRewardForm() {
                 />
               </div>
               <MediaPickerField
+                valueMode="url"
                 label="Promo Image"
                 value={image}
                 alt={imageAlt}
-                onChange={(url) => setImage(url)}
+                onChange={(url) => setImage(url || "")}
                 onAltChange={(alt) => setImageAlt(alt)}
                 folder="packages"
               />

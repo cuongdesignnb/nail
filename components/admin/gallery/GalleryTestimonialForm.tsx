@@ -252,10 +252,11 @@ export function GalleryTestimonialForm() {
           />
 
           <MediaPickerField
+            valueMode="url"
             label="Customer Avatar (Optional)"
             value={avatar}
             alt={avatarAlt}
-            onChange={(url) => setAvatar(url)}
+            onChange={(url) => setAvatar(url || "")}
             onAltChange={(alt) => setAvatarAlt(alt)}
             folder="avatars"
           />

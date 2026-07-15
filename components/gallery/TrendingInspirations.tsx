@@ -6,6 +6,7 @@ import { Container } from "@/components/common/Container";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { GalleryTrendDTO } from "@/types/gallery";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export function TrendingInspirations({ items }: { items: GalleryTrendDTO[] }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -68,7 +69,7 @@ export function TrendingInspirations({ items }: { items: GalleryTrendDTO[] }) {
               {/* Thumbnail Image */}
               <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-aera-champagne/10 mb-4">
                 <Image
-                  src={trend.image || "/images/about-nail-detail.jpg"}
+                  src={normalizeMediaUrl(trend.image) || "/images/about-nail-detail.jpg"}
                   alt={trend.imageAlt || trend.title}
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-500"

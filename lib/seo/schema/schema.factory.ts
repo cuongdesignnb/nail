@@ -7,6 +7,13 @@ import { buildNailSalonSchema } from "./nail-salon.schema";
 import { buildBreadcrumbSchema } from "./breadcrumb.schema";
 import type { BreadcrumbItem, FaqSchemaItem, JsonLdObject } from "./schema.types";
 import { buildFaqSchema } from "./faq.schema";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
+
+function absoluteMediaUrl(value: string | null | undefined) {
+  const normalized = normalizeMediaUrl(value);
+  if (!normalized) return undefined;
+  return /^https?:\/\//i.test(normalized) ? normalized : buildAbsoluteUrl(normalized);
+}
 
 function socialUrls(globalContent: Awaited<ReturnType<typeof getPublishedGlobalContent>>) {
   return [
@@ -25,8 +32,8 @@ export async function buildGlobalSchemas() {
   const identity = {
     name: globalContent.brand?.name || "Aera Nail Lounge",
     url: siteUrl,
-    logo: globalContent.brand?.logo?.src ? buildAbsoluteUrl(globalContent.brand.logo.src) : undefined,
-    image: globalContent.defaultShareImage?.src ? buildAbsoluteUrl(globalContent.defaultShareImage.src) : undefined,
+    logo: absoluteMediaUrl(globalContent.brand?.logo?.src),
+    image: absoluteMediaUrl(globalContent.defaultShareImage?.src),
     description: globalContent.brand?.tagline,
     phone: globalContent.defaultContact?.phone,
     email: globalContent.defaultContact?.email,
@@ -62,4 +69,3 @@ export function buildPageBreadcrumbSchema(pathname: string, title: string) {
 export function buildVisibleFaqSchema(items: FaqSchemaItem[] | undefined | null) {
   return buildFaqSchema(items || []);
 }
-

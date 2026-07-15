@@ -87,7 +87,7 @@ test("legacy fixture reproduces exact raw global validation paths", () => {
   if (raw.success) return;
   const paths = raw.error.issues.map((issue) => issue.path.join("."));
   assert.ok(paths.includes("brand.logo.alt"));
-  assert.ok(paths.includes("brand.favicon.alt"));
+  assert.ok(!paths.includes("brand.favicon.alt"), "legacy favicon strings are normalized by the shared media schema");
   assert.ok(paths.includes("headerNav"));
   assert.ok(paths.includes("footer.brandText"));
   assert.ok(paths.includes("defaultContact.hours"));

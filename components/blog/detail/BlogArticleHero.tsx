@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Calendar, Clock, User, Facebook, Instagram, Mail, Sparkles } from "lucide-react";
 import { BlogPostDTO } from "@/types/blog";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 // Custom Pinterest icon since it's not standard in Lucide React
 function PinterestIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -144,7 +145,7 @@ export function BlogArticleHero({ post }: BlogArticleHeroProps) {
             <div className="relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-aera-champagne shadow-luxury bg-white p-2">
               <div className="relative w-full h-full rounded-[2rem] overflow-hidden">
                 <Image
-                  src={post.coverImage || "/images/blog-hero.jpg"}
+                  src={normalizeMediaUrl(post.coverImage) || "/images/blog-hero.jpg"}
                   alt={post.coverImageAlt || post.title}
                   fill
                   sizes="(max-width: 1024px) 100vw, 40vw"

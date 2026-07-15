@@ -8,6 +8,7 @@ import { AnimatedButton } from "@/components/common/AnimatedButton";
 import { staggerContainer, fadeUp } from "@/components/common/FloatingOrnaments";
 import { ServiceDTO } from "@/types/services";
 import { Clock } from "lucide-react";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export function SignatureServices({ items }: { items: ServiceDTO[] }) {
   return (
@@ -35,7 +36,7 @@ export function SignatureServices({ items }: { items: ServiceDTO[] }) {
               {/* Image Block */}
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-aera-champagne/15">
                 <Image
-                  src={service.image || "/images/about-nail-detail.jpg"}
+                  src={normalizeMediaUrl(service.image) || "/images/about-nail-detail.jpg"}
                   alt={service.imageAlt || service.name}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"

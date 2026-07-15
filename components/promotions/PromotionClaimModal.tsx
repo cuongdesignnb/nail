@@ -7,6 +7,7 @@ import type { PublicPromotionCampaign } from "@/lib/promotions/promotion.types";
 import { PromotionLeadForm } from "./PromotionLeadForm";
 import { PromotionSuccessState } from "./PromotionSuccessState";
 import { useState } from "react";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export function PromotionClaimModal({
   campaign,
@@ -27,7 +28,7 @@ export function PromotionClaimModal({
           <X size={18} />
         </button>
         <div className="promo-modal-media">
-          <Image src={campaign.imageUrl || "/images/salon-experience-2.jpg"} alt={campaign.title} fill sizes="(max-width: 768px) 100vw, 360px" />
+          <Image src={normalizeMediaUrl(campaign.imageUrl) || "/images/salon-experience-2.jpg"} alt={campaign.title} fill sizes="(max-width: 768px) 100vw, 360px" />
         </div>
         <div className="promo-modal-content">
           {campaign.badge && <span className="promo-modal-badge">{campaign.badge}</span>}

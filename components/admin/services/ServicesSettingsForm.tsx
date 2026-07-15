@@ -230,9 +230,10 @@ export function ServicesSettingsForm() {
         />
         <div className="mb-6">
           <MediaPickerField
+            valueMode="url"
             label="Hero Image"
             value={heroImage}
-            onChange={(url) => setHeroImage(url)}
+            onChange={(url) => setHeroImage(url || "")}
             alt={heroImageAlt}
             onAltChange={(altVal) => setHeroImageAlt(altVal)}
             folder="services"
@@ -295,9 +296,10 @@ export function ServicesSettingsForm() {
         />
         <div className="mb-6">
           <MediaPickerField
+            valueMode="url"
             label="Why Choose Collaged Image"
             value={whyChooseImage}
-            onChange={(url) => setWhyChooseImage(url)}
+            onChange={(url) => setWhyChooseImage(url || "")}
             folder="services"
           />
           {errors.whyChooseImage?.[0] && (

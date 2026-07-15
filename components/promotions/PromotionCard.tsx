@@ -3,13 +3,14 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import type { PublicPromotionCampaign } from "@/lib/promotions/promotion.types";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export function PromotionCard({ campaign, onClaim }: { campaign: PublicPromotionCampaign; onClaim: (campaign: PublicPromotionCampaign) => void }) {
   return (
     <article className="promo-card">
       <div className="promo-card-media">
         <Image
-          src={campaign.imageUrl || "/images/salon-experience-2.jpg"}
+          src={normalizeMediaUrl(campaign.imageUrl) || "/images/salon-experience-2.jpg"}
           alt={campaign.title}
           fill
           sizes="(max-width: 768px) 92vw, 420px"

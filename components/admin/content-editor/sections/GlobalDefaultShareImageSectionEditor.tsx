@@ -27,12 +27,11 @@ export function GlobalDefaultShareImageSectionEditor({ data, onChange }: Props) 
           This image will be displayed on social media platforms when links to your website are shared, if a specific page image is not provided. Recommended size is 1200x630 pixels.
         </p>
         <MediaPickerField
+          valueMode="reference"
           label="Default Share Image"
           value={data ?? null}
-          alt={data.alt ?? ''}
           onChange={(image) => onChange(image ?? { mediaId: null, src: '', alt: '' })}
-          onAltChange={(alt) => update({ alt })}
-          folder="brand"
+          folder="branding"
         />
       </div>
     </div>

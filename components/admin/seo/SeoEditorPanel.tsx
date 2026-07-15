@@ -222,10 +222,11 @@ export function SeoEditorPanel({ scopeKey, pageKey, initialData, onSave }: SeoEd
         </div>
 
         <MediaPickerField
+          valueMode="url"
           label="OG Image"
           value={form.ogImage || ''}
           alt={form.ogImageAlt || ''}
-          onChange={(url) => update('ogImage', url)}
+          onChange={(url) => update('ogImage', url || '')}
           onAltChange={(alt) => update('ogImageAlt', alt)}
           folder="seo"
           aspectRatio="1200/630"

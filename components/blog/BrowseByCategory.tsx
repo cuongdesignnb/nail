@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { BlogCategoryDTO } from "@/types/blog";
 import { motion } from "framer-motion";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface BrowseByCategoryProps {
   categories: BlogCategoryDTO[];
@@ -59,7 +60,7 @@ export function BrowseByCategory({ categories }: BrowseByCategoryProps) {
                 {/* Image panel */}
                 <div className="relative w-full h-full rounded-[1.3rem] overflow-hidden bg-aera-cream">
                   <Image
-                    src={cat.image || fallbackImg}
+                    src={normalizeMediaUrl(cat.image) || fallbackImg}
                     alt={cat.imageAlt || cat.name}
                     fill
                     sizes="(max-width: 768px) 50vw, 15vw"

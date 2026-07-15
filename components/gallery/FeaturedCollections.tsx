@@ -6,6 +6,7 @@ import { Container } from "@/components/common/Container";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { staggerContainer, fadeUp } from "@/components/common/FloatingOrnaments";
 import { GalleryCollectionDTO } from "@/types/gallery";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 export function FeaturedCollections({ items }: { items: GalleryCollectionDTO[] }) {
   return (
@@ -34,7 +35,7 @@ export function FeaturedCollections({ items }: { items: GalleryCollectionDTO[] }
               {/* Image Block */}
               <div className="relative aspect-square w-full overflow-hidden bg-aera-champagne/10">
                 <Image
-                  src={col.image}
+                  src={normalizeMediaUrl(col.image)}
                   alt={col.imageAlt || col.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"

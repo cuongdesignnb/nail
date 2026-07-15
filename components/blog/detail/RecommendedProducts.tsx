@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Sparkles, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
 import { BlogPostProduct } from "@/types/blog";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface RecommendedProductsProps {
   items?: BlogPostProduct[] | null;
@@ -70,7 +71,7 @@ export function RecommendedProducts({ items }: RecommendedProductsProps) {
               <div className="relative aspect-square bg-aera-cream/35 overflow-hidden flex items-center justify-center p-4">
                 <div className="relative w-full h-full rounded-2xl overflow-hidden bg-white shadow-sm/5">
                   <Image
-                    src={product.image || "/images/product-oil.jpg"}
+                    src={normalizeMediaUrl(product.image) || "/images/product-oil.jpg"}
                     alt={product.name}
                     fill
                     sizes="(max-width: 768px) 50vw, 20vw"

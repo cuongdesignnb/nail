@@ -230,11 +230,10 @@ export function AboutStorySectionEditor({ data, onChange }: Props) {
                 </div>
               </div>
               <MediaPickerField
+                valueMode="reference"
                 label={`Image ${i + 1}`}
                 value={img}
-                alt={img.alt}
                 onChange={(image) => updateImage(i, image ?? { mediaId: null, src: '', alt: '' })}
-                onAltChange={(alt) => updateImage(i, { alt })}
                 folder="about"
               />
             </div>

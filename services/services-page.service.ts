@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/db";
 import { defaultServicesContent } from "@/data/services.default";
 import { ServicesPageContent } from "@/types/services";
+import { getPublishedContent } from "@/lib/content/content.repository";
 
 export async function fetchServicesPageContent(): Promise<ServicesPageContent> {
   try {
-    // 1. Fetch Setting (get first or default)
-    const dbSetting = await prisma.servicesPageSetting.findFirst();
+    const pageCopy = await getPublishedContent("services") as unknown as ServicesPageContent;
 
     // 2. Fetch Active Categories
     const dbCategories = await prisma.serviceCategory.findMany({
@@ -49,11 +49,6 @@ export async function fetchServicesPageContent(): Promise<ServicesPageContent> {
       where: { isActive: true },
       orderBy: { sortOrder: "asc" },
     });
-
-    // If setting does not exist and DB is empty, fallback to static defaults
-    if (!dbSetting && dbCategories.length === 0 && dbServices.length === 0) {
-      return defaultServicesContent;
-    }
 
     // Mapping logic
     const mappedCategories = dbCategories.map((c) => ({
@@ -175,63 +170,21 @@ export async function fetchServicesPageContent(): Promise<ServicesPageContent> {
       });
     }
 
+    const featuredServices = mappedServices.filter((service) => service.isFeatured);
     return {
-      seo: {
-        title: dbSetting?.seoTitle || defaultServicesContent.seo.title,
-        description: dbSetting?.seoDescription || defaultServicesContent.seo.description,
-      },
-      hero: {
-        eyebrow: dbSetting?.heroEyebrow || defaultServicesContent.hero.eyebrow,
-        title: dbSetting?.heroTitle || defaultServicesContent.hero.title,
-        highlight: dbSetting?.heroHighlight || defaultServicesContent.hero.highlight,
-        description: dbSetting?.heroDescription || defaultServicesContent.hero.description,
-        image: {
-          src: dbSetting?.heroImage || defaultServicesContent.hero.image.src,
-          alt: dbSetting?.heroImageAlt || defaultServicesContent.hero.image.alt,
-        },
-        primaryButton: {
-          label: dbSetting?.primaryButtonLabel || defaultServicesContent.hero.primaryButton.label,
-          href: dbSetting?.primaryButtonHref || defaultServicesContent.hero.primaryButton.href,
-          variant: "primary",
-        },
-        secondaryButton: {
-          label: dbSetting?.secondaryButtonLabel || defaultServicesContent.hero.secondaryButton.label,
-          href: dbSetting?.secondaryButtonHref || defaultServicesContent.hero.secondaryButton.href,
-          variant: "secondary",
-        },
-      },
-      categories: mappedCategories,
-      signatureServices: mappedServices.filter((s) => s.isFeatured),
-      whyChoose: {
-        title: dbSetting?.whyChooseTitle || defaultServicesContent.whyChoose.title,
-        description: dbSetting?.whyChooseDescription || defaultServicesContent.whyChoose.description,
-        image: {
-          src: dbSetting?.whyChooseImage || defaultServicesContent.whyChoose.image.src,
-          alt: "Why choose us",
-        },
-        features: defaultServicesContent.whyChoose.features,
-      },
-      pricing: {
-        categories: pricingCategories,
-      },
-      process: defaultServicesContent.process,
-      gallery: mappedGallery,
-      packages: mappedPackages,
+      ...pageCopy,
+      seo: pageCopy.seo,
+      hero: pageCopy.hero,
+      categories: mappedCategories.length ? mappedCategories : pageCopy.categories,
+      signatureServices: featuredServices.length ? featuredServices : pageCopy.signatureServices,
+      whyChoose: pageCopy.whyChoose,
+      pricing: pricingCategories.length ? { ...pageCopy.pricing, categories: pricingCategories } : pageCopy.pricing,
+      process: pageCopy.process,
+      gallery: mappedGallery.length ? mappedGallery : pageCopy.gallery,
+      packages: mappedPackages.length ? mappedPackages : pageCopy.packages,
       addons: mappedAddons,
-      faqs: mappedFaqs,
-      cta: {
-        title: dbSetting?.ctaTitle || defaultServicesContent.cta.title,
-        description: dbSetting?.ctaDescription || defaultServicesContent.cta.description,
-        button: {
-          label: dbSetting?.ctaButtonLabel || defaultServicesContent.cta.button.label,
-          href: dbSetting?.ctaButtonHref || defaultServicesContent.cta.button.href,
-          variant: "primary",
-        },
-        phone: dbSetting?.phone || defaultServicesContent.cta.phone,
-        email: dbSetting?.email || defaultServicesContent.cta.email,
-        address: dbSetting?.address || defaultServicesContent.cta.address,
-        hours: dbSetting?.hours || defaultServicesContent.cta.hours,
-      },
+      faqs: mappedFaqs.length ? mappedFaqs : pageCopy.faqs,
+      cta: pageCopy.cta,
     };
   } catch (error) {
     console.error("fetchServicesPageContent error, falling back:", error);

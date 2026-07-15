@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { defaultBlogContent } from "@/data/blog.default";
 import { BlogPageContent, BlogPostDTO, BlogCategoryDTO } from "@/types/blog";
 import { BlogPostStatus } from "@prisma/client";
+import { getPublishedContent } from "@/lib/content/content.repository";
 
 // Helper to auto-publish scheduled posts that are due
 export async function publishDueScheduledPosts() {
@@ -33,13 +34,11 @@ export async function fetchBlogPageContent(params?: {
   try {
     // 1. Process scheduled posts
     await publishDueScheduledPosts();
+    const pageCopy = await getPublishedContent("blog") as unknown as BlogPageContent;
 
     const page = params?.page || 1;
     const limit = params?.limit || 8;
     const skip = (page - 1) * limit;
-
-    // 2. Fetch Blog settings
-    const settings = await prisma.blogPageSetting.findFirst();
 
     // 3. Fetch all active categories
     const categoriesDb = await prisma.blogCategory.findMany({
@@ -241,57 +240,22 @@ export async function fetchBlogPageContent(params?: {
 
     // Transform into BlogPageContent structure
     return {
-      seo: {
-        title: settings?.seoTitle || defaultBlogContent.seo.title,
-        description: settings?.seoDescription || defaultBlogContent.seo.description,
-      },
-      hero: {
-        eyebrow: settings?.heroEyebrow || defaultBlogContent.hero.eyebrow,
-        title: settings?.heroTitle || defaultBlogContent.hero.title,
-        highlight: settings?.heroHighlight || defaultBlogContent.hero.highlight,
-        description: settings?.heroDescription || defaultBlogContent.hero.description,
-        image: {
-          src: settings?.heroImage || defaultBlogContent.hero.image.src,
-          alt: settings?.heroImageAlt || defaultBlogContent.hero.image.alt,
-        },
-        primaryButton: {
-          label: settings?.primaryButtonLabel || defaultBlogContent.hero.primaryButton.label,
-          href: settings?.primaryButtonHref || defaultBlogContent.hero.primaryButton.href,
-        },
-        secondaryButton: {
-          label: settings?.secondaryButtonLabel || defaultBlogContent.hero.secondaryButton.label,
-          href: settings?.secondaryButtonHref || defaultBlogContent.hero.secondaryButton.href,
-        },
-      },
-      categories: categoriesList.length > 0 ? categoriesList : defaultBlogContent.categories,
-      featuredPost: featuredPost || defaultBlogContent.featuredPost,
-      sideFeaturedPosts: sideFeaturedPosts.length > 0 ? sideFeaturedPosts : defaultBlogContent.sideFeaturedPosts,
-      latestPosts: latestPosts.length > 0 ? latestPosts : defaultBlogContent.latestPosts,
-      popularCategories: popularCategories.length > 0 ? popularCategories : defaultBlogContent.popularCategories,
-      trendingPosts: trendingPosts.length > 0 ? trendingPosts : defaultBlogContent.trendingPosts,
-      editorsPicks: editorsPicks.length > 0 ? editorsPicks : defaultBlogContent.editorsPicks,
+      ...pageCopy,
+      seo: pageCopy.seo,
+      hero: pageCopy.hero,
+      categories: categoriesList.length > 0 ? categoriesList : pageCopy.categories,
+      featuredPost: featuredPost || pageCopy.featuredPost,
+      sideFeaturedPosts: sideFeaturedPosts.length > 0 ? sideFeaturedPosts : pageCopy.sideFeaturedPosts,
+      latestPosts: latestPosts.length > 0 ? latestPosts : pageCopy.latestPosts,
+      popularCategories: popularCategories.length > 0 ? popularCategories : pageCopy.popularCategories,
+      trendingPosts: trendingPosts.length > 0 ? trendingPosts : pageCopy.trendingPosts,
+      editorsPicks: editorsPicks.length > 0 ? editorsPicks : pageCopy.editorsPicks,
       testimonials: {
-        title: settings?.testimonialsTitle || defaultBlogContent.testimonials.title,
-        items: testimonialsList.length > 0 ? testimonialsList : defaultBlogContent.testimonials.items,
+        ...pageCopy.testimonials,
+        items: testimonialsList.length > 0 ? testimonialsList : pageCopy.testimonials.items,
       },
-      newsletter: {
-        title: settings?.newsletterTitle || defaultBlogContent.newsletter.title,
-        description: settings?.newsletterDescription || defaultBlogContent.newsletter.description,
-        placeholder: settings?.newsletterPlaceholder || defaultBlogContent.newsletter.placeholder,
-        buttonLabel: settings?.newsletterButtonLabel || defaultBlogContent.newsletter.buttonLabel,
-      },
-      cta: {
-        title: settings?.ctaTitle || defaultBlogContent.cta.title,
-        description: settings?.ctaDescription || defaultBlogContent.cta.description,
-        button: {
-          label: settings?.ctaButtonLabel || defaultBlogContent.cta.button.label,
-          href: settings?.ctaButtonHref || defaultBlogContent.cta.button.href,
-        },
-        phone: settings?.phone || defaultBlogContent.cta.phone,
-        email: settings?.email || defaultBlogContent.cta.email,
-        address: settings?.address || defaultBlogContent.cta.address,
-        hours: settings?.hours || defaultBlogContent.cta.hours,
-      },
+      newsletter: pageCopy.newsletter,
+      cta: pageCopy.cta,
       pagination: {
         page,
         limit,

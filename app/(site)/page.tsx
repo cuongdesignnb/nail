@@ -5,6 +5,7 @@ import { buildStaticPageMetadata, resolveStaticPageSeo } from "@/lib/seo/seo.ser
 import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
 import { getPublicHomeData } from "@/lib/home/home-data.service";
 import { getActivePopupCampaign, listActiveHomepageCampaigns } from "@/lib/promotions/promotion.service";
+import { getPublishedHomeContent } from "@/lib/content/content.service";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [seo, settings, homeData, campaigns, popupCampaign] = await Promise.all([
+  const [seo, settings, homeData, homeContent, campaigns, popupCampaign] = await Promise.all([
     resolveStaticPageSeo("home"),
     getPublicSiteSettings(),
     getPublicHomeData(),
+    getPublishedHomeContent(),
     listActiveHomepageCampaigns(),
     getActivePopupCampaign(),
   ]);
@@ -28,6 +30,7 @@ export default async function HomePage() {
       <HomeClient
         settings={settings}
         homeData={homeData}
+        homeContent={homeContent}
         campaigns={campaigns}
         popupCampaign={popupCampaign}
       />

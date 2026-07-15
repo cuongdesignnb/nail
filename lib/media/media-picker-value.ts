@@ -1,15 +1,12 @@
 import type { MediaReference } from "./media.types";
+import type { MediaAssetDto } from "./media-asset.dto";
 
 export type MediaPickerValueMode = "url" | "reference";
 
-export type MediaPickerAsset = {
-  id: string;
-  fileName: string;
-  originalName: string | null;
-  url: string;
-  alt: string | null;
-  title: string | null;
-};
+export type MediaPickerAsset = Pick<
+  MediaAssetDto,
+  "id" | "fileName" | "originalName" | "url" | "alt" | "title"
+>;
 
 export function mediaAssetToReference(
   asset: MediaPickerAsset,

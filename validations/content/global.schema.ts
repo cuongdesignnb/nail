@@ -13,22 +13,8 @@ import {
   hrefSchema,
   uniqueIds,
   makeDraftSchema,
+  mediaReferenceSchema,
 } from "./shared.schema";
-
-export const mediaReferenceSchema = z.object({
-  mediaId: z.string().nullable().optional(),
-  src: z.string().trim().min(1),
-  alt: requiredText(160),
-  title: z.string().nullable().optional(),
-}).passthrough();
-
-const legacyCompatibleMediaReferenceSchema = z.preprocess(
-  (value) =>
-    typeof value === "string" && value.trim()
-      ? { mediaId: null, src: value.trim(), alt: "", title: null }
-      : value,
-  mediaReferenceSchema.nullable(),
-);
 
 const globalContactSchema = z.object({
   phone: z.string().trim().max(40),
@@ -61,8 +47,8 @@ const globalBusinessHourSchema = z.object({
 export const globalContentSchema = z.object({
   brand: z.object({
     name: requiredText(100),
-    logo: legacyCompatibleMediaReferenceSchema,
-    favicon: legacyCompatibleMediaReferenceSchema.optional(),
+    logo: mediaReferenceSchema.nullable(),
+    favicon: mediaReferenceSchema.nullable().optional(),
     tagline: requiredText(300),
   }).passthrough(),
   headerNav: z.object({
@@ -111,7 +97,7 @@ export const globalContentSchema = z.object({
     cancellationWindowHours: z.coerce.number().int().min(0),
     bufferMinutes: z.coerce.number().int().min(0),
   }).passthrough(),
-  defaultShareImage: imageFieldSchema.passthrough(),
+  defaultShareImage: imageFieldSchema,
 }).passthrough();
 
 export type GlobalContentInput = z.infer<typeof globalContentSchema>;

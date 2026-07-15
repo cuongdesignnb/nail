@@ -7,6 +7,7 @@ import { Container } from "@/components/common/Container";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { Star, Quote } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/components/common/FloatingOrnaments";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface AboutTestimonialsProps {
   data: AboutPageContent["testimonials"];
@@ -74,7 +75,7 @@ export function AboutTestimonials({ data }: AboutTestimonialsProps) {
                 {testimonial.avatar ? (
                   <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md">
                     <Image
-                      src={testimonial.avatar.src}
+                      src={normalizeMediaUrl(testimonial.avatar.src)}
                       alt={testimonial.avatar.alt}
                       fill
                       sizes="48px"

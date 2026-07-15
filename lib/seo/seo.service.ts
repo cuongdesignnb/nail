@@ -20,6 +20,7 @@ import type {
 import { buildPageMetadata } from "./build-metadata";
 import { imageToAlt, imageToUrl, keywordsToArray, mapContentHubSeo, mapEntitySeoRecord } from "./seo.mapper";
 import { normalizeCanonicalPath } from "./site-url";
+import { getPublishedContent } from "@/lib/content/content.repository";
 
 const siteSettingsFallback: SeoSiteSettings = {
   titleTemplate: DEFAULT_TITLE_TEMPLATE,
@@ -93,9 +94,11 @@ async function getPublishedContentDirect<T>(pageKey: ContentPageKey): Promise<T>
 }
 
 async function loadPublishedContentDirect<T>(pageKey: ContentPageKey): Promise<T> {
-  const record = await prisma.sitePageContent.findUnique({ where: { slug: pageKey } });
-  if (record?.publishedContent) return record.publishedContent as T;
-  return getDefaultContent(pageKey) as T;
+  try {
+    return await getPublishedContent(pageKey) as T;
+  } catch {
+    return getDefaultContent(pageKey) as T;
+  }
 }
 
 export async function getSeoMetadata(scopeKey: string) {

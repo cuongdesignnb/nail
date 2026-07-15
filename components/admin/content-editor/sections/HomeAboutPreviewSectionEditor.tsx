@@ -52,6 +52,7 @@ export function HomeAboutPreviewSectionEditor({ data, onChange }: Props) {
       <div className="bg-gray-50 rounded-lg p-4 space-y-3">
         <p className="text-sm font-medium text-[#23212a]">Image</p>
         <MediaPickerField
+          valueMode="reference"
           label="About Preview Image"
           value={data.image ?? null}
           onChange={(image) => update({ image: image ?? { mediaId: null, src: '', alt: '' } })}

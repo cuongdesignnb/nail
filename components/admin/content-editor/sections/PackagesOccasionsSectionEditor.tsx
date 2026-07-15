@@ -141,10 +141,11 @@ export function PackagesOccasionsSectionEditor({ data, onChange }: Props) {
             </div>
 
             <MediaPickerField
+              valueMode="url"
               label="Occasion Image"
               value={item.image ?? ''}
               alt={item.imageAlt ?? ''}
-              onChange={(src) => updateItem(i, { image: src })}
+              onChange={(src) => updateItem(i, { image: src || "" })}
               onAltChange={(alt) => updateItem(i, { imageAlt: alt })}
               folder="occasions"
             />

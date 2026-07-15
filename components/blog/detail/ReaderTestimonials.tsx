@@ -3,6 +3,7 @@ import React from "react";
 import Image from "next/image";
 import { Star, Quote, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface TestimonialItem {
   id: string;
@@ -79,7 +80,7 @@ export function ReaderTestimonials({ items }: ReaderTestimonialsProps) {
               <div className="flex items-center gap-3 border-t border-aera-champagne/15 pt-4 mt-6">
                 {item.avatar ? (
                   <div className="relative w-9 h-9 rounded-full overflow-hidden border border-aera-champagne/50">
-                    <Image src={item.avatar} alt={item.avatarAlt || item.name} fill className="object-cover" />
+                    <Image src={normalizeMediaUrl(item.avatar)} alt={item.avatarAlt || item.name} fill className="object-cover" />
                   </div>
                 ) : (
                   <div className="w-9 h-9 rounded-full bg-aera-cream border border-aera-champagne/55 flex items-center justify-center">

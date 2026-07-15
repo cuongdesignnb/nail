@@ -1,14 +1,7 @@
 "use client";
 
 import { MediaPickerDialog } from "@/components/admin/media/MediaPickerDialog";
-
-interface MediaAsset {
-  id: string;
-  fileName: string;
-  url: string;
-  alt: string | null;
-  title: string | null;
-}
+import type { MediaAssetDto } from "@/lib/media/media-asset.dto";
 
 interface MediaPickerModalProps {
   onSelect: (url: string, alt: string) => void;
@@ -16,7 +9,7 @@ interface MediaPickerModalProps {
 }
 
 export function MediaPickerModal({ onSelect, onClose }: MediaPickerModalProps) {
-  const handleSelect = (assetOrAssets: MediaAsset | MediaAsset[]) => {
+  const handleSelect = (assetOrAssets: MediaAssetDto | MediaAssetDto[]) => {
     const asset = Array.isArray(assetOrAssets) ? assetOrAssets[0] : assetOrAssets;
     if (!asset) return;
     onSelect(asset.url, asset.alt || asset.title || asset.fileName || "");

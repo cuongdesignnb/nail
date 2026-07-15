@@ -143,10 +143,11 @@ export function GalleryFeaturedCollectionsSectionEditor({ data = [], onChange }:
             </div>
 
             <MediaPickerField
+              valueMode="url"
               label="Collection Image"
               value={collection.image}
               alt={collection.imageAlt ?? ''}
-              onChange={(src) => updateCollection(i, { image: src })}
+              onChange={(src) => updateCollection(i, { image: src || "" })}
               onAltChange={(alt) => updateCollection(i, { imageAlt: alt })}
               folder="gallery"
             />

@@ -13,6 +13,7 @@ import type {
   HeroFields,
 } from "@/lib/content/content.types";
 import { getRegistryItem } from "@/lib/content/content-registry";
+import { canonicalContentEqual } from "@/lib/content/content-equality";
 
 import { ContentEditorHeader } from "@/components/admin/content-editor/ContentEditorHeader";
 import { ContentEditorLayout } from "@/components/admin/content-editor/ContentEditorLayout";
@@ -155,15 +156,17 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
   /* ── Derived ── */
   const isDirty = useMemo(() => {
     if (!savedDraft || !content) return false;
-    return JSON.stringify(content) !== JSON.stringify(savedDraft);
-  }, [content, savedDraft]);
+    return !canonicalContentEqual(content, savedDraft, pageKey as ContentPageKey);
+  }, [content, pageKey, savedDraft]);
 
   const hasUnpublishedChanges = useMemo(() => {
     if (!payload || !savedDraft) return false;
-    return (
-      JSON.stringify(savedDraft) !== JSON.stringify(payload.publishedContent)
+    return !canonicalContentEqual(
+      savedDraft,
+      payload.publishedContent,
+      pageKey as ContentPageKey,
     );
-  }, [savedDraft, payload]);
+  }, [pageKey, savedDraft, payload]);
 
   const status = useMemo(
     () => deriveStatus(hasUnpublishedChanges, payload?.publishedAt ?? null),
@@ -238,24 +241,36 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
         setIsSaving(false);
         return;
       }
+      const returnedData = json.data as ContentPageData;
+      if (!canonicalContentEqual(content, returnedData?.draftContent, pageKey as ContentPageKey)) {
+        setError("The server returned a draft that does not match the submitted content.");
+        return;
+      }
       const verifyRes = await fetch(`/api/admin/content/${pageKey}`, {
         cache: "no-store",
         headers: { "Cache-Control": "no-cache" },
       });
       const verifyJson = await verifyRes.json();
-      if (!verifyRes.ok || !verifyJson.success || JSON.stringify(verifyJson.data?.draftContent) !== JSON.stringify(content)) {
+      if (
+        !verifyRes.ok ||
+        !verifyJson.success ||
+        !canonicalContentEqual(content, verifyJson.data?.draftContent, pageKey as ContentPageKey)
+      ) {
         setError("Your changes could not be verified after saving. Please reload and try again.");
         return;
       }
-      await loadData();
-      setMessage("Settings saved and verified.");
+      const verifiedData = verifyJson.data as ContentPageData;
+      setPayload(verifiedData);
+      setContent(verifiedData.draftContent);
+      setSavedDraft(verifiedData.draftContent);
+      setMessage("Draft saved and verified.");
       setTimeout(() => setMessage(""), 4000);
     } catch {
       setError("Network error — unable to save.");
     } finally {
       setIsSaving(false);
     }
-  }, [payload, content, pageKey, loadData]);
+  }, [payload, content, pageKey]);
 
   const publish = useCallback(() => {
     setConfirmAction({
@@ -290,12 +305,23 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
             headers: { "Cache-Control": "no-cache" },
           });
           const verifyJson = await verifyRes.json();
-          if (!verifyRes.ok || !verifyJson.success || JSON.stringify(verifyJson.data?.draftContent) !== JSON.stringify(verifyJson.data?.publishedContent)) {
+          if (
+            !verifyRes.ok ||
+            !verifyJson.success ||
+            !canonicalContentEqual(
+              verifyJson.data?.draftContent,
+              verifyJson.data?.publishedContent,
+              pageKey as ContentPageKey,
+            )
+          ) {
             setError("Your changes could not be verified after saving. Please reload and try again.");
             return;
           }
-          await loadData();
-          setMessage("Settings saved and verified.");
+          const verifiedData = verifyJson.data as ContentPageData;
+          setPayload(verifiedData);
+          setContent(verifiedData.draftContent);
+          setSavedDraft(verifiedData.draftContent);
+          setMessage("Published and verified.");
           setTimeout(() => setMessage(""), 4000);
         } catch {
           setError("Network error — unable to publish.");
@@ -304,7 +330,7 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
         }
       },
     });
-  }, [payload, pageKey, loadData]);
+  }, [payload, pageKey]);
 
   const discardDraft = useCallback(() => {
     setConfirmAction({
@@ -386,15 +412,15 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
   );
 
   /* ── Section renderer ── */
-  function renderSectionEditor(sectionId: string, sectionLabel: string) {
+  function renderSectionEditor(sectionId: string) {
     if (!content) return null;
 
     const sectionData = content[sectionId];
     const EditorComponent = getSectionEditor(pageKey as ContentPageKey, sectionId);
 
-    const props: Record<string, any> = {
+    const props: Record<string, unknown> = {
       data: sectionData ?? {},
-      onChange: (updated: any) => updateSection(sectionId, updated),
+      onChange: (updated: unknown) => updateSection(sectionId, updated),
     };
 
     if (sectionId === "seo") {
@@ -516,7 +542,7 @@ export function PageContentEditor({ pageKey }: PageContentEditorProps) {
                   title={section.label}
                   description={section.description}
                 >
-                  {renderSectionEditor(section.id, section.label)}
+                  {renderSectionEditor(section.id)}
                 </ContentEditorSection>
               )}
             </div>

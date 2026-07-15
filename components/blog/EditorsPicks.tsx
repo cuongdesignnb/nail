@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { BlogPostDTO } from "@/types/blog";
 import { motion } from "framer-motion";
+import { normalizeMediaUrl } from "@/lib/media/resolve-media";
 
 interface EditorsPicksProps {
   posts: BlogPostDTO[];
@@ -48,7 +49,7 @@ export function EditorsPicks({ posts }: EditorsPicksProps) {
                 EDITOR&apos;S PICK
               </span>
               <Image
-                src={post.coverImage || "/images/blog-editor-1.jpg"}
+                src={normalizeMediaUrl(post.coverImage) || "/images/blog-editor-1.jpg"}
                 alt={post.coverImageAlt || post.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 30vw"

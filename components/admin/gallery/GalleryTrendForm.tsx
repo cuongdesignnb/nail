@@ -261,10 +261,11 @@ export function GalleryTrendForm() {
           />
 
           <MediaPickerField
+            valueMode="url"
             label="Trend Image *"
             value={image}
             alt={imageAlt}
-            onChange={(url) => setImage(url)}
+            onChange={(url) => setImage(url || "")}
             onAltChange={(alt) => setImageAlt(alt)}
             folder="gallery"
             required
