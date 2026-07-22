@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { addMinutes } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 import { prisma } from "@/lib/db";
-import { sendBookingRequestReceivedEmail } from "@/lib/email/booking-mail.service";
+import { sendBookingCreatedEmails } from "@/lib/email/booking-mail.service";
 import type { BookingCustomerPayload, BookingPayload, QuoteSnapshot } from "./checkout.types";
 import { generateBookingCode } from "./checkout-finalizer";
 import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
@@ -396,8 +396,8 @@ export async function createManualBookingRequest(input: BookingPayload & { custo
     };
   }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
-  await sendBookingRequestReceivedEmail(result.booking.id).catch((error) => {
-    console.error("Booking request email failed:", error instanceof Error ? error.message : error);
+  await sendBookingCreatedEmails(result.booking.id).catch((error) => {
+    console.error("Booking request emails failed:", error instanceof Error ? error.message : error);
   });
 
   return result;

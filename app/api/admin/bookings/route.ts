@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireAdmin, authErrorResponse } from "@/lib/auth/require-admin";
+import { buildBookingCalendarRange } from "@/lib/bookings/calendar";
+import { getPublicSiteSettings } from "@/lib/settings/public-settings.service";
 
 export async function GET(req: NextRequest) {
   try { requireAdmin(); } catch (e) {
@@ -11,10 +14,42 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const search = searchParams.get("search") || "";
   const status = searchParams.get("status") || "";
+  const calendarWeek = searchParams.get("calendarWeek") || "";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
-  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50")));
+  const maximumLimit = calendarWeek ? 2000 : 100;
+  const limit = Math.min(maximumLimit, Math.max(1, parseInt(searchParams.get("limit") || (calendarWeek ? "2000" : "50"))));
 
-  const where: Record<string, unknown> = {};
+  const where: Prisma.BookingWhereInput = {};
+  let calendarMeta: {
+    timezone: string;
+    calendarWeekStart: string;
+    calendarWeekEnd: string;
+    businessHours: Awaited<ReturnType<typeof getPublicSiteSettings>>["businessHours"];
+  } | null = null;
+  if (calendarWeek) {
+    const settings = await getPublicSiteSettings();
+    try {
+      const range = buildBookingCalendarRange(calendarWeek, settings.timezone);
+      where.AND = [
+        { scheduledStartAt: { lt: range.toUtc } },
+        { scheduledEndAt: { gt: range.fromUtc } },
+      ];
+      calendarMeta = {
+        timezone: settings.timezone,
+        calendarWeekStart: range.weekStart,
+        calendarWeekEnd: range.weekEnd,
+        businessHours: settings.businessHours,
+      };
+    } catch (error) {
+      if (error instanceof Error && error.message === "INVALID_CALENDAR_WEEK") {
+        return NextResponse.json(
+          { success: false, error: "calendarWeek must be current or a valid YYYY-MM-DD date." },
+          { status: 400 },
+        );
+      }
+      throw error;
+    }
+  }
   if (status) where.status = status;
   if (search) {
     where.OR = [
@@ -39,7 +74,7 @@ export async function GET(req: NextRequest) {
           orderBy: { createdAt: "desc" },
         },
       },
-      orderBy: { scheduledStartAt: "desc" },
+      orderBy: { scheduledStartAt: calendarWeek ? "asc" : "desc" },
       skip: (page - 1) * limit,
       take: limit,
     }),
@@ -54,6 +89,7 @@ export async function GET(req: NextRequest) {
     services: b.items.map((item: any) => item.service?.name || "Unknown"),
     technician: b.technician?.name || "Any",
     scheduledStartAt: b.scheduledStartAt.toISOString(),
+    scheduledEndAt: b.scheduledEndAt.toISOString(),
     status: b.status,
     paymentStatus: b.paymentStatus,
     paymentProvider: b.payments[0]?.provider || "manual",
@@ -66,7 +102,17 @@ export async function GET(req: NextRequest) {
   }));
 
   return NextResponse.json(
-    { success: true, data, meta: { total, page, limit, pages: Math.ceil(total / limit) } },
+    {
+      success: true,
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+        ...(calendarMeta || {}),
+      },
+    },
     { headers: { "Cache-Control": "no-store" } }
   );
 }
